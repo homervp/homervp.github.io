@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Win32Api/GDI Tutorial #4 Basic Input and Event Handling</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a></p><p><a href="TutorialCentral.html">Tutorial index</a></p>
+</p>
+<p><strong>Win32Api/GDI Tutorial IV: Basic Input and Event Handling:</strong>
+</p>
+<p>Any and all interaction with a window is done through event handling. When anything happens, an event is dispatched and sent to the event queue, from where it is processed by applications. An application will wait for an event that is indended for it by default, however a game cannot afford to move only when the player does something, so the first thing we have to do is modify the event loop, or message loop. The code I present will be of Dev-C++, however the segments should be identical in Visual Studio, the only difference I have noticed as of yet is that Visual Studio also #includes StdAfx.h, and requires it.</p>
+<p>while (GetMessage (&amp;messages, NULL, 0, 0))<br />
+  {<br />
+&gt;&gt;/* Translate virtual-key messages into character messages */<br />&gt;&gt;TranslateMessage(&amp;messages);<br />&gt;&gt;/* Send message to WindowProcedure */<br />&gt;&gt;DispatchMessage(&amp;messages);<br />
+}</p>
+<p>This is the current loop, the one that waits for user input. The GetMessage() function works like getc(), getf(), scanf() or any other such function. Your solution is the PeekMessage() function, a function that peeks into the message queue but allows the program to continue running even if there is nothing in it. If you go to the MSDN page for PeekMessage(), the example of it's use is in another page, and is centered around examining queues, it's code is in some aspects better than using the WndProc, however I will offer you both of the codes:</p>
+<p>MSDN example loop:</p>
+<p><br />
+  HWND hwnd; <br />
+  BOOL fDone; <br />
+  MSG msg; <br />
+  <br />
+  // Begin the operation and continue until it is complete <br />
+  // or until the user clicks the mouse or presses a key. <br />
+  <br />
+  fDone = FALSE; <br />
+  while (!fDone) <br />
+  { <br />&gt;&gt;fDone = DoLengthyOperation(); // application-defined function <br />
+&gt;&gt;<br />&gt;&gt;// Remove any messages that may be in the queue. If the <br />&gt;&gt;// queue contains any mouse or keyboard <br />&gt;&gt;// messages, end the operation. <br />
+&gt;&gt;<br />&gt;&gt;while (PeekMessage(&amp;msg, hwnd,  0, 0, PM_REMOVE)) <br />&gt;&gt;{ <br />&gt;&gt;&gt;&gt;switch(msg.message) <br />&gt;&gt;&gt;&gt;{ <br />&gt;&gt;&gt;&gt;case WM_LBUTTONDOWN: <br />&gt;&gt;&gt;&gt;case WM_RBUTTONDOWN: <br />&gt;&gt;&gt;&gt;case WM_KEYDOWN: <br />&gt;&gt;&gt;&gt;// <br />&gt;&gt;&gt;&gt;// Perform any required cleanup. <br />&gt;&gt;&gt;&gt;// <br />&gt;&gt;&gt;&gt;fDone = TRUE; <br />&gt;&gt;&gt;&gt;} <br />&gt;&gt;} <br />
+}</p>
+<p>Replacing the first code block with this one will result in a program that defies WndProc and exits when you press any button, including mouse buttons. What you see is a loop checking the value of fDone, executes some code and in a second loop keeps checking the message loop, retrieving the messages to msg, looking for messages on account of the window with the handle hwnd, and eventually removing them upon interpreting. following that you have a switch with fall-through cases for left button clicks, right button clicks and keyboard clicks, which alledgedly does some cleanup and sets the exit condition (fDone) to TRUE.</p>
+<p>Now, to get a better understanding of the use of PeekMessage, I'll introduce you to it's declaration:</p>
+<p><br />
+  BOOL WINAPI PeekMessage(<br />
+&gt;&gt;_Out_     LPMSG lpMsg,<br />&gt;&gt;_In_opt_  HWND hWnd,<br />&gt;&gt;_In_      UINT wMsgFilterMin,<br />&gt;&gt;_In_      UINT wMsgFilterMax,<br />&gt;&gt;_In_      UINT wRemoveMsg<br />
+);</p>
+<p>It returns a boolean value, which means it will return TRUE if it finds a message fitting the requirements in the queue, FALSE if not. The parameters are an LPMSG structure to which it gives the message, LP stands for Long Parameter, MSG for MeSaGe. This is the object you inspect to interpret messages. Following is a window handle, optional. If you specify a window the function will only retrieve messages for the particular window, otherwise it will retrieve anything it finds that is not already handled by the system - you can't override that. The two following UINT (Unsigned INTeger) parameters are the min and max values it retrieves. If you set these it will only check messages inbetween these two values. Messages have an integer value, essentially the WM_KEYDOWN and the other keywords you use are #defined as these values for ease, a practice I am applying in my second game, but with integers and their names. If these two values are set to 0 everything passes the filter.The last parameter is a &quot;flag&quot; as we call it, for what messages are removed. The basic flag you use is PM_REMOVE, which removes any messages processed You can also try PM_NOREMOVE, and see how it is like keeping the same button pressed as it is always in the message queue and never removed.</p>
+<p>Now we can move to a more improvised version. Once again place an exit variable of type bool in the While loop's condition, declare it above as TRUE. Within the loop place an if statement, the condition being PeekMessage(msg), as parameters declare and pass the MSG variable created by the IDE, the corresponding window handle, and leave the rest empty, NULL or 0 that is, and PM_NOREMOVE for the last one. Move the two commands, TranslateMessage() and DispatchMessage() within the if statement. What we did is this: We let the loop run continuously, allowing for AI to run properly, and inside the loop we peek at the message queue, and if we find something we process it (TranslateMessage()) and then delete it(DispatchMessage()). If we had place PM_REMOVE in  PeekMessage() it would remove the message before it could be processed.</p>
+<p>We now have, with the one method or the other, a program that will continuously run regardless of whether you interact or not. Let's see what can we do so you can actually interract then, shall we?</p>
+<p>If you go down to your message processing function, you will see in the case WM_DESTROY (a destroy message is sent to the application) a PostQuitMessage() function. This does some magic for us, so let's try and use it. The message ID for keyboard input is WM_KEYDOWN, add a case (with the corresponding break; statement) for WM_KEYDOWN, and add PostQuitMessage(). Compile and run, then press any key, it should exit.</p>
+<p>Now of course that is rather dull, having everything leading to quitting. Let's get more specific, the MSG structure has a number of components, an LPARAM (Long PARAMeter), a WPARAM (Word PARAMeter, a parameter with the legth of a word), and some more info is coded into it, depending to the message type. Now you can use a switch with your message.WPARAM to find out what kind of key was pressed. The easiest ones to check are keys like escape, control, etc. You check them with Virtual Key codes, such as VK_ESC, VK_LCTRL and other, for a complete list, check <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/dd375731%28v=vs.85%29.aspx">MSDN's page</a>. I would suggest you put it for escape. With VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN you check the arrown keys, so you can put in their respective cases code to change the coordinates of something - i.e, to make something move as you want it to! Try it out, use your knowledge from the previous tutorial to display a word and move it with keyboard input.</p>
+<p>I will write a separate tutorial on how to make game rules etc, but you can try applying conditions to your program, so that if the text get into a certain area something happens - perhaps some other text is displayed. You can go further, making this a hide-and-seek game, the text being the number of times you found the area which is randomly generated. In general you have the ability to make lots of functionallity, it's all up to you.</p>
+<p>In the next tutorial I will talk about time and timing, how to time events and other things, essential to making a game that runs with equal speed an all computers, that has realistically timed animations, and has consistent gameplay and appearance independent of the machine specs. After that I will teach you how to draw opaque bitmaps, and I will build on from there.</p>
+</body>
+</html>

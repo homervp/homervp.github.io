@@ -1,0 +1,184 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>DirectX 3: Buttons and UI</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>DirectX tutorial 3: Organizing data and creating UI  components</p>
+<p>            So far we  saw how to initialize Direct3D and set up the project for displaying an image.  In this tutorial we will see a way to wrap our image and the data associated  with it in an object, and we will to that by creating the UI component class,  since most the 2D items drawn will typically be UI elements. The tutorials aim  for 3D games, and in the next tutorials we will start touching 3D.</p>
+<p>            Before we  start: you will have noticed by now that the program does not completely exit.  This is because we have an infinite loop, that even though the window has been  destroyed, is still running. To fix that, we declare a global bool isRunning  and set it to true, and down in the message handler, in IDM_EXIT and WM_DESTROY  case we add the command to turn it to false. Finally, we place the variable in  the while(..) loop&rsquo;s condition. This should fix it entirely.</p>
+<p>            Now, to  begin with, a class to encapsulate 2D images should contain their coordinates  and size, essentially the RECT struct we saw in the previous tutorial. This is  used not only to draw the image, but to check if the user has clicked on it.  After that we will have to add some functionality to it, this is best done with  a delegate, implemented here as a function pointer. Since some UI elements do  not act, and are in fact decorative or informative, we will also need a boolean  variable to indicate whether or not this element does something, i.e. if the  pointer points to anything.</p>
+<p>            Essentially  we have written this code before, now we just have to see how se can isolate  it. Here is the class code, note that I used the Add-&gt;Class option from the  project&rsquo;s context menu, which just created the .h and .cpp files and the very  basic declarations, so generally most of the code is mine:</p>
+<p>UIcomponent.h:</p>
+<p>#pragma once<br />
+  #include &lt;d3d9.h&gt;<br />
+  #include &lt;d3dx9.h&gt;<br />
+  #include &lt;d3dx9tex.h&gt;<br />
+  #include &lt;iostream&gt;</p>
+<p>using namespace std;</p>
+<p>#pragma once<br />
+  class UIcomponent<br />
+  {<br />
+  public:<br />
+  bool  hasAction;<br />
+  IDirect3DSurface9  *surface;<br />
+  IDirect3DDevice9  *device;<br />
+  RECT rect;</p>
+<p>            UIcomponent*  next;</p>
+<p>            void  render(void);</p>
+<p>            UIcomponent(void);</p>
+<p>            UIcomponent(string  path, int x, int y, int w, int h, IDirect3DDevice9 *device);</p>
+<p>            ~UIcomponent(void);<br />
+  };</p>
+<p>&nbsp;</p>
+<p>As we have seen in the past, &ldquo;#pragma once&rdquo; indicates that  the following should be declared only once, and thus saves us from  redeclaration of #include statements. After that we include anything we  included previously. There is a stray #pragma once, it does not affect the  code. Inside the class declaration we have a boolean that shows if we have a  function associated with the delegate we&rsquo;ll make (not here yet), the surface  where we&rsquo;ll store the image, the DirectX device, the rectangle where the image  is rendered (used both for rendering and associating a click with it), a  pointer to another component (we&rsquo;ll make a linked list to store all components  in a dynamic way), and two constructors, as well as the render function. Let&rsquo;s  take a look at those two, as they exist in UIcomponent.cpp:</p>
+<p>UIcomponent::UIcomponent(string path, int x, int y, int w,  int h, IDirect3DDevice9 *device)<br />
+  {<br />
+  this-&gt;device  = device;<br />
+  RECT rect;<br />
+  rect.top =  y;<br />
+  rect.left =  x;<br />
+  rect.right  = x+w;<br />
+  rect.bottom  = y+h;<br />
+  this-&gt;rect  = rect;<br />
+  this-&gt;surface  = LoadSurfaceFromFile(path);<br />
+  next =  NULL;<br />
+  }</p>
+<p>The code is fairly straightforward, and I generally just  added things as I saw that I needed them when the program crashed. Of course  the device has to be assigned, that is obvious. Then you set the RECT where the  image is to be drawn, I created a new one and then set the actual RECT&rsquo;s value  to that. I could work with the original RECT&rsquo;s value (of course that also  depends on the compiler), but this is more standard as an approach. In the .cpp  file I declare LoadSurfaceFromFile(string) using the extern keyword, so I use  from the other file to create the surface, sparing me the effort of rewriting  it. Finally you have to set next to NULL, which is a flat zero. The default  value next gets is 0xffffffff or similar, which just leads to access violation.</p>
+<p>void UIcomponent::render(void)<br />
+  {<br />
+  {<br />
+  static  IDirect3DSurface9* backBuffer;<br />
+  device-&gt;GetBackBuffer(0,NULL,  D3DBACKBUFFER_TYPE_MONO, &amp;backBuffer);<br />
+  if(NULL  == device)<br />
+  {<br />
+  return;<br />
+  }</p>
+<p>                        device-&gt;StretchRect(surface,  NULL, backBuffer, &amp;rect, D3DTEXF_NONE);</p>
+<p>            }<br />
+  }</p>
+<p>The rendering function has the code essentially copy-pasted,  I will not go through it, just don&rsquo;t forget to change the variable names.</p>
+<p>In the .cpp file I have also copied the headers used in the  other files, again, #pragma once comes to the rescue.</p>
+<p>Now, in the D3DLoader.h file. Notice how in this tutorial  the only touch we added to the main file is the refinement of the code for  exiting, which means just a line of code that has nothing to do with our  overall work! The target is to move our additions as far as possible from the  core code, which means we will try to make it so we don&rsquo;t have to do much more  than declarations when we add something. Let&rsquo;s see the changes made to  D3DLoader then:</p>
+<p>First of all, we have to #include UIcomponent.h, so our new  class is visible.\</p>
+<p>After that I declare a pointer to such a component, which I  name firstComponent:<br />
+  UIcomponent* firstComponent;</p>
+<p>After that one, I create a new void function called  RenderUI(). This one uses the linked list to display the elements. By modifying  it, you can create a function to render units, which will use perhaps a more  suitable data structure. In any case, the essence remains the same:</p>
+<p>&nbsp;</p>
+<p>void RenderUI()<br />
+  {<br />
+  if(firstComponent  == NULL)<br />
+  {<br />
+  return;<br />
+  }<br />
+  UIcomponent*  ui = firstComponent;<br />
+  renderUI:<br />
+  ui-&gt;render();<br />
+  if(ui-&gt;next  != NULL)<br />
+  {<br />
+  ui  = ui-&gt;next;<br />
+  goto  renderUI;<br />
+  }</p>
+<p>}</p>
+<p>So we check if there are any components whatsoever, if so,  we start with the first one, using a pointer to the one we are currently  working on. Note that a similar function will check which component we clicked.  I have used GOTO, which usually causes panic among the masses of programmers  who blindly believe what they are told. I use it to create a primitive loop,  the translation in socially acceptable code would be:<br />
+  <br />
+  ui-&gt;render();<br />
+  while(ui-&gt;next != NULL)<br />
+  {<br />
+  ui = ui-&gt;next;<br />
+  ui-&gt;render();<br />
+  }</p>
+<p>My choice of using GOTO is purely to suit my own way of  thought. What I though was: Render the component. Is there another one? Point  to that one and repeat. The While() trail of thought is: render the first one,  while there is a next one, point to the next one and render it. It&rsquo;s very  slight in the difference of thought, choose whichever you wish, but know that  they perform and act in an absolutely identical fashion.</p>
+<p>Now we have to declare our first component, which I  naturally do in initPostD3D(). I did not remove the previous initialization, it  simply matters too little. The declaration is straightforward, I give it the  parameters I want, so that I replicate the previous effect.</p>
+<p>Finally in render(), I replace the StrechRect(..) function  with RenderUI(). Thus all UI is rendered with a single function call, and we  need not worry about that any longer.</p>
+<p>This covers the part of organizing renderable objects. Now  to add functionality. We will be adding an exit button. To do that, we will add  a function pointer to the class, a function that will assign a function to the  pointer, and finally a function to figure out if we clicked the element and  thus calls or does not call the function assigned to it.</p>
+<p>To begin with, the function we will assign our exit button  is simple:</p>
+<p>static void exit() //only one instance needed<br />
+  {<br />
+  isRunning = false;<br />
+  }</p>
+<p>And this we will write in the  UIcomponent.h as void *function(). Don&rsquo;t forget to declare isRunning as en  external variable.</p>
+<p>The function pointer is defined in  the header. Note that you have to write it (*functionName)(void), requiring the  parentheses.</p>
+<p>The function to assign the function  to the function pointer (try saying that fast!) is declared in the header and  defined in the code file:</p>
+<p>void assignFunction (void function())<br />
+  {<br />
+  this-&gt;hasAction = true;<br />
+  this-&gt;function = function;<br />
+  }</p>
+<p>So far so good. Now the tricky  part, checking if we should execute it. Now we go back to UIcomponent.h and  write our new functions:</p>
+<p>void UIrespond(UIcomponent *e, int x, int y)<br />
+  {<br />
+  if(isInRect(e, x, y)&amp;&amp; (e-&gt;hasAction))<br />
+  {<br />
+  e-&gt;function();<br />
+  }<br />
+  else<br />
+  {<br />
+  if(e-&gt;next != NULL)<br />
+  {<br />
+  return UIrespond(e-&gt;next,  x, y);<br />
+  }<br />
+  else<br />
+  {<br />
+  return;<br />
+  }<br />
+  <br />
+  }</p>
+<p>bool isInRect(UIcomponent *e, int y)<br />
+  {<br />
+  if(x &lt; e-&gt;rect.right  &amp;&amp; x &gt; e-&gt;rect.left &amp;&amp; y &lt; e-&gt;rect.bottom  &amp;&amp; y &gt; e-&gt;rect.top)<br />
+  {<br />
+  return true;<br />
+  }<br />
+  return  false;<br />
+  }</p>
+<p>Ok, so let&rsquo;s take a look at this code. First of all, we  outsourced the check which concerns whether or not we clicked on the button to  the second function. Keep in mind that the 0 of the Y axis is the top of the  screen (otherwise the comparisons don&rsquo;t make much sense). The function is  really simple, nothing further to add. The function we&rsquo;ll be calling when the  mouse is clicked, which is the first function, is also simple. I recursively go  through the list of UI elements. We&rsquo;ll pass it the first element, and it will  call itself for each subsequent element. If it finds a matching RECT, or if it  runs out of elements, it returns zero. <strong>Take  note: </strong>the function I wrote second has to be declared or defined before the  fist one, otherwise it is not visible.<br />
+  As we have gone deeper down with the recursion, the result  is propagated back to the original call. Finally we need to get this called  through our message processing function, otherwise there is no point to this.  But first, since we handle stuff through the D3DLoad.h, we must make one final  function:</p>
+<p>void handleMouse(int x, int y)<br />
+  {<br />
+  UIrespond(firstElement, x, y);<br />
+  }</p>
+<p>And now the magic moment, go to the  message handler and add above WM_PAINT another case, WM_LBUTTONDOWN, which  handles the left button press. Under that, you declare an object of the POINT  structure, and you give it to GetCursorPos(&amp;POINT) but you also first  remove the offset created by the window, and take into account the stretching  that has occurred:</p>
+<p>&nbsp;</p>
+<p>            case  WM_LBUTTONDOWN:<br />
+  {<br />
+  POINT p;<br />
+  GetCursorPos(&amp;p);<br />
+  RECT  w;<br />
+  GetWindowRect(hWnd,  &amp;w);<br />
+  int  x = (p.x - w.left)*(float)((float)xRes/(w.right - w.left));<br />
+  int  y =(p.y - w.top - 50)*(float)((float)yRes/(w.bottom-w.top));<br />
+  handleMouse(x  , y);<br />
+  break;<br />
+  }<br />
+  Let&rsquo;s take a short look at the math  in here, it&rsquo;s real simple. We get the window rectangle, subtracting the left  from the right gives us the width, similarly we can get the height. We divide  the resolution DirectX is rendering to, by the one of the actual window, and  multiply that times the pixels, after of course having taken into consideration  the displacement of the window.<br />
+  This concludes the part that  handles the click. One last thing we did not take care of (I promise, we&rsquo;re  finishing, after all you&rsquo;ll notice that the scrollbar to the right is not  expanding so this is not a joke), is a good, stable way to add components. We  will essentially create a new component, assign the current firstCompnent to  the next value of the new one, and then make the new on the firstComponent. We  essentially expand the linked list by adding in the front.</p>
+<p>&nbsp;</p>
+<p>void addUIcomponent(UIcomponent *e)<br />
+  {<br />
+  e-&gt;next = firstComponent;<br />
+  firstComponent = e;<br />
+  }</p>
+<p>And finally (I promise, it&rsquo;s the  last one) we add the new UI component. We will in fact add this one first,  assign the function, and then add the background. The system we&rsquo;ve built works  like a stack, which means that it will start with the last one added. Thus the  code in initPostD3D() is:</p>
+<p>void initPostD3D()<br />
+  {<br />
+  backgroundSurface  = LoadSurfaceFromFile(&quot;C:\\MicrosoftDirectX.JPG&quot;);<br />
+  firstComponent  = new  UIcomponent(&quot;C:\\directx-logo.jpg&quot;,xRes-100,0,100,100,pd3dDevice);<br />
+  firstComponent-&gt;assignFunction(exit);<br />
+  addUIcomponent(new  UIcomponent(&quot;C:\\MicrosoftDirectX.JPG&quot;,0,0,xRes,yRes,pd3dDevice));<br />
+  }</p>
+<p>            Notice how  we defined our new function to take a pointer to a component, the new keyword  actually gives a pointer. Other than that, everything is clear I believe. Now  if you build and run the project, you should have the clickable button that  exits.<br />
+  Any further  buttons you add will be by using the two last commands. The higher up you add  them, the further front they appear.</p>
+<p><strong>            Handling multiple layers</strong>:  Probably the best way to work with having a background behind everything and  having the UI above everything, is to create a new pointer to a UIcomponent and  render it separately before everything else, and then render the rest of the UI  after the models or the gameplay images.</p>
+<p>            The next  tutorials will cover the basics of rendering 3D models. At first we will create  some very basic models in our code, later on we will import models from files,  as creating all our models in code is ridiculous as a notion for a modern day  project. It probably was so even for the very first 3D games.|<br />
+  <br />
+  You can download this  tutorial&rsquo;s source and project files <a href="DirectX9Tutorial3.rar">here</a>.</p>
+<p>Note that naming of the projects may remain the same, regardless, the .rar file has the right name.</p>
+</body>
+</html>

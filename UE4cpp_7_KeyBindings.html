@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>UE4 tutorial 6 - Mouse Selection</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" alt="home" name="home" width="494" height="68" id="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p><strong>Unreal Engine 4: Tutorial 7 - Mouse Selection</strong></p>
+<p>So we figured out what is under our cursor or what we're looking at, now let's put that knowledge to use by adding key bindings.</p>
+<p>To add the binding itself, go to the editor, click Edit-&gt;Project Settings, and from the left panel, in the second category click on Input. The screen you see to the right displays the Action and Axis bindings. Action bindings concern one-off events, including keystrokes, mouse clicks and such input, while Axis bindings concern continuous events. Axis bidnings are better thought of as those concerning movement or other input that is representable with joysticks and other analog input devices, and can have intermediate values. Note however that the movement keys are in the Axis bindings with a weight of 1, since you need the continuous nature of the movement. It's just like having a joystick which can either be all the way to one direction or not at all.</p>
+<p>To add a binding to the list, click on the + next to the appropriate list. You may want to expand the list to see that the binding does not already exist, or that the name or key you had in mind is already taken. Combinations with Ctrl, Alt, Shift etc are availlable as checkboxes on those keys. The name you give here, will later be used as a string to tell the engine to which action you want to bind which function, so keep the panel open or remember the names you used.</p>
+<p>To bind the action to some function, go into your character's code, and in the SetupPlayerInputComponent() function, add the command:</p>
+<table width="1629" height="40" border="1">
+  <tr>
+    <td height="34"><p>InputComponent-&gt;BindAction(&quot;Use&quot;, IE_Pressed, this, &amp;AMyProjectCharacter::Use);</p></td>
+  </tr>
+</table>
+<p>In this case, I bound the &quot;Use&quot; action to the Use() function of my character. Note that the function is a void, as it is called by the engine and thus you would anyway not be able to retrieve the return value.</p>
+<p>Now, that's pretty much it, but to make a more appropriate demonstration, let's set the Use function to trigger the OnUsed funtion of the usable actors we earlier created. Create each of the functions just mentioned in their C++ files. The OnUsed function may consist of a single line if we want to destroy the actor (it's always a handy functionality to test if things work):</p>
+<table width="1629" height="40" border="1">
+  <tr>
+    <td height="34"><p>this-&gt;Destroy();</p></td>
+  </tr>
+</table>
+<p>The Use() function is also simple, we check if we have an actor in focus and we call it's OnUsed() function:</p>
+<table width="1629" height="40" border="1">
+  <tr>
+    <td height="34"><p><br />
+if (FocusedActor)<br />
+{<br />
+FocusedActor-&gt;OnUsed(this);<br />
+}</p></td>
+  </tr>
+</table>
+<p>And that's it!</p>
+<p><strong>Note:</strong> you may have to correct functions that were earlier declared but didn't implement right away. This may refer to arguments or the return value, a single asterisk (*) is easy to miss when declaring but will still cause you the error when you try to implement the function.</p>
+<p>Now, I promised we'd also toggle the mouse. To do that, first declare a boolean bMouse, or something similar, in the header, to store whether the mouse is or is not active. Since our character has access to a Controller, it asumes control by a Pawn or higher, but it's imediate reach is to the properties of the AI controllers. AI has no need of a mouse though, so you will have to #include &quot;GameFramework/PlayerController.h&quot; so you can cast the controller to a player controller. Once that is included, add the funcion (declare in the header and implement in C++) ToggleMouse():</p>
+<table width="1629" height="40" border="1">
+  <tr>
+    <td height="34"><p>void AMyProjectCharacter::ToggleMouse()<br />
+      {<br />
+bMouse = !bMouse;<br />
+((APlayerController*)Controller)-&gt;bShowMouseCursor = bMouse;<br />
+}</p></td>
+  </tr>
+</table>
+<p>This sets the mouse to enabled or disabled, using the same variable we used earlier.</p>
+<p>Excercise:<br />
+  1) bind ToggleMouse() to a key of your choice. Alt may or may not be that key, I find it convenient.<br />
+  2)
+make sure the code of tutorials 5 and 6 are both there, then separate them with an if-else clause, checking against bMouse to see if the player's controll shouldbe handled by the code detecting what we are looking at, or what we are pointing at.</p>
+</body>
+</html>

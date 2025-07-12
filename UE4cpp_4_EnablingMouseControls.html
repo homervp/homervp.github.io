@@ -1,0 +1,43 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>UE4 tutorial 4 - Enabling Mouse controls</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" alt="home" name="home" width="494" height="68" id="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p><strong>Unreal Engine 4: Tutorial 4 - Enabling Mouse controls</strong></p>
+<p>So far we have spawned static items, and you could actually improvise with vehicles at this point, though ground vehicles and even some air vehicles are already there as templates. But before we get into something like that, which doubtlessly seems a bit daring, let's look at something simpler as a future target: let's just try to pick these items up, since we started off calling them pickups.</p>
+<p>Now, this will not be done in one big step, we have the luxury of breaking it down into smaller steps, not too many though, don't worry. The first step will be to enable mouse control. This will allow us to work both in first and third person, and even in other game types, such as strategy.</p>
+<p>This is further separated in two steps, the first step is to enable the mouse in the player's controller, to do that you will have to create a new class that extends from PlayerController, which in turn extends from Controller, if you cannot see that in the standard view, there is an option to display all classes, it should be on the upper-right side of the panel.</p>
+<p>Upon naming and creating the component, in the .h file, declare a constructor for the class if it is not already there and then navigate to the .cpp file. There, add the following code:</p>
+<table width="1629" height="48" border="1">
+  <tr>
+    <td height="42"><p><br />
+    bShowMouseCursor = true;</p></td>
+  </tr>
+</table>
+<p>It's simple as that. Remember, it may take a while for VS to parse all the headers (swmewhere around 9000). Note that you can also change this during gameplay, thus you could enable the mouse with Alt, as is fairly common in some RPGs and MMOs.</p>
+<p>Now on to phase 2! You have to specify that this new controller is the one the player uses, and to keep things simple, you just make it the default controller. This way any player entering the game automatically uses this controller. Note that you can set a custom controller depending on player's choices, or even change it on the fly, regardless of the default controller. Note that though not strictly (the name does not indicate that) the default controller, this is the one that will be set upon starting the game.</p>
+<p>There is (logically) already a GameMode class (maybe not with that exact name, but something similar) in the project. If not, make one, but I don't think it's likely. Open that file up and add this code:</p>
+<table width="1629" height="120" border="1">
+  <tr>
+    <td height="114"><p><br />
+    #include &quot;MousePlayerController.h&quot;<br />
+    </p>
+      <p>[.......] <br />
+        <br />
+        //in the constructor:
+        <br />
+    PlayerControllerClass = AMousePlayerController::StaticClass();</p></td>
+  </tr>
+</table>
+<p>Note how you have to include the header so the game knows about the controller. Then note that you use a static version of the controller's class to select the class. This may come in handy later if you have to make a selection from various classes, it's a handy way to store the type but not an instance. If there is no constructor yet, just make one.</p>
+<p>Logically you should be able to see the effect the moment the compilation completes.</p>
+<p><strong>The final effect:</strong> You have to click or right-click and keep it pressed so you can change direction. This is the precise functionality the player has in the Star Wars: Knights of the Old Republic games, as well as some other RPGs, but it may not be that comfortable straight away, so you can toggle mouse functionality with the press of a button (key bindings are not strictly code-related so they will be a side-lesson).</p>
+</body>
+</html>

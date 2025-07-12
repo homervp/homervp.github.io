@@ -1,0 +1,19 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>LexYacc_0</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p><strong>Lex, Yacc, Flex and Bison: intro and setting up on Windows:</strong></p>
+<p>First off, <strong>Lex vs Flex</strong> and <strong>Yacc vs Bison</strong>. Can you see the similarity? The F in Flex stands for Fast. Lex on its own stands for <strong>Lexer</strong>. Yacc does not stand for anything in particular, but if you realise that there's an animal out there called a yacc, you'll see that Bison does have some similarity (they are pretty much the same species). Those last two are <strong>Parsers</strong>. Or rather they <strong>generate</strong> parsers. The second pair is an &quot;evolution&quot; of the first, but the syntax of the first pair is mostly the same as that of the second, in fact I completed a project in Flex and Bison by reading a book on Lex and Yacc (Lex &amp; Yaxx, John R. Levine, Tony Mason, Doug Brown, O'reilly publishing), which did reference the differences between the two pairs, so no, the first are not outdated, rather a matter of taste.</p>
+<p>We use these sets of tools to create the foundations of a compiler. A lexer is a component that detects individual words and <strong>tokenizes</strong> them, that is, it turns them into tokes, which are pretty much just numbers that indicate their function. I won't get into the details, but you will pretty much be #defining constants for the different words to give.</p>
+<p>A parser, or syntax analyzer, is a tool that takes tokens and, by observing the order in which they come, figures out how they're supposed to interract. And no, figures out is not too innacurate, because you can make a language with ambiguity, in which case you pray the parser will figure out what you were trying to do.</p>
+<p>So, <strong>what will we accomplish</strong>? We won't be making an entire compiler in this series, we will only recognize what is being done. Isn't that all we need? No. Compilers substitute code with other code. So before you make a compiler, you'll have to read up some assembly for the system you use (at the time of this writing, some windows assembly is planned but not yet uploaded). You could, however, try to compile from your language to C, which should be easy enough..</p>
+</body>
+</html>

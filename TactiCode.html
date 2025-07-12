@@ -1,0 +1,33 @@
+﻿<!DOCTYPE html>
+<html>
+
+
+<head>
+	<link rel="stylesheet" type="text/css" href="mainStyle.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Homer Papadatos-Vasilakis</title>
+</head>
+<body>
+<script src="commonHeader.js"></script>
+
+<!--object type="text/html" data="global.html" width="100%" style="position:fixed; top:0; color:gray; height:50px;"></object>
+<object type="text/html" data="global.html" width="100%" style="height:50px;"></object-->
+
+<div class="container-fluid">
+  <h1>TactiCode</h1>
+  <h2>Program your units control to outwit the enemy's in a modern military simulation</h2>
+  <p>TactiCode is a "game" or simulation where instead of giving direct orders, the participants write code that controls the sensors, weapons and movements of the units.
+  Available commands include setting the speed and desired heading, firing a weapon (assuming it has reloaded), rotating a sensor, and broadcasting a message. Each unit has no knowledge
+  of the position or status of allied and enemy units, and relies on sensors detecting the world around them and on radio broadcasts. When a sensor detects a unit it triggers an
+  event on the unit that owns it, the event handler written by the player is the executed, determining the unit's reaction.</p>
+  
+  <p>Tacticode is designed to support multiple units on each side, and an arbitrary number of sides,
+  with realistic sensor and weapon behavior and fog of war. Sensors have limited range, radar reflections diminish with 
+  distance and depend on the angle of incidence, and multiple reflections sufficiently close together may be presented as a single reflection, allowing for chaff or decoys to be deployed.
+  Similarly heat sensors can be saturated by flares. Messages broadcast can be intercepted by the enemy, so it is up to the user to define conventions and protocols for conveying information
+  without revealing it to the enemy, although it is also up to the enemy to implement algorithms to guess what his opponent's signals mean.</p>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>DirectX 2: Rendering Sprites</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>DirectX tutorial 2: Displaying sprites</p>
+<p>&nbsp;</p>
+<p>            In this  tutorial we will be displaying sprites. Sprites are still images, pictures if  you will. However the term refers to an image that may or may not be composed  of multiple images evenly and distinctly placed within the image, which are  typically individual frames of an animation. Another use of a sprite is to  store, for example, all the terrain types in one image, and then you can render  the most appropriate one.</p>
+<p>            To handle  sprites in DirectX you need to load them to a surface. Surfaces are like sheets  of paper, they store image information, or simple put, an image. The images are  copied between surfaces and the back buffer, which itself is a surface.</p>
+<p>            Though we  can directly load a surface from a file, we will make a function that will wrap  the process and prevent crashed by checking if it succeeded. By this time it is  also a good idea to create our own header and place all the functions in there,  the header I&rsquo;ll call D3DLoader.h, due to it&rsquo;s content. Move the declarations of  the DirectX object and the device, along with the function declarations to our  new header. Add the #include instruction below the #include instruction for  &lt;d3d9.h&gt;. Alternatively, to be independent of order, you can write  &ldquo;pragma once&rdquo; (without the quotes) and also include &lt;d3d9.h&gt; in the new  header.</p>
+<p><strong>            One more dependency (or two): </strong>to  use some of the structs for the surface you will need to #include  &lt;d3dx9.h&gt;, and to make it visible you will again have to go to  project-&gt;properties-&gt;C/C++-&gt;General and add to the Additional Include  Libraries the path &ldquo;:\Program Files %28x86%29\Microsoft DirectX SDK %28June  2010%29\Include&rdquo; . As always, if you detect that something is different, fix it  appropriately, for example if it is not the June 2010 sdk, put the right  version. Do the same with the Additional Library Directories under  Linker-&gt;General, only instead of \Include, replace it with \Lib\86, and if  you are running a 64bit Windows version, create a second entry ending in  \Lib\64. Finally, under Visual C++-&gt;Additional Library Directories, add an  entry &ldquo;C:\Program Files %28x86%29\Microsoft DirectX SDK %28June  2010%29\Developer Runtime\x64&rdquo;.</p>
+<p>            <strong>ATTENTION: </strong>make sure your Platform  (show at the top of the properties window and the editor itself) is corresponding  to your machine, i.e. 64 bit windows should build in x64. If x64 is not  available in the list, select <strong>new</strong> and create it (it is straightforward). In the properties window you may need to  use the Configuration Manager, it&rsquo;s the same process after that.</p>
+<p>            Now that we  have a functional header to contain our data, we can write our  LoadSurfaceFromFile() function:</p>
+<p>IDirect3DSurface9* LoadSurfaceFromFile(string FileName) <br />
+  //#include &lt;iostream&gt; and also add the &ldquo;using  namespace std&rdquo; instruction at the top <br />
+  //of the file, so you can use strings<br />
+  {<br />
+  HRESULT hResult;<br />
+  IDirect3DSurface9* surface = NULL;<br />
+  D3DXIMAGE_INFO imageInfo;<br />
+  wstring  ws(FileName.begin(), FileName.end()); //we  may need an LPCWSTR<br />
+  hResult =  D3DXGetImageInfoFromFile(str, &amp;ImageInfo);<br />
+  if(FAILED(hResult))<br />
+  {<br />
+  return NULL;<br />
+  }<br />
+  hResult =  pd3dDevice-&gt;CreateOffscreenPlainSurface(imageInfo.Width,<br />
+  imageInfo.Height,<br />
+  D3DFMT_X8R8G8B8,<br />
+  D3DPOOL_DEFAULT,<br />
+  &amp;surface,<br />
+  NULL)<br />
+  If(FAILED(hResult))<br />
+  {<br />
+  return  NULL;<br />
+  }</p>
+<p>            hResult =  D3DXLoadSurfaceFromFile(surface, NULL, NULL, str, NULL, D3DX_DEFAULT, 0, NULL);</p>
+<p>if(FAILED(hResult))<br />
+  {<br />
+  return NULL;<br />
+  }<br />
+  <br />
+  return  surface;<br />
+  }</p>
+<p>            Notice how  an HRESULT is used throughout the code. This stores information on the success  of the operations, and is a Win32 type, it could be substituted by a bool, but  on the one hand the functions return HRESULT, on the other it keeps some more  information.<br />
+  I also  create a WSTRING, which is a Wide character STRING. Though the code should work  fine, if you receive compiler errors about str, try using ws instead, or  ws.str(). I just added it so you have it ready.<br />
+  Next, as is  apparent, we get the image information. As you see a bit further below, it  stores info such as the width and height of the image. We use the HRESULT to  see if we successfully got the info.<br />
+  Now we  create the actual surface. We give it the width of the image, the height, we  set the format to XRGB, as we did in the previous tutorial for the DirectX  object, the next parameter is the color pool, which we just use the default  one, we give it the address where it should store the surface, and the last  parameter is a handle, which is a reserved parameter which remains NULL.<br />
+  Again we  check if that failed, and if not, we load the image to the surface. As per  usual, the NULL parameters refer to which part to load, masks, and so on. We  just use their default values. With respect to the order of the parameters, we  pass the surface, the color palette (8, 16 or 32 bit) to be used, the area  where the picture is to be loaded, the source file, the area of the picture to  be loaded, the filter to be used, and a color key (used by any filter we apply,  here we do not apply any).<br />
+  After a  final check, we return the surface.</p>
+<p>            In this  tutorial we will render a background image (I have included a high-res logo of  DirectX in the project file). To render it though, we need a RECT to tell  DirectX where we want it rendered. Along with that, we&rsquo;ll do some good  programming practice and add a couple more things to D3DLoader.h. First, add  two integers, xRes and yRes, and a RECT backgroundRect. Make sure you set xRes  and yRes to have the default values you want. Then add the following code: </p>
+<p>void initGlobalVars()<br />
+  {<br />
+  backgroundRect.top  = 0;<br />
+  backgroundRect.bottom  = yRes;<br />
+  backgroundRect.left  = 0;<br />
+  backgroundRect.right  = xRes;<br />
+  }</p>
+<p>void initGlobalVars(int x, int y)<br />
+  {<br />
+  xRes = x;<br />
+  yRes = y;<br />
+  initGlobalVars();<br />
+  }</p>
+<p>We will call either one of these  functions, both the window resolution and the back buffer&rsquo;s are set so it&rsquo;s up  to date. Of course, to change resolution during runtime will also require a  little more code, but for now we&rsquo;re satisfied that we can&rsquo;t mess up.<br />
+  Now would also be a good time to go  into initDirect3D() and change the numbers we used for our resolution to the  variables we just declared, this way they&rsquo;re consistent and we can use the  variables anywhere we refer to resolution. Also call initGlobalVars() right  before the call to initDirect3D().</p>
+<p>Now that we have the rectangle set  up, we declare a surface:</p>
+<p>IDirect3DSurface9*  backgroundSurface;</p>
+<p>For now we will load it in yet  another function initPostD3D(), but future surfaces and content will be loaded  with more tidy methods. We need to add another function because we need to  already have the Direct3D object to load a surface. To load the image use the  function we wrote above:</p>
+<p>backgroundSurface =  LoadSurfaceFromFile(&ldquo;C:\\MicrosoftDirectX.JPG&rdquo;);</p>
+<p>Note that I gave the path  explicitly. Though Visual Studio should handle the path finding part, do not  rely on it. Sometimes it works for me, sometimes it doesn&rsquo;t, if not, just  create a folder in a convenient place and use absolute paths. Also be wary of  upper or lowercase letters, including those in the extension, you never know  what might be wrong.<br />
+  Now go into render(). Remember how  I said that between the Clear(..) and Present(..) commands you put all the  rendering code? Time to do that! We use the method StretchRect(..) to do that,  which also does the scaling for us:</p>
+<p>pd3dDevoce-&gt;StretchRect(backgroundSurface,  NULL, backBuffer, &amp;backgroundRect, D3DTEXF_NONE);</p>
+<p>And the parameters are, with  respect to the order: surface to copy, region to copy (NULL so that we copy the  entire surface), surface to copy to, region to copy to (this time explicit so  the image does not pour our of the screen or does not leave any gaps), and  finally, the effect we want to apply, which, in this case, we don&rsquo;t.</p>
+<p>Finally, this tutorial ended. It  took me a long while to get all this working, three days, and generally it  takes a while for people to get the setup right, so don&rsquo;t give up without a  fight. In the next tutorial we will organize things a bit so we don&rsquo;t end up  with a big mess in the end. If you feel confident now you can try to move the  image around according to the Win32 tutorials for input, or you can do it after  the next tutorial which will tidy things up a bit.</p>
+<p>The project files are<a href="DirectX9Tutorial2.rar"> here</a>, in the folder where the source code resides you will find the image I used, you can also just replace it with one of your own, don't forget to make sure you give a correct name and path.</p>
+</body>
+</html>

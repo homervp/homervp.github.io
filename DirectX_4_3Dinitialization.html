@@ -1,0 +1,67 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>DirectX 4: 3D initialization</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>DirectX tutorial 4: intro to 3D rendering</p>
+<p>            So we have  covered a good deal of 2D stuff, including the process of creating a button  that functions as we want it to function. In this tutorial we will get all set  up for 3D rendering. Fortunately this requires no further libraries, nor does  it require much in terms of functions to prepare the whole process. In this  tutorial we will render a single triangle or an amount of triangles, while in  the next one we will wrap all that functionality into a new class, so we can  work without messing up the existing code.</p>
+<p>            The process  starts with creating a vertex buffer. Obviously this is a buffer containing  vertices. A vertex is a point in space, in DirectX, in addition to it&rsquo;s  coordinates, it also has some more information, such as a color it may have, or  the texture coordinates (this has more to do with 3D modeling than with us, but  it&rsquo;s a key part so it&rsquo;s good to have heard of it at least). The vertex buffer  can be read in a number of ways, and the way we read the buffer is passed,  along with the buffer and the number of the vertices, to the function that does  the rendering. One way is to explicitly draw triangles one at a time, this  means it will consider the buffer to be a triangle list, a list of independent  triangles. Another way, which is more practical, is a triangle strip. This  draws a triangle using the three first vertices, and then continues drawing  triangles with the next vertex and the two last vertices, i.e. it adds another  triangle for every new vertex. The last way of dealing with triangles in a  vertex buffer is considering to be a triangle fan, which means it takes a  central point and the second point, and then every subsequent point forms a  triangle with the last point and the first, central point.        Other ways to deal with a vertex buffer  is a point list, which draws points, single pixels, a line list, which draws  individual lines, and a line strip, which draws a line between each vertex and  the one before it.</p>
+<p>            Before we  begin the code, create a new header, I named it 3Dheader.h.</p>
+<p>            Usually  people follow tutorials or books somewhat blindly, however if you have read the  first Win32Api tutorial, you know you can expect at least a basic explanation  of anything we meet. Nearly everyone uses a custom vertex struct, which leaves  a blank spot: how in the world does DirectX know how to handle this? The point  most people don&rsquo;t see is how we define our format, they usually just see the  struct itself:</p>
+<p>#define D3DFVF_CUSTOMVERTEX (D3DFVF_XYZRHW | D3DFVF_DIFFUSE  | D3DFVF_TEX1)</p>
+<p>            The above  line or preprocessor code defines our format as the bitwise OR of three  elemental formats. I believe I have covered how bitwise operators work in the  extended C tutorials. Essentially we combine the flags of these formats. To  begin with, you probably know what D3D is already. If not, I have no idea what  has gone wrong. FVF stands for Flexible Vertex Format, which indicates that a  custom format is used. The standard format is, to us, too extensive in  information, and thus becomes too large in the memory for our needs – not that  there&rsquo;s much chance that we&rsquo;ll be having memory issues so early, but I have  never seen it being used so I chose not to be a pioneer this time.<br />
+  Now, the  data in our vertex. The first format defines X, Y and Z coordinates, as well as  the <em>reciprocal homogenous w.</em> I swear  I have never heard a buzzword as awesome as this. The coordinates are obviously  a location in 3D space. The RHW variable is used for clipping, and is handled  by DirectX, and thank goodness for that since it probably involves more math  than you&rsquo;d like to write in code. Clipping is the process where the system  decides which triangles are visible and thus worth rendering, and which not,  and thus increases performance greatly. There are of course instances where you  do not want clipping, but I can&rsquo;t think of one at the moment. To prevent  clipping, use the D3DFVF_NOCLIPPING flag.<br />
+  Diffuse is  a term you probably have heard of if you have had any contact with 3D modeling.  It is generally related to reflection of light, the simplest way I can put it  is that it is the color that is mostly reflected. Thus if you have placed no  texture, the diffuse color will be the visible color of the vertex, line or  triangle. If you have placed a texture, it may give it a certain hue towards  that color. Finally, the last format sets the flag for texture 1 to true, thus  we can set up coordinates for one texture. DirectX supports up to 8 layers of  textures, though there are few cases where this may be useful.<br />
+  For the  current purposes of the tutorial, remove the last flag, as we will not be using  a texture.</p>
+<p>            Now let&rsquo;s  create the struct:</p>
+<p>struct CUSTOMVERTEX<br />
+  {<br />
+  float x, y,  z;<br />
+  float rhw;<br />
+  DWORD  color;<br />
+  }</p>
+<p>The variables&rsquo; meaning should be  pretty obvious by now. Just a note on the color. A DWOR is a 32 bit variable,  i.e. it is 4 bytes long. These four bytes are the Alpha, Red, Green and Blue  channels, thus the format is ARGB. Alpha is transparency, the others specify,  obviously, the amount of each of those colors. The RHW value will be set to one  when we create the vertices.</p>
+<p>Now, to create the buffer, we  declare a LPD3DVERTEXBUFFER9 variable to point to the buffer, and an array of  type CUSTOMVERTEX. Instead of setting a fixed length, for now we will just use  the curly braces to directly set it&rsquo;s variables.</p>
+<p>LPD3DVERTEXBUFFER9 VertB;<br />
+  CUSTOMVERTEX vertices[] =<br />
+  {<br />
+  {320.0f, 50.0f, 0.5f, 1.0f,  D3DCOLOR_ARGB (0, 255, 0, 0), },<br />
+  {250.0f, 400.0f, 0.5f, 1.0f, D3DCOLOR_ARGB (0, 0, 255, 0), },<br />
+  {50.0f, 400.0f, 0.5f, 1.0f, D3DCOLOR_ARGB (0, 0, 0, 255), }<br />
+  };</p>
+<p>            This ought  to be a triangle. Note that we use the D3DCOLOR_ARGB function to put the colors  into the DWORD correctly. Also notice how the color of each vertex is different  (red, green and blue), you&rsquo;ll see how it affects the rendering in a very short  while.</p>
+<p>HRESULT hr =  pd3dDevice-&gt;CreateVertexBuffer(<br />
+  3*sizeof(CUSTOMVERTEX),<br />
+  0,<br />
+  D3DFVF_XYZRHW|D3DFVF_DIFFUSE,<br />
+  D3DPOOL_DEFAULT,<br />
+  &amp;VertB,<br />
+  NULL  );</p>
+<p>To  create the buffer we use the device. First we give it the size of the buffer so  it can allocate memory. The second parameter is the usage. It can be zero to be  set to the default, MSDN states that it is good practice to match the usage  parameter with the behavior flags used when creating the device. The third  parameter can be replaced with D3DFVF_CUSTOMVERTEX, and that is what I will do  in the sample code, however it&rsquo;s just useful to remember that you are allowed  to explicitly set it at any time. The pool parameter defines the class that  holds the memory buffers, it is generally left at default, you may choose  another if you advance into DirectX to a point where there&rsquo;s something to this.  The address of our vertex buffer is then passed, so it can be created, and  finally we give no window handle, as we want Direct3D to use it with the one  and only main window.</p>
+<p>Now,  put the vertex array declaration and the vertex buffer creation in a function  in 3Dheader.h called init_graphics() for example. To void external declarations  and so on, I also give it an LPDIRECT3DDEVICE9 parameter, to pass the device.<br />
+  Now  we&rsquo;re set to load stuff into the buffer. First we lock the buffer, so we can  access it. The Lock(..) command takes 4 parameters, the offset to lock, the  size to lock, a pointer that will be assigned the memory location of the buffer  (this one is given back to us so we can access the buffer, it is not used by  the function) and a DWORD of flags. The first and last parameter are set to  zero, we do not use an offset, and we do not want to raise any flags. The  second parameter will be 3 * sizeof(CUSTOMVERTEX), so we keep our hands clean  of computations. For the third parameter we declare a pointer:<br />
+  VOID*  pVoid;<br />
+  And we  pass it as (VOID**)&amp;pVoid. Thus we create a pointer to it&rsquo;s address. The  next command is memcpy(..) which takes as parameters the destination point in  memory, the source point, and the length to copy. Obviously the name stands for  &ldquo;memory copy&rdquo;. We pass pVoid as the first parameter, vertices as the second  (the array with the vertices), and sizeof(vertices) for the third. As an array,  vertices carries it&rsquo;s size with it, so it&rsquo;s got us covered.<br />
+  The  final step here is to unlock the buffer, which is done, quite intuitively, with  it&rsquo;s Unlock() function. This takes no parameters.</p>
+<p>We&rsquo;re  done for now with 3Dheader.h, we will come back later to reorganize it into  functions to easily change what we display. Now back to D3DLoader.h.<br />
+  In  initPostD3D() add a call to init_graphics() passing pd3dDevice as the  parameter. Add a new function Render3D(). In there call:<br />
+  pd3dDevice-&gt;BeginScene();<br />
+  pd3dDevice-&gt;SetFVF(D3DFVF_CUSTOMVERTEX);<br />
+  pd3dDevice-&gt;SetStreamSource(0,  VertB, sizeof(CUSTOMVERTEX));<br />
+  pd3dDevice-&gt;DrawPrimitive(D3DPT_TRIANGLELIST,  0, 1);<br />
+  pd3dDevice-&gt;EndScene();</p>
+<p>            BeginScene()  and EndScene() define where the 3D rendering starts and ends. Without this, you  code will run but you won&rsquo;t see a thing, and that had me wandering for a couple  of days. SetFVF sets the vertex format to our own. SetStreamSource set the  source of the stream used when drawing. That is, it defines what&rsquo;s to be drawn.  DrawPrimitive does the actual drawing, the first parameter defines what we&rsquo;ll  be drawing, we want a triangle list here, most models use triangle strips, if  you want to draw a wireframe you would use a line list or line strip. The  second parameter is the starting vertex and the third parameter is the number  of primitives. In our case, it&rsquo;s one triangle. If we had 2 triangles we would  write 2 and we would have 6 vertices. If however we were making a triangle  strip, we would only need 4 vertices to draw the 2 triangles, I described these  things at the beginning of the tutorial.<br />
+  In render()  add a call to Render3D() after RenderUI(), otherwise you will have the triangle  hidden by the UI.<br />
+  In cleanup() add  v_buffer-&gt;Release(); to the beginning of the function.</p>
+<p>This should have you all set up by  now, build and run your project and you will see our fabulous triangle!</p>
+<p>In the next tutorial we will pack  the triangle into a class so we don&rsquo;t touch the rendering code in any  subsequent changes to the content. After that we will switch to indexed primitives,  which facilitates the work with the vertices. After that is done, we will look  at transformations in the 3D world with matrices, some understanding of linear  algebra is advisable, but I will present code that will work directly. Next we  will look at colors, textures and lights, and eventually we will examine meshes  and eventually loading them from files. It&rsquo;s a long road but Rome was not built in a single day. After all  we are learning the foundations of 3D game development.</p>
+<p>You can download the complete  project <strong><a href="DirectX9Tutorial4.rar">here</a></strong>.</p>
+</body>
+</html>

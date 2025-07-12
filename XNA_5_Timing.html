@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>XNA 5: Timing - Homer Papadatos Vasilakis</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>XNA  Tutorial V: Timing</p>
+<p>In most  games, timing is essential. From time limits to animations, to actually keeping  a realistic flow in the game, unless you turn to some inanimate turn based game,  or a point-and-click game, you will need this.  It is actually good practice to multiply all changes with the time step, to get  smooth updates.</p>
+<p> If however you do not do this, no matter if  the cycle lasts 10 milliseconds or 3 seconds, you will have the same changes,  which means a highly varying speed. You may have seen two kinds of low  framerates, one where everything goes in slow motion, and one where they just  jump to other places. Though the first one is easier to handle as a player, the  second one does not slow time down, and you know that the developers have  indeed multiplied everything with time.</p>
+<p> Though you  might consider this not to be an issue with modern high performance computer,  you will actually end up with differences in the game speed. If you have played  on really old computers which have a &ldquo;turbo&rdquo; button, you may have experienced  the rather funny effect of the game speeding up like crazy, that&rsquo;s exactly what  will happen if you run your game on a machine faster than the one you developed  on, while it&rsquo;s going to run slower on a slower machine.</p>
+<p> XNA does  handle this to some extent and has some settings, even including a useful  function that tells you if the cycles are unceasingly slow, however you should  not count on this. Much as XNA is powerful, it is not a battle hardened engine  like Unity, Unreal or CryEngine, and should not be treated as such. A further  advantage this has, is that you can later control game speed by changing a  single value (multiply everything with that, set it to 1 by default).<br />
+To cut to  the point, I believe you have understood why timing is important. Now, if you  have worked with other languages and frameworks, you might have come across timer  objects and functions, however the approach that is preferred to some extent  here, and by far recommended by me, is  using  a floating point variable.</p>
+<p> Create a  float for each timer you need, then think of how it should work. If it&rsquo;s a countdown,  you might want to give it an initial value and have it decrease. If it&rsquo;s a  timer for using a skill, it might be better to set it to 0 and increase it,  checking if it has passed the recharge time, which also makes it easier to  represent it as a charge bar.</p>
+<p> You use the  default GameTime instance to get the time that has elapsed since the previous  cycle, conveniently named gameTime. Update your timers in the Update() method,  as this is the most frequently called method and will give higher precision.  GameTime has a number of components, but you are mostly interested in ElapsedGameTime  member, and further down the path in the Milliseconds component. The seconds  and higher components generally give you 0 as all these are integers and round  down. Milliseconds are also integers and give large numbers, so you want to  divide them by 1000 to get the seconds, however you have to cast to float,  otherwise it divides as an int and rounds to 0 again. This is the exact code:<br />
+  pauseTimer += (float)gameTime.ElapsedGameTime.Milliseconds / 1000;</p>
+<p>It is most  common to forget the casting, and if a timer does not respond always check if  the augmentation has been cast.</p>
+<p> To handle the timer, which is, to see if it has  reached the desired point, you will check if it is so, then if it is indeed you  will reset it to 0 (after triggering any events), and outside the if sequence  you will increment it, not inside, as you may make it so that it never reaches  the augmentation due to branching elsewhere: </p>
+<p>pauseTimer  += (float)gameTime.ElapsedGameTime.Milliseconds  / 1000;<br />
+  if  (pauseTimer &gt;= inputTime)<br />
+  {<br />
+// do what is to be done..</p>
+<p>                 // reset<br />
+                    pauseTimer = 0.0f;<br />
+  }</p>
+<p>Whereas this will not update:<br />
+  if  (pauseTimer &gt;= inputTime)<br />
+  {<br />
+  pauseTimer = 0.0f; <br />
+  pauseTimer  += (float)gameTime.ElapsedGameTime.Milliseconds  / 1000;<br />
+              }</p>
+<p>So this is pretty much it, timers are simple to  implement, though it might be a bit mind boggling at first, however I do trust  I gave a thorough explanation of where they can be used, how, what effects they  may have, and much more, how exactly this works. I did of course leave out any  parts that seem rather obvious.</p>
+<p>Now you essentially have the skills needed to  make a 2D game, I will make more tutorials on some efficient ways to implement  various features, but other than texture rotation and some far more deep  effects you should be more than equipped for 2D game development.</p>
+<p>So have fun with your new knowledge and always  insist on making your game work, show it to friends and family to get more  motivation and if you feel it&rsquo;s worth something, share it with the world like I  did with Survival Wasteland, so, happy coding and good luck in all your  projects! </p>
+<p>&nbsp;</p>
+<p>
+<p>
+<h3>Once again indentation was not successfully copied, certain HTML behaviour characteristics make it difficult indeed to leave long blank spaces.</h6>></p>
+</body>
+</html>

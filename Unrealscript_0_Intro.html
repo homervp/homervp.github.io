@@ -1,0 +1,21 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>UnrealScript 0: Introduction - Homer Papadatos Vasilakis</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>UnrealScript Tutorial 0: Introduction</p>
+<p>UnrealScript is a bizzare language, in that there are no books specifically on it, but one has to look up tutorials,  read through documentation and go through existing code to learn it. However this should not scare people away.</p>
+<p>A few years ago, finding any documentation on the UDK and UnrealScript was pure imagination, today however, Epic Games gives us the guidelines to working our way through all aspects of UnrealScript. That said, I must add the numerous community generated tutorials.</p>
+<p>On working with tutorials: Avoid video tutorials. You cannot copy-paste code. You cannot see the final code, either you will have to go back to see code that is out of the screen and risk <em>it</em> being eddited later on, or you will have to follow through and edit as well. Furthermore, as there are differences between different releases, but there also is a matter of pure luck (somehow code given by the devs always runs, but code given by the community is no guarrantee), so you cannot copy paste the code to see if it even works. I ended up trying out a video tutorial for a melee weapon, it took me over 8 hours (40 minutes of video by the way) and it was still firing invisible projectiles.</p>
+<p><strong>What Unreal offers:</strong> Unreal gives you all the source code of Unreal Tournament 3, as well as the skelletons for you to rig your models and the animations, animTrees, animSequences and so on, and you can use them. What you cannot use is anything noted as Skeletal Mesh inside the editor, which means you will have to make your own characters with the skeleton provided (or your own), as well as your own weapons and vehicles (yes, they too are skeletal meshes). You <em>can</em> however use any and all static meshes. Furthermore there are a lot of tools within the editor that will help you with scripting, and even creating some assets, such as particle effects.</p>
+<p>Now, on to UnrealScript. It's most similar to C++, though there are some peciliarities. Not all commands require a semicolon to execute, however, thanks to the nature of the semicolon, you can just put one at the end of every line of executable code to be sure (note of course that if you put a semicolon after an <em>if</em> statements, or a <em> for, while</em> and so on, it will end there). Essentially, learning UnrealScript is not so much about learning the language, as it is about learning the class libraries, and how to find the component you need.</p>
+<p>The tutorials willguide you through the process of implementing various features, and explaining how I came up with that code, so you can find your way through the code too. It is worth noting that you will always extend existing classes, unless of course you get into really deep UnrealScript programming and work on a project very far from the genres already implemented in Unreal. In the first tutorial we will extend the UTBot class, the typical bots of Unreal Tournament 3, so that they have health regeneration.We will also discuss why the player does not receive health regeneration too, and in the second tutorial we will fix that too. 'Till then, get familiar with the editor, as by coding alone you can't make a game!</p>
+</body>
+</html>

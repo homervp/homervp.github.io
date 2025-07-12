@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="stylesheet" type="text/css" href="style.css" />
+<meta name="description" content="Homer Papadatos Vasilakis, Tutorials">
+<meta name="keywords" content="Homer Papadatos Vasilakis, CV, Projects, programmer, game developer, indie game developer, amateur web developer, patras studentS">
+<title>Tutorials - Homer Papadatos Vasilakis</title>
+<style type="text/css">
+.auto-style1 {
+	color: #001E9E;
+}
+.auto-style2 {
+	color: #354690;
+}
+</style>
+</head>
+
+<body>
+<p><br />
+  <a href=index.html><img src="MyName.jpg" width="494"height="68"/></a></p>
+<p><strong>&nbsp;XNA Xtended:<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Creating a BoundingSphere that 
+encapsulates the entire model</strong></p>
+<p>BoundingSpheres are really useful, they allow you to check collision with 
+only one addition (their position) and one distance calculation (which is three 
+squares and additions, and one square root). The problem is, you get one 
+BoundingSphere for each mesh, what do you do if you have a multi-mesh model? 
+You've gotta calculate your own BoundingSphere. Thankfully, it's not that hard, 
+let's have a look:</p>
+<p>First, let's figure out the math of how and why. If a mesh is inside the 
+sphere of the main mesh (which is safe to assume it's mesh[0], as you'll 
+probably make the hull of a ship before the superstructure, engines, bridge or 
+whatever), then you don't need to do anything. If it's outside... well, you 
+could try and calculate a sphere that contains both spheres, but that would take 
+some more complex operations, you would have to find the two farthest points of 
+the spheres and create a sphere centered midway between them with a radius half 
+their distance, but we can spare the time for now, as well as a calculation or 
+two. You can try this however yourself.</p>
+<p>So when a sphere is outside the original sphere, we'll expand the original 
+sphere to include it. One step at a time though:</p>
+<p>Step one, determine if the original sphere includes the secondary sphere. To 
+be within the original sphere, the distance between the centers has to be less 
+than the radius of the original, and it has to be less by at least the radius 
+of the secondary. You can just pass the radius of the second sphere to the 
+right-hand side of the equation. So the evaluation reads as follows:</p>
+<p>Vector3.Distance(mm.BoundingSphere.Center, sphereCenter) &gt; sphereRadius - 
+mm.BoundingSphere.Radius</p>
+<p>Now, throw that into an if() statement, and you know if the original is 
+sufficient. Next, you need to expand the original sphere. One, perhaps naive 
+thought, is to just add the radius of the second sphere, the problem with this 
+is that, in rare occasions, the second mesh may be far enough from the original 
+mesh that it lays entirely outside the original mesh's sphere. The solution is 
+for the original sphere to increase by the distance to the farthest point of the 
+second sphere from the first one's center. The center remains the same, but the 
+radius now becomes the distance between the two spheres plus the radius of the 
+second sphere:</p>
+<p>Vector3.Distance(mm.BoundingSphere.Center, sphereCenter) + 
+mm.BoundingSphere.Radius</p>
+<p>Now let's fill in the gaps, essentially we just have to store the data into a 
+new BoundingSphere structure:</p>
+<p><br />
+&nbsp;&nbsp;&nbsp; <span class="auto-style1">this</span>.sphereCenter = 
+model.Meshes[0].BoundingSphere.Center;<br />
+&nbsp;&nbsp;&nbsp; <span class="auto-style1">this</span>.sphereRadius = 
+model.Meshes[0].BoundingSphere.Radius;<br />
+&nbsp;&nbsp;&nbsp; <span class="auto-style1">foreach</span> (<span class="auto-style2">ModelMesh</span> 
+mm in model.Meshes)<br />
+&nbsp;&nbsp;&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (<span class="auto-style2">Vector3</span>.Distance(mm.<span class="auto-style2">BoundingSphere</span>.Center, 
+sphereCenter) &gt; sphereRadius - mm.<span class="auto-style2">BoundingSphere</span>.Radius)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span class="auto-style1">this</span>.sphereRadius = <span class="auto-style2">
+Vector3</span>.Distance(mm.<span class="auto-style2">BoundingSphere</span>.Center, 
+sphereCenter) + mm.<span class="auto-style2">BoundingSphere</span>.Radius;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp; }<br />
+&nbsp;&nbsp;&nbsp; <span class="auto-style1">this</span>.boundingSphere = new
+<span class="auto-style2">BoundingSphere</span>(sphereCenter, sphereRadius);</p>
+<p>Where mm is the ModelMesh inside the model. This concludes the tutorial, 
+check out my other tutorials if you didn't come here through my tutorial 
+listing, just click on the big fancy picture of my name at the top of the page!</p>
+</body>
+</html>

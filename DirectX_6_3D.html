@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>DirectX 6: 3D point of view</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>DirectX tutorial 6: Going 3D</p>
+<p>&nbsp;</p>
+<p>            Now, we  have defined a cube in 3D space, but there is a certain catch. We defined our  flexible vertex format to contain RHW information, which means it was  pre-translated into screen coordinates. DirectX thus did not perform any  transform operations on it, but to visualize 3D data as, well, 3 dimensional,  we need to do all those transforms.</p>
+<p>Thus the first thing we do is we  remove RHW from our definition of CUSTOMFVF and CUSTOMVERTEX (we are in  3Dheader.h), just remove RHW wherever seen. Next you have to also remove the  values of RHW in the vertex declarations, so they match the size of the custom  vertices. Finally, as I said, the cube was defined in screen coordinates, in 3D  these would represent an immense item. Thus replace 200 with -1 and 400 with 1,  this will create a cube with its corners at -1 and 1 of each axis, which is  more reasonable. Also as you can understand, the center will be on 0, which  means whatever displacement we apply will be the displacement perceived by the  user (i.e. we define exactly where it is without calculating current position).  If you to a search and replace operation, make sure that exactly 12 values are  replaced, otherwise you&rsquo;ve also changed other values in the program.</p>
+<p>Now, we have to tell DirectX what  is needed to be transformed. Go back to D3DLoader.h and add a function  setMatrices(). Matrices are like tables or arrays, in our case they are  two-dimensional, 4x4 arrays. They take into account RHW as a fourth element.  Matrices are a fast way to perform operations on vectors and are generally the  tool of choice in Computer Science for any operations (including approximation  of mathematical functions, like the square root, derivation or integration and  so on). If you want to learn more about matrices, I suggest you (after of  course looking up the internet) watch the linear algebra lectures of MIT  professor Gilbert Strang (available on YouTube as MIT Open CourseWare), and  possibly also read his books on the subject, which are taught widely in universities.</p>
+<p>In setMatrices() declare six D3DXMATRIX  objects: objectM, translationM, rotationM, projectionM, lookAtM and finalM. You  can separate their names with a comma. All functions we will use return an  HRESULT value, so you can also declare an HRESULT variable if you want to do  debugging. D3DXMatrixIdentity(&amp;matrix); sets the matrix we pass to it (to  be precise we pass it&rsquo;s address) to the identity matrix, which when multiplied  by anything it returns the same thing. You can use it to eliminate steps from the  procedure to make sure the rest are working correctly. We will use it on  objectM to begin with. D3DXMatrixRotationY(&amp;matrix, rotation) will return a  rotation around the Y axis; you can already guess what gives rotation around  the X and Z axis. This we will use on rotationM. A safe way to work with  rotations independent of whether we are using radians or degrees is the use of  D3DX_PI, which is, as you probably know, 180 degrees, half a circle, or 3.14…  radians. For this tutorial we will pas as rotation D3DX_PI/4.  D3DXMatrixMultiply(&amp;final, &amp;matrix1, &amp;matrix2) multiplies two  matrices and gives the output in a third one. We will use finalM to store the  output and we will multiply objectM with rotationM.</p>
+<p>Next up, we define our field of  view. This is where it is defined how narrow or wide is the area of the world  we can perceive, as well as far we render. Though you may think that one may be  enough, when using a telescope for example, you may need another one. In the  occasion of the telescope, you need a narrower field of view, so things far  stretch out along the scene. You cannot just draw from closer because you may  skip obstructions. The functions is D3DXMatrixPerspectiveFovLH(&amp;matrix,  angle, aspectRatio, nearClipping, farClipping). Angle is what I said earlier,  how wide or narrow is the section we can see. Aspect ratio refers to your  window&rsquo;s/screen&rsquo;s aspect ratio, which is width divided by height. A bug that  cost me a couple of weeks of debugging was that I was performing integer  division, so it snapped to zero, make sure you cast to float, if you still see  nothing, store it in a variable and check it&rsquo;s value. Near and far clipping  values are the distances at which we start and stop drawing. You may have seen,  especially in older games, that some items pop up or fade into sight as you  move ahead, also in many games in options you will see drawing distance. Having  a very far clipping pane, though today is well feasible, may on occasion mean  that you&rsquo;ll be drawing too many things, leading to a drop in frame rate. The  field of view we created is sort of like the properties of the camera, it&rsquo;s  lens let&rsquo;s say.</p>
+<p>Now we have to define our camera.  It is not exactly one camera, rather where it is, what it&rsquo;s pointing at, and  which way is up. Each of these are vectors, which, as we may have said in the  past, are points in 3D space. Create 3 D3DXVECTOR3 objects, named camera,  cameraTarget and cameraUp. Set cameraTarget&rsquo;s x, y and z member variables to 0,  we are looking at the center of our world. The cameraUp variable is safe to  assume to be (0, 1, 0), in XYZ of course. The camera position is more up to  you, as long as you set the other two vectors up correctly you should be able  to see the cube. I have set x to -10, y to 10 and z to 0. You can perceive this  as saying that the camera is 10 points back (x = -10), 10 points up (y = 10)  and is aligned with the x axis (z = 0, thus no sideways displacement).</p>
+<p>Let&rsquo;s set up our view matrix, or as  we named it, lookAtM. The function is D3DXMatrixLookAtLH(&amp;final,  &amp;cameraVector, &amp;targetVector, &amp;cameraUpVector); and we&rsquo;ll pass  lookAtM, camera, cameraTarget, and cameraUp respectively. This will create a  matrix representing a camera in 3D space.</p>
+<p>Now we are nearly set. Let&rsquo;s get  finishing with what he have ready. The SetTransform(id, &amp;value) method of  our Direct3D device sets the transform we specify with id, to the value we give  it. Thus we will write: Pd3dDevice-&gt;SetTransform(D3DTS_WORLD, &amp;finalM);  and similarly with D3DTS_PROJECTION and projectionM, and D3DTS_VIEW and  lookAtM.</p>
+<p>The last part which seems  essential, though many tutorials do not include it, is switching off the  lights. No, this does not mean we&rsquo;ll have darkness, on the contrary, we will  see stuff, because DirectX will not be expecting a light, and will just show us  what there is to be seen. Without this, I got   black mass of a cube. The code is simply calling  pd3dDevice-&gt;SetRenderState(D3DRS_LIGHTING, FALSE).</p>
+<p>is should have you good to go.  Call setMatrices in Rebder3D() and you should be able to see the cube in the  window, I call it right after BeginScene(). If you can&rsquo;t see the cube, I have  also added another small chunk of code, which sets the viewport.</p>
+<p>You will declare it as D3DVIEWPORT9  view_port, well, the name is up to you. Set it&rsquo;s X and Y to 0, Width and Height  to xRes and yRes respectively, and MinZ and MaxZ to 0.0f and 1.0f, which is the  depth at which it can render, the numbers taken are sort of the relative depth  of stuff. With multiple viewports you can draw multiple cameras in the same  window. The Commandos series made use of this so the player could keep an eye  on enemies while controlling his players. In Silent Hunter, at least in the  latest installments, you see the explosion of the ships you sink in the upper  right corner of the screen, regardless of where you are, this again is most  probably by use of multiple viewports.</p>
+<p>Finally, the complete code of  setTransforms is:</p>
+<p>void setMatrices()<br />
+  {<br />
+  //--------------transformation code----------------//<br />
+  D3DXMATRIX objectM, translationM, rotationM, projectionM, lookAtM,  finalM;</p>
+<p>            HRESULT  hr;</p>
+<p>            D3DXMatrixIdentity(&amp;objectM);<br />
+  D3DXMatrixRotationY(&amp;rotationM,  D3DX_PI/4);<br />
+  D3DXMatrixMultiply(&amp;finalM,  &amp;objectM, &amp;rotationM);</p>
+<p>            D3DXMatrixPerspectiveFovLH(&amp;projectionM,D3DX_PI/4,(float)xRes/yRes,  1, 100);</p>
+<p>            D3DXVECTOR3  camera;<br />
+  camera.x  = -10;<br />
+  camera.y  = 10;<br />
+  camera.z  = 0;<br />
+  D3DXVECTOR3  cameraTarget;<br />
+  cameraTarget.x  = 0;<br />
+  cameraTarget.y  = 0;<br />
+  cameraTarget.z  = 0;<br />
+  D3DXVECTOR3  cameraUp;<br />
+  cameraUp.x  = 0;<br />
+  cameraUp.y  = 1;<br />
+  cameraUp.z  = 0;<br />
+  D3DXMatrixLookAtLH(&amp;lookAtM,&amp;camera,&amp;cameraTarget,  &amp;cameraUp);</p>
+<p>            hr  = pd3dDevice-&gt;SetTransform(D3DTS_WORLD, &amp;finalM);<br />
+  hr  = pd3dDevice-&gt;SetTransform(D3DTS_PROJECTION, &amp;projectionM);<br />
+  hr  = pd3dDevice-&gt;SetTransform(D3DTS_VIEW, &amp;lookAtM);</p>
+<p>            D3DVIEWPORT9  view_port;</p>
+<p>            view_port.X=0;<br />
+  view_port.Y=0;<br />
+  view_port.Width=xRes;<br />
+  view_port.Height=yRes;<br />
+  view_port.MinZ=0.0f;<br />
+  view_port.MaxZ=1.0f;</p>
+<p>            pd3dDevice-&gt;SetRenderState(D3DRS_LIGHTING,  FALSE);</p>
+<p>            //pd3dDevice-&gt;SetViewport(&amp;view_port);<br />
+}</p>
+<p>Download the code for this project <a href="DirectX9Tutorial6.rar">here</a>.<br />
+</p>
+<p>Bonus tasks: <br />
+  -Change colors to make it more  visible that the cube is 3 dimensional.<br />
+-Make the cube rotate as time  passes.</p>
+<p>&nbsp;</p>
+<p>Suggestion: Task 1 should look something like this:</p>
+<p><img src="DirectX_3D.JPG" width="500" height="271" alt="First 3D sample" /><br />
+</p>
+<p>&nbsp; </p>
+</body>
+</html>

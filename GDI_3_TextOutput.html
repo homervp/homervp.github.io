@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p><strong>Win32Api/GDI Tutorial IV –  Text output:</strong></p>
+<p>The Win32Api uses surfaces for  drawing, called device contexts. Think of them as exactly that, after all you  can do limited operations on these. To access a device context you need a  handle to it, a pointer essentially. The name of these handles in C is HDC,  Handle to Device Context. The device context itself is DC. Do not try to create  a DC, this naming is used for functions, such as CreateCompatibleDC().</p>
+<p> The most basic function that writes  text to the screen is TextOut(), it&rsquo;s declaration being<br />
+</p>
+<pre>BOOL TextOut(</pre>
+<pre>  _In_&nbsp;&nbsp;HDC hdc,</pre>
+<pre>  _In_&nbsp;&nbsp;int nXStart,</pre>
+<pre>  _In_&nbsp;&nbsp;int nYStart,</pre>
+<pre>  _In_&nbsp;&nbsp;LPCTSTR lpString,</pre>
+<pre>  _In_&nbsp;&nbsp;int cchString</pre>
+<pre>);</pre>
+<p>As you can see it already uses an  HDC, and some other things as well. The two integers that follow have an X and  Y in their name respectively, that should lead you to the conclusion that they  are some kind of coordinates. They also have the word Start in the name, so it  is safe to assume that this is the starting point. Indeed these mark the upper-left  corner of the rectangular in which the text will be printed. It&rsquo;s height  depends on the letter size, it&rsquo;s length obviously on both letter size and  string length.</p>
+<p> LPCTSTR, as I mentioned in tutorial  #1, is a Long Pointer to a Constant TCHAR STRing. TCHAR is defined for ANSI and  DBCS encodings as a char (by use of typedef), for Unicode as WCHAR, W standing  for Wide. Essentially it is just a string, but you will have to either store it  in a TCHAR or just type it in and use the L prefix before the quotes, as  mentioned in the tips and tricks section, to make it a long pointer.</p>
+<p> The last integer, cchString, is the  number of characters the function will type, including spacebars and special  characters. If it is more than the amount in the string, the function fills in  the rest with vertical lines, if it less the rest of the letters are not  printed. It is highly useful to use functions like strlen() for this argument,  it is actually counter-intuitive not to.</p>
+<p>  The use of the function is  straightforward, for now you can draw the text straight onto the DC used by the  pre-made code, declared hdc (lowercase). It is by far best to place the command  in the WM_PAINT section of your WndProc() function, it is essentially a  guarantee that this will be processed, plus it&rsquo;s the only place where you can  actually use hdc directly, without using functions to find it. Also it assures  that it is processed every time you draw something new on the screen. Note that  the function fills the rectangle with the predefined brush, you will notice the  HBRUSH handles in the generated code. Later on we will discuss brushes,  backgrounds and pens.</p>
+<p> Note that whatever you paint  overwrites anything below it, and the last one to be painted is painted above  the others. This sounds absolutely reasonable, however you might make a slight  mess while adding more stuff, in that case I should tell you that Dev-C++ and  Visual Studio 2010 both allow you to select text and drag it into another spot,  which is faster than retyping it.<br />
+  To store text into an LPCTSTR you  simply type<br />
+</p>
+<pre>        TCHAR text[ ] = &quot;Ignoring Homer can be hazardous&quot;;</pre>
+<pre>        TextOut(hdc,r.left,r.top,text, ARRAYSIZE(text));
+</pre>
+<p>The above example is copied and  modified from Microsoft&rsquo;s <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/dd145133(v=vs.85).aspx">MSDN</a> (MicroSoft Developer Network) page on TextOut().  You will notice we just made a TCHAR and not an LPCTSTR. This is because an  array is a pointer by itself, as you learnt in the Pointers and Arrays tutorial  in C. Notice how for the coordinates a struct called <strong>r</strong> is used, it is a rectangular, or RECT. The RECT structure is used  to handle areas of the screen or store data on a rectangular area. Also notice  how for the final argument the function ARRAYSIZE() is used.</p>
+<p>Most probably you will sooner or  later want to print some numbers, this one is somewhat trickier and there are various  methods, the one that seems best is creating a string and using the sprintf()  function. The sprintf() function prints characters to a buffer, an array of  characters, a string. It is declared as such:</p>
+<pre>int sprintf(</pre>
+<pre>   char *buffer,</pre>
+<pre>   const char *format [,</pre>
+<pre>   argument] ... </pre>
+<pre>);</pre>
+<p>&nbsp;</p>
+<p>In general this means you pass a  string by reference, and then you give the format just as you do with printf(),  for example:</p>
+<p><br />int i = 1;<br />
+  char  *string[10];<br />
+sprintf(string,  &ldquo;The number is %d&rdquo;, i);</p>
+<p>This eventually means you can output  just as in the console, only with a couple more steps.<br />
+  As you can see all you need is some  familiarization with some concepts such as those of DCs and handles to other  variables, which is anyway highly useful for future lessons too.</p>
+<p> What now? Well, like in the first C  tutorial, not much… In the next lesson I will teach you about input, and after  that I will show you some options for changing the game loop to make it run  continuously, and not only every time an event is detected, then you will be able  to essentially make a game without images or sounds, only using text. That  shouldn&rsquo;t bother you though, as the core mechanics will remain the same, so if  you have something good you only need to replace the TextOuts with image  drawing functions, like BitBlt() or TransparentBlt().</p>
+<p> It is not so much about practicing  this time, as it is about experimenting, try out stuff until you know what  works and what doesn&rsquo;t and feel comfortable with this. Stay tuned and keep  practicing!</p>
+</body>
+</html>

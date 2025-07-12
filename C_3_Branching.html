@@ -1,0 +1,62 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p><strong>C Tutorial III: Branching, if  and switch-case</strong></p>
+<p>	You know how to send a message to the user, and  you know how you can work on a message the user enters, however your program  runs a straight line, people can&rsquo;t even choose what course of action it will  take, so how can we do that?<br />
+</p>
+<p>In real life you make decisions based on  assumptions. If you learnt output, you move on to input, if you learn input,  you move on to this lesson. Same goes with programming, if (&lt;condition&gt;)  {&lt;things to do&gt;}. To see whether a condition is fulfilled you type in if,  the condition in a parenthesis, and then a code block to be executed.</p>
+<p>if  ( x &lt; 3 )<br />
+  {<br />
+  x *= 2;<br />
+  x += 4;<br />
+  }</p>
+<p>This will check if x is smaller than 3, and if  it is, it will double it&rsquo;s value and then increase it by 4. There is a limited  set of comparison symbols, namely ==, &gt;=, &lt;=, &gt;, &lt;, !=. These are,  respectively, is equal to or logical equality, bigger than or equal to, smaller  than or equal to, bigger than, smaller than, other than or logical inequality.  In general you should be careful with the first and the last, the first is  often confused with the assignment operator creating logical errors that cannot  be found by the compiler, while in the last one the ! symbol is generally the  logical NOT operator.<br />
+  </p>
+<p>It is a general rule that if what is written in  the parenthesis has a value other than 0 then it is TRUE, otherwise it is  FALSE. Thus you can deduce that making a comparison of any sort will return 1  or 0 depending on if it turns out true or not. This also means that if you place  a single variable in the parenthesis it will be considered to be the result,  and the if( ) statement will be executed unless the value is 0.<br />
+  </p>
+<p>The NOT operator takes what follows it and  inverts it. It can be applied to a variable, a function call (without affecting  the execution of the function), a parenthesis with a comparison, or pretty much  anything that gives it a value to work on.<br />
+</p>
+<p>There are more logical operators, like AND, OR  and XOR. AND is represented as the double ampersand &amp;&amp;, and gives true  only if what precedes and what follows are both true. NAND, meaning not-and,  can be created by putting a NOT operator in front of a parenthesis with an AND  statement. OR will give 1 if either one or both of the operands preceding and  following it are true. It&rsquo;s symbol is made up of two vertical lines ||, they  are typed by pressing SHIFT + BACKSLASH XOR stands for eXclusive OR, meaning  that either the one or the other is true, but not both, the symbol being a  small arrow pointed upwards ^ (remember I told you not to use it for powers?).  This is useful if, for example, you want the player sabotage two wires, and a  siren to go off if one is cut, but only while the other is not. Another  application is when you want the player to destroy two things simultaneously,  while dropping a bomb he has to destroy both guard posts, other wise the  surviving one will call for reinforcements. XOR can be pronounced as it is,  though I prefer calling it ex-or. The opposite of XOR is XNOR, pronounced  ex-nor, or (as I prefer it) ex-en-or, or COIN, pronounced as obvious. The later  of two names gives us an idea of how it can be used, since it is reasonable  that it comes from co- (as in cooperation, meaning together, united, of a  single mind, the same) and in, meaning input. Thus you can use it to check if  people agree, whether they agree to say no or yes. You still want to know if  they agree even if they say no, because if they do not, then they might start  arguing. Like NAND, XNOR is created by placing a NOT to a XOR.<br />
+  </p>
+<p>So now you pretty much have what you need to  create if statements, go ahead and combine this knowledge with some parentheses  and you will see that the user can now choose whether he wants to see the sum,  difference, division etc. However you have some nasty long code if there are  many choices, and, though it&rsquo;s not so tough to debug, it is not quite efficient  if you check for everything even though you already found what you needed (each  if statement of the same level in the same block is always checked for). If the  condition is true, fine, else what?<br />
+</p>
+<p>Simply type else under the block that  corresponds to the if, open a new block and you will see that this block is  executed when the if fails.<br />
+  Nested ifs are if statements that are one  within another. In the case where the ifs are within the first if, you may want  to consider putting them all together, unless they also execute code or you  have your own reasons for not doing all the checkings in one step. Neither is  wrong theoretically, but you will see that some times you want to check the  rest of the conditions separately. Just keep that in mind.<br />
+  </p>
+<p>If the nested if is in the else statement and  all commands are placed in it, you can turn it to an <strong>else if </strong>statement, which allows you to place the else one step  further and multiple else ifs can be chained to create a structure that checks  through all the possibilities until it finds the right case. See the example:</p>
+<p><br />if (x &lt;  2)<br />
+  {<br />
+  &lt;commands 1&gt;<br />
+  }<br />
+  else if (x  &gt; 6)<br />
+  {<br />
+  &lt;commands 2&gt;<br />
+  }<br />
+  else if (x  == 3)<br />
+  {<br />
+  &lt;commands 3&gt;<br />
+  }<br />
+  else<br />
+  {<br />
+  &lt;commands 4&gt;<br />
+  }</p>
+<p>There is however one more statement that will  take care of all this work in a more tidy manner. The switch() statement  bundles all this up. Put a value in the parenthesis, even a function that  returns a value or a logical expression (comparison or such), after that open a  new block. Inside the block type case, the result which you want to be  fulfilled, two dots : , and then open a block with whatever you want within it.</p>
+<p><br />
+  Note that at the end of each block you have to  place a <strong>break; </strong>statement. The break;  command tells the computer to exit the current block. If you do not add it, it  will continue through other cases until it meets another break; or until it  reaches the end of the switch. Think of it as such: it will execute everything  from the point which is true and on.</p>
+<p><br />
+  This phenomenon, referred to as fall-through  cases, is useful for when you want multiple results to lead to the execution of  the same code block. Just write the cases and nothing more and it will execute  up to the point with a break. Note also that if you want something extra to be  executed in a case you should either put the case on top of the others and add  whatever code is to be executed without a break, or place the case and it&rsquo;s  code properly, with a break, and then also add it without a break in your fall  through tower of cases.<br />
+  This concludes this lesson about branching (if  you make a flowchart and tip it over you will see why it&rsquo;s called branching),  keep on reading to the next lesson for loops, where you will be able to repeat  a process on demand, making your code run again and again without restarting  the program and essentially allowing you to create a non-linear application or  game.</p>
+<p>&nbsp;</p>
+<p>What now? Now you can make a more intelligent  calculator, asking the user to tell it what he wants. Further more you could  make it take more or less numbers from the user depending on his choice. You  can also make adventure games where the player can affect the story through  branching, and with the math you learned to use you can add a simple combat  system so you can have the player modify their stats and be able to lose at  various points in the game. Essentially you can add variety to your creations  as they are no longer linear in execution.<br />
+  In the next tutorial you will be able to make  reusable programs which can process an indefinite amount of input, which will  allow you to create turn based games and other features that require a non-set  number of repetitions and/or the program to return to a previous menu/state.</p>
+<p>Go on, try it out, experiment, it&rsquo;s the best  way to learn! J </p>
+</body>
+</html>

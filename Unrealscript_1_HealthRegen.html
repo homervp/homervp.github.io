@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>UnrealScript Class extension, Timers and Health regen - Homer Papadatos Vasilakis</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>UnrealScript Tutorial 1: Extending classes, Timers and Regenerating health</p>
+<p>There is already a similar <a href="http://udn.epicgames.com/Three/MasteringUnrealScriptBaptismByFire.html">tutorial by Epic Games,</a> however that describes how to create a mutator for UT3, which is a script executed within that game. We will create a script that will be compiled by UDK and will be capable of creating a new kind of unit. Let's take a look at the code of that tutorial, and then we will modify it to fit our needs:</p>
+<p><br />
+class UTPawn_SuperRegen extends UTPawn; </p>
+<p>  var Int RegenPerSecond;<br />
+  simulated function PostBeginPlay()<br />
+  {<br />
+  </p>
+<p>Super.PostBeginPlay();</p>
+<p> SetTimer(1.0,true);<br />
+}</p>
+<p>function Timer()<br />
+  {<br />
+  </p>
+<p>if (Controller.IsA('PlayerController') &amp;&amp; !IsInPain() &amp;&amp; Health&lt;SuperHealthMax)<br />
+  {<br />
+  </p>
+<p>Health = Min(Health+RegenPerSecond, SuperHealthMax);<br />
+  }<br />
+  }</p>
+<p>defaultproperties<br />
+  {<br />
+</p>
+<p>RegenPerSecond=10<br />
+  }</p>
+<p>Let's see what's being done. The first line declares that our class extends UTPawn. UTPawn is the class behind the bots of UT3, and thankfully we can work with the pawn, and UDK will take care of the bot.</p>
+<p>We then create an integer variable called RegenPerSecond, this is a constant which we will be adding to the bot's health. Directly after that is the PostBeginPlay function, which is called upon spawning the bot, and we must override it. However we keep the original PostBeginPlay() function, by calling it from UTPawn. Super, like in Java, refers to the superclass which we are extending. After that we set a timer to be triggered every 1 second, and the boolean value that follows is whether or not it loops or is called only once.</p>
+<p><strong>Timers:</strong></p>
+<p>Timers are stored into an array in the engine and are then checked one after the other when deemed necessary. The Timer() function is used when you want the timed actions to be <em>ticked</em> at the same time, or if there is just one thing to be done. It is the default timer, and that's why SetTimer() does not require you to specify which function is to be used. However you can use your own name in the function and specify in SetTimer() when it should be called. Otherwise, timer functions are just functions.</p>
+<p>SetTimer() takes up to three arguments. The mandatory argument is the seconds that should pass before it is <em>ticked</em>. Ticking is how we call the calling of the function triggered by the passing of time, apparenty it comes from the ticking of the clock. The second argument, which may be skipped, is whether or not the timer is looped, that is, whether it will be called once or over and over. You would want it to be called once in the instance of a grenade launching weapon, when the grenade is spawned, you want a timer at 5 seconds for the blast, but you do not want the blast to happen again, though the grenate would also dissintegrate so that would not quite be an issue. The last parameter it can take is the name of the function to be ticked, and that's how we can have different timers in the same object. This is analogus to function pointers or delegates. Of course if we add the third argument, it's best to add the second too, otherwise the function will be interpreted as a name of a boolean and we will receive a type mismatch.</p>
+<p><strong>Let's continue:</strong> Well, I also explained the Timer() function, so we can go to the <em>if</em> statement. The if statement checks if the controller is a player, and if the health is less than the maximum health. If these are both true, health is regenerated. This way we a) avoid healing healthy players, b) make sure that only players have health regeneration. In my code I will remove the check for whether or not it's a player, so that a) we can spawn a bot of this type and see how it can't get killed if we shoot one shot per something over a second, and b) we can say that we have not only changed the player, but the bots too. Petty demonstration of our abilities, but it makes a difference.</p>
+<p>After that, Health is assigned the smalles of the current health plus the constant regeneration rate, or the maximum health if we get past it. The Min() function is one of the functions built into unrealscript that you can discover only by exploring the class libraries or studying the documentation.</p>
+<p>Finaly, defaultproperties is where we place the initialization data, and as it says, is where we store the default or initial values of the classe's variables.</p>
+<p>Now, let's change some stuff to get this bot ready for action!</p>
+<p>First, if you want to follow these tutorials by copy-paste, rename the class to UTPawnRegen, as I have. It's smaller and easier to write, though it;s not essential, the name is your pick.</p>
+<p>Second, remove from the <em>if </em> the &quot;ControlerIsA&quot; part, and only leave the health check. Since the code comes from the developers, I suspect that checking the health instead of going straight to the computation of the new health value is faster for the engine.</p>
+<p>Thirdly, so we can test it appropriately, change the regeneration rate to 30. The Link Gun we get in UDK deals about 25 damage per shot, so this way, if we shoot once per second, the new bot should never die, but if we continuously shoot it will.</p>
+<p>Save this as a .uc file in your development folder (check right hand tutorial list), and start UDK (UDK only checks for new classes on startup). I recomend you have a test level for what you make, so make one or open it if you have one. right click on the generated terrain (I assume you can go through the settings shown without my help) and select &quot;add actor&quot; and then select a Path Node. Pathnodes are points on the map where bots recognize and can go to, but are also waypoints for events and signify locations. Pathnodes are used for spawning too, and that's what we want. Open Unreal Kismet, the visual scripting tool UDK provides. Right click somewhere to the left of the empty view, and select &quot;add event&quot; or something equivalent, and there should be a &quot;Level loaded&quot; option. This is the event triggered when the level loads, and comes with further instances, such as &quot;Loaded and Visible&quot; as you will see with the Kismet node created. You might want that last one if you want the player to see something happen when the level is visible, while if it was at the &quot;Loaded&quot; it might happen before the player can see it.</p>
+<p>Right click further right, and &quot;add action&quot;, &quot;actor&quot; and then &quot;actorFactoryEx&quot;. ActorFactories are what spawns actors. Connect any of the Level Loaded nodes to the Spawn Actor input node of the Actor Factory. Select the Actor Factory, below you see it's properties. Set the Factory property to UTActorFactoryAI. In the properties presented within that, set the Controller class to UTBot, and the PawnClass to UTPawnRegen (you'll notice that it's there, congrats, your class is actually recognized and approved!). Finally, find the Spawn Points property, and with the pathnode selected click on the green arrow, this sets the property to the currently selected object if it matches, which it currently shoult match.</p>
+<p>Now close Kismet and hit F8 (this is the shorcut for testing the level), go find the bot and shoot once per second or less, and notice how it doesn't die. Now shoot it continuously, it should die in a second or two.</p>
+<p>So now you know how to extend existing functions to add functionality. However if you play a bit with another actor factory and get a rocket launcher and get some self-inflicted damage, you will see that you do not regenerate health, we'll fix that in the next tutorial.</p>
+</body>
+</html>

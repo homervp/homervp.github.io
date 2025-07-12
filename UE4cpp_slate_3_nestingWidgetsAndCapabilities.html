@@ -1,0 +1,247 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>UE4 Slate UI tutorial 3 - Nested Widget + List of Widgets</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" alt="home" name="home" width="494" height="68" id="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p><strong>Unreal Engine 4: Slate UI Tutorial 3: nested components</strong></p>
+<p>In this tutorial we will look at how you can place more than one components on an overlay, and how to nest the components to organize your UI more efficiently. Furthermore, a complete list of the slate components provided by the engine can be found at the bottom of the page, with a brief description of each one.</p>
+<p><strong>Disclaimer:</strong>	information provided in this tutorial on positioning of widgets and the overal behavior of the slate system is the result of observations and experimentations.</p>
+<p>To begin with, to nest widgets you need a widget that can house other widgets within it. SHorizontalBox and SVerticalBox are two such widgets which you are likely to use a lot. They create an imaginary box in which widgets are added in a horizontal or vertical alignment. You could nest multiple SHorizontalBoxes in an SVerticalBox or vice-versa to create a grid. Let's go to the point where we started adding widgets and create a vertical box:</p>
+<table width="1652" border="1">
+  <tr>
+    <td width="1642">ChildSlot.VAlign(VAlign_Fill).HAlign(HAlign_Fill)<br />
+[<br />
+&nbsp;&nbsp;&nbsp;&nbsp;SNew(SVerticalBox)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;+ SVerticalBox::Slot()<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.HAlign(HAlign_Left)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;.VAlign(VAlign_Center)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;[<br />
+&nbsp;&nbsp;&nbsp;&nbsp;]<br />
+];</td>
+  </tr>
+</table>
+<p>This vertical box is the root component (I can't guarantee that is the official terminology). To add components within it, we add slots, taken from the SVerticalBox namespace. The first slot we create is alligned to the left horizontally, meaning it will try to stay on the left side as other widgets are added on the same level as itself, and on the center vertically, equivalently meaning it will try to remain on the center between other widgets in the same parent container. Within the brackets [] we can add as many other components as we wish. Let's populate this slot with a textbox, let's assume this to be the pause menu, so we'll add an appropriate text. Formatting and styling are covered in the next tutorials, so don't worry if the text is too small.</p>
+<table width="1652" border="1">
+  <tr>
+    <td width="1642" height="47"><p><br />
+SNew(SVerticalBox)<br />
++ SVerticalBox::Slot()<br />
+.HAlign(HAlign_Left)<br />
+.VAlign(VAlign_Center)<br />
+[<br />
+&nbsp;&nbsp;&nbsp;&nbsp; SNew(STextBlock)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;.ShadowColorAndOpacity(FLinearColor::Black)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;.ColorAndOpacity(FLinearColor::Red)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;.ShadowOffset(FIntPoint(-1, 1))<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;.Font(FSlateFontInfo(&quot;Verdana&quot;, 16))<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;.Text(FString(&quot;Pause Menu&quot;))<br />
+    ]</p></td>
+  </tr>
+</table>
+<p>To be honest, I just picked up the textbox from the previous tutorial and dropped it in, placing the right text in the output. So now you've got some text, but that doesn't really demonstrate much on nesting widgets. So let's put an SHorizontalBox inside that:</p>
+<table width="1652" border="1">
+  <tr>
+    <td width="1642" height="91"><p><br />
+      SNew(SVerticalBox)<br />
++ SVerticalBox::Slot()<br />
+.HAlign(HAlign_Left)<br />
+.VAlign(VAlign_Center)<br />
+[<br />
+&nbsp;&nbsp;&nbsp;&nbsp; SNew(STextBlock)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp; .ShadowColorAndOpacity(FLinearColor::Black)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp; .ColorAndOpacity(FLinearColor::Red)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp; .ShadowOffset(FIntPoint(-1, 1))<br />
+        &nbsp;&nbsp;&nbsp;&nbsp; .Font(FSlateFontInfo(&quot;Verdana&quot;, 16))<br />
+        &nbsp;&nbsp;&nbsp;&nbsp; .Text(&quot;Pause Menu&quot;)<br />
+        ]<br />
+        + SVerticalBox::Slot()<br />
+        .VAlign(VAlign_Center)<br />
+        [<br />
+        &nbsp;&nbsp;&nbsp;&nbsp; SNew(SHorizontalBox)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp; + SHorizontalBox::Slot()<br />
+        &nbsp;&nbsp;&nbsp;&nbsp; .HAlign(HAlign_Left)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp; .VAlign(VAlign_Top)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp; [<br />
+        &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; SNew(STextBlock)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; .ShadowColorAndOpacity(FLinearColor::Black)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .ColorAndOpacity(FLinearColor::Red)<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .ShadowOffset(FIntPoint(-1, 1))<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .Font(FSlateFontInfo(&quot;Verdana&quot;, 16))<br />
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .Text(FString(&quot;Options:&quot;))<br />
+    &nbsp;&nbsp;&nbsp;&nbsp; ]<br />
+    ]
+    </p></td>
+  </tr>
+</table>
+<p>There! Ok, but what do we expect to see?</p>
+<p><strong>Screen space distribution:</strong></p>
+<p>Slate doesn't exactly clear up where things will wind up being. The important thing to remember is that things are nested, meaning that once the distribution of the outer items is done, the inner items are distributed within their parents as if their parents were the entire screen. This does not mean that the parent will not grow to accomodate more data, but rather that you will have the hierarchy treated with respect. Let's look at the case above. You have a <em>vertical box</em>, which is to be in the center-left. It is however the only widget at its level, meaning that it may well expand to take up the entire screen, though it will prefer the center left part. Within it, you have 1) a <em>text block</em> and 2) a <em>horizontal box</em>. These have to share the space of their parent, the parent dictating that they will be distributed <em>vertically.</em> This means that all components are stacked one below the other, in the order given. These nested widgets' alignment concerns the area allocated to them, not their position in their parent area, which is determined, as stated just now, by the order they are added to it. Finally the new text block in the horizontal box is placed in the area of the horizontal box, rather than as a third element in the vertical box. To make things more apparent, copy-paste pieces of code to create larger UI structures:</p>
+<table width="1652" border="1">
+  <tr>
+    <td width="1642" height="75"><p><br />
+SNew(SVerticalBox)<br />
++ SVerticalBox::Slot()<br />
+.HAlign(HAlign_Left)<br />
+.VAlign(VAlign_Center)<br />
+[<br />
+&nbsp;&nbsp;&nbsp;&nbsp; SNew(STextBlock)<br />
+&nbsp;&nbsp;&nbsp;&nbsp; .ShadowColorAndOpacity(FLinearColor::Black)<br />
+&nbsp;&nbsp;&nbsp;&nbsp; .ColorAndOpacity(FLinearColor::Red)<br />
+&nbsp;&nbsp;&nbsp;&nbsp; .ShadowOffset(FIntPoint(-1, 1))<br />
+&nbsp;&nbsp;&nbsp;&nbsp; .Font(FSlateFontInfo(&quot;Verdana&quot;, 16))<br />
+&nbsp;&nbsp;&nbsp;&nbsp; .Text(&quot;Pause Menu&quot;)<br />
+]<br />
++ SVerticalBox::Slot()<br />
+.VAlign(VAlign_Center)<br />
+[<br />
+&nbsp;&nbsp;&nbsp;&nbsp; SNew(SHorizontalBox)<br />
+&nbsp;&nbsp;&nbsp;&nbsp; + SHorizontalBox::Slot()<br />
+&nbsp;&nbsp;&nbsp;&nbsp; .HAlign(HAlign_Left)<br />
+&nbsp;&nbsp;&nbsp;&nbsp; .VAlign(VAlign_Top)<br />
+&nbsp;&nbsp;&nbsp;&nbsp; [<br />
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; SNew(STextBlock)<br />
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; .ShadowColorAndOpacity(FLinearColor::Black)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .ColorAndOpacity(FLinearColor::Red)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .ShadowOffset(FIntPoint(-1, 1))<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .Font(FSlateFontInfo(&quot;Verdana&quot;, 16))<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .Text(FString(&quot;Options:&quot;))<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; SNew(STextBlock)<br />
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; .ShadowColorAndOpacity(FLinearColor::Black)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .ColorAndOpacity(FLinearColor::Red)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .ShadowOffset(FIntPoint(-1, 1))<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .Font(FSlateFontInfo(&quot;Verdana&quot;, 16))<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .Text(FString(&quot;Game:&quot;))<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; SNew(STextBlock)<br />
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; .ShadowColorAndOpacity(FLinearColor::Black)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .ColorAndOpacity(FLinearColor::Red)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .ShadowOffset(FIntPoint(-1, 1))<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .Font(FSlateFontInfo(&quot;Verdana&quot;, 16))<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .Text(FString(&quot;Info:&quot;))<br />
+&nbsp;&nbsp;&nbsp;&nbsp; ]<br />
++ SVerticalBox::Slot()<br />
+.VAlign(VAlign_Center)<br />
+[<br />
+&nbsp;&nbsp;&nbsp;&nbsp; SNew(SHorizontalBox)<br />
+&nbsp;&nbsp;&nbsp;&nbsp; + SHorizontalBox::Slot()<br />
+&nbsp;&nbsp;&nbsp;&nbsp; .HAlign(HAlign_Left)<br />
+&nbsp;&nbsp;&nbsp;&nbsp; .VAlign(VAlign_Top)<br />
+&nbsp;&nbsp;&nbsp;&nbsp; [<br />
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; SNew(STextBlock)<br />
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; .ShadowColorAndOpacity(FLinearColor::Black)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .ColorAndOpacity(FLinearColor::Red)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .ShadowOffset(FIntPoint(-1, 1))<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .Font(FSlateFontInfo(&quot;Verdana&quot;, 16))<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .Text(FString(&quot;Options2:&quot;))<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; SNew(STextBlock)<br />
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; .ShadowColorAndOpacity(FLinearColor::Black)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .ColorAndOpacity(FLinearColor::Red)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .ShadowOffset(FIntPoint(-1, 1))<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .Font(FSlateFontInfo(&quot;Verdana&quot;, 16))<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .Text(FString(&quot;Game2:&quot;))<br />
+<br />
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; SNew(STextBlock)<br />
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; .ShadowColorAndOpacity(FLinearColor::Black)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .ColorAndOpacity(FLinearColor::Red)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .ShadowOffset(FIntPoint(-1, 1))<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .Font(FSlateFontInfo(&quot;Verdana&quot;, 16))<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; .Text(FString(&quot;Info2:&quot;))<br />
+&nbsp;&nbsp;&nbsp;&nbsp; ]<br />
+] </p></td>
+  </tr>
+</table>
+<p>Try using such a code and see what happens! See if you can predict where each item will go by changing their text to &quot;Center-left&quot;, &quot;Lower-right&quot; and so on. Practice makes perfect!</p>
+<p>&nbsp;</p>
+<p>Below follows a <strong>list of basic slate components</strong> supported by Engine Version 4.8.3:</p>
+<table width="1652" border="1">
+  <tr>
+    <td width="1642" height="75"><p>SBorder</p>
+    <p>SBox</p>
+    <p>SBoxPanel</p>
+    <p>SBreadcrumTrail</p>
+    <p>SBuuildProgressWidget</p>
+    <p>SButton</p>
+    <p>SCanvas</p>
+    <p>SCheckBox</p>
+    <p>SComboBox</p>
+    <p>SComboButton</p>
+    <p>SComboRow</p>
+    <p>SColorBlock</p>
+    <p>SColorSpectrum</p>
+    <p>SColorWheel</p>
+    <p>SCompoundWidget</p>
+    <p>SDPIScaler</p>
+    <p>SEditableComboBox</p>
+    <p>SEditableText</p>
+    <p>SEditableTextBox</p>
+    <p>SErrorHint</p>
+    <p>SErrorText</p>
+    <p>SExpandableArea</p>
+    <p>SExpandableButton</p>
+    <p>SExpanderArrow</p>
+    <p>SFxWidget</p>
+    <p>SGraphNode</p>
+    <p>SGridPanel</p>
+    <p>SHeader</p>
+    <p>SHeaderRow</p>
+    <p>SHorizontalBox</p>
+    <p>SHyperlink</p>
+    <p>SImage</p>
+    <p>SInlineEditableTextBlock</p>
+    <p>SLeafWidget</p>
+    <p>SListPanel</p>
+    <p>SListView</p>
+    <p>SMenuAnchor</p>
+    <p>SMissingWidget</p>
+    <p>SMultiBlockBaseWidget</p>
+    <p>SMultiBoxWidget</p>
+    <p>SMultiColumnTableRow</p>
+    <p>SMultiLineEditableText</p>
+    <p>SMultiLineEditableTextBox</p>
+    <p>SNotificationItem</p>
+    <p>SNotificationList</p>
+    <p>SNulWidget</p>
+    <p>SNumericEntryBox</p>
+    <p>SOverlay</p>
+    <p>SPanel</p>
+    <p>SPopup</p>
+    <p>SPopupErrorText</p>
+    <p>SPopupLayer</p>
+    <p>SProgressBar</p>
+    <p>SRichTextBlock</p>
+    <p>SRichTextHyperlink</p>
+    <p>SRotatorInputBox</p>
+    <p>SSafezone</p>
+    <p>SScrollBar</p>
+    <p>SScrollBarTrack</p>
+    <p>SScrollBorder</p>
+    <p>SScrollBox</p>
+    <p>SSearchBox</p>
+    <p>SSeparator</p>
+    <p>SSlider</p>
+    <p>SSpacer</p>
+    <p>SSpinBox</p>
+    <p>SSpinningImage</p>
+    <p>SSpliter</p>
+    <p>SSpliter2x2</p>
+    <p>SSuggestionTextBox</p>
+    <p>STableRow</p>
+    <p>STableViewBase</p>
+    <p>STextBlock</p>
+    <p>STextComboBox</p>
+    <p>STextComboPopup</p>
+    <p>STextEntryPopup</p></td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+</body>
+</html>

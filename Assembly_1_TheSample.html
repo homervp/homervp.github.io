@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="stylesheet" type="text/css" href="style.css" />
+<meta name="description" content="Homer Papadatos Vasilakis, Tutorials"/>
+<meta name="keywords" content="Homer Papadatos Vasilakis, CV, Projects, programmer, game developer, indie game developer, amateur web developer, patras studentS"/>
+<title>Tutorials - Homer Papadatos Vasilakis</title>
+</head>
+
+<body>
+<p><br />
+  <a href=index.html><img src="MyName.jpg" width="494"height="68"/></a></p>
+<p><strong>&nbsp;Intro to x86 Assembly for Windows: concepts and tools</strong></p>
+<p>Having MASM32 installed (hopefully without problems), we can proceed to our 
+first program. This first one I choose to borrow from Dr.
+<a href="http://jeffhuang.com/">Jeff Huang</a>, assistant professor at Brown 
+University, the file is hosted at the University of Illinois where he completed 
+his Bachelor and Masters. This way at least you have a second source if I don't 
+explain something well. The original PDF, with which I myself started x86 
+assembly after some Atmel we did in the second semester, can be found right
+<a href="https://www-s.acm.illinois.edu/sigwin/old/workshops/winasmtut.pdf">here</a>. 
+Let's just drop the code below and see what we can make of it:</p>
+<div style="left: 339.6px; top: 474.734px; font-size: 13.3px; font-family: monospace; transform: scaleX(0.999828);">
+	.386 </div>
+<div style="left: 339.6px; top: 489.834px; font-size: 13.3px; font-family: monospace; transform: scaleX(0.999828);">
+	.model flat, stdcall <br />
+</div>
+<div style="left: 339.6px; top: 504.933px; font-size: 13.3px; font-family: monospace; transform: scaleX(0.999828);">
+	option casemap :none <br />
+</div>
+<div style="left: 339.6px; top: 535.132px; font-size: 13.3px; font-family: monospace; transform: scaleX(0.999828);">
+	include \masm32\include\windows.inc </div>
+<div style="left: 339.6px; top: 550.232px; font-size: 13.3px; font-family: monospace; transform: scaleX(0.999828);">
+	include \masm32\include\kernel32.inc </div>
+<div style="left: 339.6px; top: 565.331px; font-size: 13.3px; font-family: monospace; transform: scaleX(0.999828);">
+	include \masm32\include\masm32.inc </div>
+<div style="left: 339.6px; top: 595.53px; font-size: 13.3px; font-family: monospace; transform: scaleX(0.999828);">
+	includelib \masm32\lib\kernel32.lib </div>
+<div style="left: 339.6px; top: 610.63px; font-size: 13.3px; font-family: monospace; transform: scaleX(0.999828);">
+	includelib \masm32\lib\masm32.lib <br />
+</div>
+<div style="left: 339.6px; top: 640.93px; font-size: 13.3px; font-family: monospace; transform: scaleX(0.999828);">
+	.data </div>
+<div style="left: 339.6px; top: 656.029px; font-size: 13.3px; font-family: monospace; transform: scaleX(0.987359);">
+	HelloWorld db "Hello World!", 0 <br />
+</div>
+<div style="left: 339.6px; top: 686.228px; font-size: 13.3px; font-family: monospace; transform: scaleX(0.999828);">
+	.code <br />
+</div>
+<div style="left: 339.6px; top: 701.328px; font-size: 13.3px; font-family: monospace; transform: scaleX(0.999828);">
+	start: </div>
+<div style="left: 339.6px; top: 716.427px; font-size: 13.3px; font-family: monospace; transform: scaleX(0.987039);">
+	invoke StdOut, addr HelloWorld </div>
+<div style="left: 339.6px; top: 731.527px; font-size: 13.3px; font-family: monospace; transform: scaleX(0.983203);">
+	invoke ExitProcess, 0 </div>
+<div style="left: 339.6px; top: 761.726px; font-size: 13.3px; font-family: monospace; transform: scaleX(0.999828);">
+	end start </div>
+<p>Now we can start. I believe the best idea is to manually write the code line 
+by line into MASM32's editor as you read the tutorial for a better 
+understanding, at least that's how I function best.</p>
+<p>Starting straight off with the first line, the .386 indicates that the 
+assembly should be compatible with the .386 Intel processor, this is a directive 
+to the assembler mostly, as what commands we use are what determines the 
+compatibility (see the introductory assembly "tutorial" where I briefly mention 
+key processors and assembly instruction additions).</p>
+<p>Next we have the .model directive, followed with <em>flat</em> and <em>
+stdcall</em>. The first refers to the way we address memory, the
+<a href="https://en.wikipedia.org/wiki/Flat_memory_model">flat model</a> is 
+simple and straightforward: access memory linearly. The stdcall part refers to 
+how we invoke functions, and this depends largely on language used, and the way 
+the compiler takes the arguments for the function. We will see a bit more on 
+this when we get into the details of calling functions, which will come soon 
+enough. You can explore more options for this line drawing upon the
+<a href="https://msdn.microsoft.com/en-us/library/ss9fh0d6.aspx">MSDN entry for 
+the .model directive</a>, however we will not be touching this, at least not for 
+a while. Also note that flat is the model used by windows in general, and thank 
+goodness for that because we use a unified pointer format rather than far and 
+short that were used in ye old times.</p>
+<p>Next we have <em>option casemap :none</em>, as <em>casemap</em> tells us, 
+this may have something to do with letter case, and indeed by setting this to
+<em>none</em>, we tell MASM that we want this to be a case-sensitive code, no 
+labels or names or anything should be mapped to uppercase, lowercase or 
+anything. If you work in a team and want to maintain some naming conventions you 
+may want another mapping scheme so you can each write names the way you want, be 
+it "MyVar", "myVar" or "myvar", and you'll refer to the same variable.</p>
+<p>Now we have a few <em>include</em> directives, these are similar to C's <em>
+#include</em> directive, you include the content of .inc files into your code 
+which contain code, naturally. We include windows.inc, kernel32.inc and 
+masm32.inc. masm32.inc contains StdOut among others. The other two refer to the 
+host, kernel32.inc will provide us with ExitProcess, while windows.inc has 
+Win32Api data and calls. You should feel honored to have the priviledge of 
+printf-like StdOut, in the university we used Atmel assembly on ATiny95 boards 
+and used GDB (Grub DeBugger) to look at the raw memory to verify results, no 
+need to say printing to a terminal is more convenient than line-by-line 
+debugging through a terminal.</p>
+<p>Next come the <em>includelib</em> directives, targetting the library files 
+themselves. They complement the <em>include</em> directives though not directly, 
+and they inform the linker that it should link our output to the appropriate 
+dll's. Note how, since .inc files contain code, they don't necessarily need a 
+coresponding lib file.</p>
+<p>The next part is the .data segment, here you initialize your data, so any 
+strings you write in C as "whatever the stream is" (including the quotes) should 
+be declared here. Other directives we'll see in the future are .data? for 
+uninitialized variables, and .const for constants. Accordingly we define 
+HelloWorld to include the iconic phrase.</p>
+<p><em>start:</em> is rather self-explanatory. It's sort of like main() in C. 
+The program just starts here.</p>
+<p><em>invoke StdOut, addr HelloWorld</em> is your first function call! This 
+call is quite straightforward, we'll see some more details in the short future. 
+essentially you call the <em>invoke</em> macro which handles parameter passing, 
+we'll see how it's done by hand too later on. Note that we don't use parentheses 
+but still separate the parameters with comas.</p>
+<p><em>invoke ExitProcess, 0</em> similarly calls a function, which more or less 
+stops the program and kills the process. This is necessary for a few reasons, 
+most of which are generally anyway handled by the OS, but being tidy helps us 
+remain safe and professional. Some reasons could be not executing junk that 
+resides in memory after the last command, not executing other code that may 
+reside there, not "hanging" and leaving a process open thus maintaining a slot 
+in the process table (yes you do have around 65.535 processes in total but if 
+you're running the program, say, every second, in an automated fashion, it may 
+become an issue), that would make it a <em>zombie process</em>. This roughly 
+corresponds to <em>return 0;</em> or <em>return exit_success;</em> in C.</p>
+<p><em>end start</em> signifies the end of <em>start</em> as a routine, here due 
+to ExitProcess it's not really used but it is used when calling a function.</p>
+<p>This concludes this tutorial, there isn't much else to do on your own other 
+than trying to add another string and print it.</p>
+</body>
+</html>

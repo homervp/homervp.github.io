@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>DirectX 4: 3D initialization</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>DirectX tutorial 5: Index buffers</p>
+<p>            Sure we  have created a triangle, and sure all objects are composed of triangles (in 3D  modeling context), but we have to do one more thing before we move all this  into the 3D world – that is, before we start looking at viewports, projections,  rotation and so on.</p>
+<p>Right now  we send raw data to the buffer and the device, telling it what to put where and  what to draw. DirectX uses index buffers however, so that instead of sending  the whole vertex again and again, you send the vertices once and then you just  reference them by a number – an index. Essentially this just creates an  array-like abstraction, you use an index in an array, you use an index in this  buffer.</p>
+<p>Before we  start, copy and rename the previous initialization and 3D rendering functions.  We will work on the function with the original name, but to be sure you don&rsquo;t  mess anything up, create an enumerator or an integer and use a switch-case  statement so you can control which function is to be used.</p>
+<p>The index  buffer is an interface, so you will create it like the Direct3D device.</p>
+<p>So, first  off, we need to declare an index buffer. We&rsquo;ll do that in the 3Dheader.h for  now:</p>
+<p>            IDirect3DIndexBuffer9  iBuffer;</p>
+<p>            Next thing  we need to do is load it. Go to the init_graphics function. You can delete the  previous code if you wish, however as long as you don&rsquo;t render the previous  buffer it shouldn&rsquo;t be a problem:<br />
+  <br />
+  HRESULT hr =  pd3dDevice-&gt;CreateIndexBuffer(sizeof(IndexData)*sizeof(WORD),<br />
+  D3DUSAGE_WRITEONLY,<br />
+  D3DFMT_INDEX16,<br />
+  D3DPOOL_DEFAULT,<br />
+  &amp;iBuffer,<br />
+  NULL);</p>
+<p>            Now, the  first argument is the size of the buffer. We multiply it by the size of WORD,  which is roughly twice the size of each element (you will see that we  technically use short int, as we don&rsquo;t intend to have many indices). IndexData  we will declare soon, it will store a series of indices, it is just an array of  integers or DWORDs. We specify the usage to be for writing (reading will not  occur yet), and the format we declare to be 16 bits per index. Afterwards we  assign it to the default memory pool. Finally we give it the address of the  pointer that we will be using to access it, and the final parameter is a  reserved pHandle variable that should be set to NULL.</p>
+<p>            I think  it&rsquo;s time to explain what the plan is. With the previous method we would need  2*6*3=36 vertices to create the  2*6  triangles that would compose the 6 square surfaces of a cube. Now we will use 8  vertices representing the 8 corners of the cube, each corresponding to a single  number, and then we will just place 2*6 sequences of 3 numbers. Thus the memory  before was 36* the size of the vertex, which is 8 numbers, in total 36*8. Now  we will need 8*8 + 36. With some simple math we conclude that it takes about  65% less room in the memory, thus in the same room we can nearly store 3 such  cubes. And in a more complex model where the same vertex may be shared by  numerous faces this gain probably increases a lot.<br />
+  A little  disclaimer, in this tutorial you will probably only see one side of the cube as  we do not do any rotation or projection. You will see evidence of it&rsquo;s  three-dimensionality in the next tutorial.</p>
+<p>            Now, we  have to define our cube&rsquo;s points. Just copy-paste them:</p>
+<p>CUSTOMVERTEX cubeVertices[ ] = {<br />
+  {-1.0f,-1.0f,-1.0f, D3DCOLOR_ARGB(0,0,0,255)}, // 0<br />
+  {-1.0f, 1.0f,-1.0f, D3DCOLOR_ARGB(0,0,0,255)}, // 1<br />
+  {1.0f, 1.0f,-1.0f, D3DCOLOR_ARGB(0,0,0,255)}, // 2<br />
+  { 1.0f,-1.0f,-1.0f, D3DCOLOR_ARGB(0,0,0,255)}, // 3<br />
+  {-1.0f,-1.0f, 1.0f, D3DCOLOR_ARGB(0,0,0,255)}, // 4<br />
+  {1.0f,-1.0f, 1.0f, D3DCOLOR_ARGB(0,0,0,255)}, // 5<br />
+  { 1.0f, 1.0f, 1.0f, D3DCOLOR_ARGB(0,0,0,255)}, // 6<br />
+  {-1.0f, 1.0f, 1.0f, D3DCOLOR_ARGB(0,0,0,255)} // 7<br />
+  };</p>
+<p>The numbers in the comments are the  indexes that will be assigned to the vertices. Now let&rsquo;s create the index  array:</p>
+<p>WORD IndexData[ ] = {<br />
+  0,1,2, // triangle 1<br />
+  2,3,0, // triangle 2<br />
+  4,5,6, // triangle 3<br />
+  6,7,4, // triangle 4<br />
+  0,3,5, // triangle 5<br />
+  5,4,0, // triangle 6<br />
+  3,2,6, // triangle 7<br />
+  6,5,3, // triangle 8<br />
+  2,1,7, // triangle 9<br />
+  7,6,2, // triangle 10<br />
+  1,0,4, // triangle 11<br />
+  4,7,1 // triangle 12<br />
+  };</p>
+<p>            The  elements are equivalent to integers. I have taken this example straight from a  book so you don&rsquo;t need to worry about it not being right. So, next step is to  add the indices to the index buffer, we will use the VOID pointer we already  have:</p>
+<p>iBuffer-&gt;Lock(0, 3*12*sizeof(WORD), (void**)&amp;pVoid,  0);<br />
+  memcpy(pVoid, indices, sizeof(indices));<br />
+  iBuffer-&gt;Unlock();</p>
+<p>            This should  have the buffer ready.</p>
+<p>Now we move back into D3DLoader.h,  where we will change the Render3D() function. After we set the stream source,  we set the indices and replace the drawing method so that we use the index  buffer:</p>
+<p>pd3dDevice-&gt;SetIndices(iBuffer);</p>
+<p>pd3dDevice-&gt;DrawIndexedPrimitive(D3DPT_TRIANGLELIST,  //mode<br />
+  0, //first vertex  index<br />
+  0, //minimum  vertex index<br />
+  8, //number of  vertices<br />
+  0, //starting  index<br />
+  12); //number of  primitives to draw</p>
+<p>&nbsp;</p>
+<p>            Now you can  compile and run the program. It is most probable that you will see nothing,  that&rsquo;s why I did a find and replace operation, changing -1.0f to 200 and 1.0f  to 400, otherwise you only get a pixel in the upper left corner drawn, as you  do not do any transformations and thus give screen coordinates. Do that to see  that it works (you should see a blue rectangle), and then set the values back  to the original so that you have the correct model.</p>
+<p>            Though this  tutorial probably looked really short, I can assure you that it took me days to  get everything right, so don&rsquo;t be discouraged if it takes some time to get  things working! After all, even that last remark about the vertices and the  size of the model was an observation done late in the debugging, and might have  been the problem from the beginning, so don&rsquo;t think that others are that much  more ahead of you.</p>
+<p>            In the next  tutorial we will project the box to our camera, the tutorial will cover  rotating the box and making it move about a little bit, just to demonstrate  three-dimensionality. You will find a tutorial in the secondary series that  will rotate the camera around the box.</p>
+<p>            You can  download the project files <a href="DirectX9TutorialIndexedPrims.rar">here</a>. Don&rsquo;t be afraid to experiment, try to make this  by changing the position and color of one vertex:<img src="DirectXIndexingTutorial.JPG" width="500" height="267" alt="DirectX cuboid rendered over image" /></p>
+<p><a href="(If you can’t figure it out, it’s the second-to-last vertex with Y and Z set to 300 and G to 255)">Solution (the url this link directs to is the solution, there is no such page - to my knowledge at least)</a></p>
+</body>
+</html>

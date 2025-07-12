@@ -1,0 +1,22 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>XNA 2: Keyboard Input - Homer Papadatos Vasilakis</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>XNA  Tutorial II: Keyboard input</p>
+<p>It is not a  game if you cannot interact, right? To be precise, it&rsquo;s not even a visual  novel. So it&rsquo;s quite important that we get some interactivity in our game, and  we shall start with keyboard input, as it is precise, to the point and clearly  defined.</p>
+<p> Getting input   is fairly straightforward in XNA,  especially if you saw how it&rsquo;s done in the Win32Api. Essentially you will need  to keep track of the keyboard, or better, it&rsquo;s state. XNA defines a class  called KeyboardState, which does exactly that. You will certainly want to  declare one such in your Update() function, declare it there so as to have it  update in every game cycle. You may soon wish to know the previous state of the  keyboard, so it might be wise to also place one outside the function, so as to  retain it&rsquo;s state. This one however you will have to update right before you  exit Update(), so that you will not lose your current keyboard.<br />
+Having set  this up, the function you need to see if a key is pressed is named IsKeyDown(),  conveniently. The parameter it takes it a key code. XNA has an abstract class  called Keys set up for us. All the possible keys are members of this class, or  rather their codes, so to get the code for letter E, you will type Keys.E, and  to see if it&rsquo;s pressed, myKeyboard.IsKeyDown(Keys.E). In fact there are even unassigned  codes for extra keys that are of a more unique nature.</p>
+<p>To see if a  key has been continually pressed or it just got pressed you can compare the IsKeyDown()  value of this key in your current keyboard and the more static one in the  class. Later on you might not want the action to be done only upon the pressing  of the key, but rather just make it more controllable by allowing a slower rate  of it&rsquo;s execution, this can be done using timers.</p>
+<p> Of course IsKeyDown()  returns a Boolean, meaning that it is used in logical expressions, so the code  corresponding to the appropriate input is in the corresponding int. This  however does allow us without any further processing cost to check multiple  keys combining them with the &amp;&amp; operator, to get key combinations.</p>
+<p> For now it  would be purposeful to create a couple of hotkeys, actually a toggle for  fullscreen (Alt+Enter tend to be the standard, the command is ), and anything  else you might consider important. You can also start building the actual  mechanics, however without graphics to show you what&rsquo;s going on, there is little  to be done.</p>
+<p> In the next  tutorial I will cover painting sprites and text to the screen, so you can start  making some games, a shift puzzle for example is a good starting point for  example.</p>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>C Expanded Tutorial II: Dynamic Data Structures - Homer Papadatos Vasilakis</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p><strong>C Expanded Tutorial 2:  Dynamic and complex data structures</strong></p>
+<p>You may have noticed  that the greatest flexibility offered so far in terms of storing different  amounts of data has been given through allocating memory by use of malloc().  There exist however a couple of concepts that make efficient and smart use of  C&rsquo;s low level power that allow us to dynamically create new items during  runtime and meet the needs of each occasion.</p>
+<p> The first such data  structure is the linked list. The concept of the linked list is that each  member of this list is pointed at and accessed by the previous one, except the  first one for which we have a distinct pointer. In essence, starting from one  item, you create another and put the pointer of the first to point the second,  then, creating a third item we have the second point to it, and so on. There  are many variations and combinations between them, the most fundamental is that  we can have the members, or nodes as they are often referred to, also point  backwards, so we do not need to restart iterating through the list to get to a  previous node.</p>
+<p> Other variations have  the first linked to the last, which allows continuous iteration as the list now  mentally forms a circle. Circles though have no beginning or end, so one could  also have the pointer to the first node move around, which will also indicate  which was the last accessed node, or the currently selected one.<br />
+  A sample structure for  the node could be:<br />
+  <br />
+  Struct node <br />
+  {<br />
+  /*data*/<br />
+  *node nextNode;<br />
+  }<br />
+  <br />
+  Which would make the  implementation very straightforward:<br />
+  <br />
+  node firstNode;<br />
+  <br />
+  void new()<br />
+  {<br />
+  *node currentNode = &amp;firstNode;<br />
+  if ((*currentNode).nextNode != NULL) //or: if (currentNode->nextNode != NULL)<br />
+  {<br />
+  node newNode = node();<br />
+  currentNode->next &amp;= newNode; // or: (*currentNode).next &amp;= newNode;<br />
+  }<br />
+}</p>
+<p> It is immediately  apparent that each new feature we wish to implement will be a matter of a line  or two. However to effectively control addition, subtraction and so on during  runtime, it is useful to use functions. To expand you need a function of type  *node, which creates within it a new node and returns it&rsquo;s address to the next  pointer. To remove a node you use the free() function to give memory back to  the system, and also assign NULL to any pointer that was pointing to the  particular node so as not to cause a segmentation fault or access violation  error. Checking whether a pointer is NULL is the standard way to see if there  is another node in general.</p>
+<p> Another data structure  that may be made either as static or dynamic is the tree structure. In the same  way you can modify the linked list, you can make the tree just about anything.  In essence the tree has at least some nodes pointing to more than one other  node. A simple binary tree with 3 levels would have a node on top with two  pointers, each pointing to an identical node, and each pointer of these  pointing to two nodes without any pointers. This can be expanded indefinitely,  and can also be implemented with more pointers per node. Furthermore you may  not know how many pointers will be in each node, in which case you might want  to make the pointers a linked list, or at least a double pointer which you will  later use malloc() on.</p>
+<p> There is some  terminology concerning trees which might be more helpful: the Root is the  topmost node, not pointed by anything in the tree structure. Internal nodes are  nodes that point to something, more technically, they point to at least one  child. Nodes with no children are called leaves. The level of the node is how  deep into the tree it is, it is 1 + the number of connections made until we  reach the root. Height is similarly the distance between a node and the closest  leaf. The connections are called edges while the node which points to the node  we are referring to is it&rsquo;s parent. Siblings are obviously nodes  that have the same parent. Finally a forest  is a number of trees that are not connected between them.</p>
+<p> So you can have a tree  where nodes have an undefined number of children, using a double pointer and  malloc(). Again using malloc() you can have leaves point to NULL and then have  them point to a new node.<br />
+Effective use of  pointers can help you represent connections between ports or airports, military  hierarchy, or any sort of connection, most obviously trails or redirections,  like waypoints in a path. You may also try going through every single element  of a tree in an effective way, this will be covered in a separate tutorials as  the methods used are particularly interesting and not easy to think of. One  good idea is having an extra variable  in  the node that keeps in mind if the node has been processed yet, start filling  these beginning with a leaf and working upwards, but only put something in if  all children have been checked, otherwise go down another path, using a for  loops and functions in a recursive manner. This way you will also not double check  branched or infinitely go through the same branch. You will get the amount of  pointers in the node by use of sizeof().</p>
+<p> I now encourage you to  make a simple pointless demo of the two structures&rsquo; use and then try out  implementing it into something cool. Any techniques you use to scan a tree  structure will turn out useful when you try to create pathfinding in a tile  based map, or searching a manually made database, and is generally a very good  practice that will advance your programming skills and perception a lot.</p>
+</body>
+</html>

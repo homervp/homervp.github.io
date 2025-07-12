@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p>To start with, I  will assume you either have Visual Studio or Dev-C++ installed. If not, I  assume you have no programming experience in C/C++ and I should suggest you  start with another tutorial, introductory to C++ (or C if you like old stuff  even more than I do, though it probably is wiser to start with C anyway). My C  tutorials are listed in the tutorial index. Also note that most of the examples  are probably not tested in the latest Dev-C++, but they should work.</p>
+<p>The  GDI has the advantage of not needing any installations other than the compiler,  as opposed to Allegro, DirectX, XNA etc. All you have to do is start a new  project, select Visual C++ from the dropdown list to the left, and a Win32  project from the right, it should be the third option. Name the project  something suitable and keep on clicking next and finally finish, you will  rarely have to change any of these parameters.</p>
+<p> A  detail many do not say, Dev-C++ does not include StdAfx.h usually, so if a  Dev-C++ example from another page does nor run, try including that. I am  certain that if you have any C++ experience you know how to include headers, in  case you do not, the syntax is: #include &lt;StdAfx.h&gt;</p>
+<p>  There  should be plenty of code below, and I will analyze it. Other tutorials may tell  you to create an empty project and add the code manually, though I believe it  does indeed help in the understanding of Windows applications, I do not advise  it for your first five projects, as details and differences such as that of the  StdAfx header can prevent it from compiling, and that will lead to meaningless  loss of time, frustration and potential discouragement. Now let&rsquo;s start:<br />
+  After  the #includes, follow these lines:<br />
+  <br />
+  // Global Variables: <br />
+  HINSTANCE hInst;                                // current instance<br />
+  TCHAR szTitle[MAX_LOADSTRING];                  // The title bar text<br />
+  TCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name</p>
+<p>            HINSTANCE  variables are handles to instances of your program. A handle is a pointer  essentially, so they point to these instances. Generally you will have one instance  to handle, the main window, and instances generally refer to a window (thus you  will probably not find an instance without a window). So you just declare a  pointer to handle your window.</p>
+<p> TCHAR  is a character array with a length equal to MAX_LOADSTRING, which has been  defined just before these declarations (#include and #define are commands  towards the compiler, so when I say I have an #include section, I might have  #define-d something there, but no worries, I will mention that). szTitle[] has  the window title in it. You can try changing it later and compiling the code to  see how the title bar changes, for short press Ctrl+Shift+B to build the  program and F5 to execute it.</p>
+<p> Similarly  szWindowClass is just about the same thing, just a name for the window. I will  soon explain how to change these two variables.</p>
+<p>// Forward declarations of  functions included in this code module: <br />
+  ATOM                       MyRegisterClass(HINSTANCE  hInstance);<br />
+  BOOL                       InitInstance(HINSTANCE,  int);<br />
+  LRESULT CALLBACK     WndProc(HWND, UINT, WPARAM, LPARAM);<br />
+INT_PTR CALLBACK     About(HWND, UINT, WPARAM, LPARAM);</p>
+<p>Now, you should  not worry about these in general, but I am going to explain anyway. Just keep  in mind that these  functions are  functions used by default and you have no practical need to change them, so  please, leave them alone!<br />
+  ATOM. It is  defined as typedef  WORD ATOM. To be more precise, it is an atom table, a  table where the system places strings and receives 16-bit integers, used to  access the strings, which are called atom names. Thus the function returns an  atom table.<br />
+  BOOL, as you  know it, it&rsquo;s the return type for the function. InitInstance initializes the  data for the running instance. So simple.<br />
+  LRESULT CALLBACK  and INT_PTR CALLBACK. These two functions interpret system messages, thus these  are the actual event handlers. Callback functions in general are functions for  message processing, LRESULT and INT_PTR are return types. If you get deep into  the Win32Api you can get to a point where you can process returns from your own  callback functions, for now there is no use for this.</p>
+<p>Events: Every  time something happens in the system, more notably when a key is pressed or the  mouse is moved, a message is sent out by the system to anything that might be  interested, user input is processed generally only by the system and the  top-most window. There are exceptions, for example a program that lets you  record the screen onto video always listens to system messages looking for a  particular hotkey which will trigger recording. Messages are also sent between  different programs, for example if you have used CAD software it is possible  that you opened a smaller window that allows color manipulation, this window  will probably be modifying variables common to all windows of the program, but  it can also send a message to the main window, I would personally use a message  to indicate that a restore key has been pressed. Another simple example is that  when you click the OK button in a pop-up window with en error message, it  receives that as an IDOK message.<br /><br />int APIENTRY _tWinMain(HINSTANCE hInstance,<br />
+  HINSTANCE hPrevInstance,<br />
+  LPTSTR    lpCmdLine,<br />
+  int       nCmdShow)<br />
+  {<br />
+  &gt;UNREFERENCED_PARAMETER(hPrevInstance);<br />
+&gt;UNREFERENCED_PARAMETER(lpCmdLine);</p>
+<p>       // TODO: Place  code here.<br />
+  &gt;MSG  msg;<br />
+&gt;HACCEL  hAccelTable;</p>
+<p>       // Initialize global strings<br />
+  &gt;LoadString(hInstance,  IDS_APP_TITLE, szTitle, MAX_LOADSTRING);<br />
+  &gt;LoadString(hInstance,  IDC_MYTUTORIAL, szWindowClass, MAX_LOADSTRING);<br />
+  &gt;MyRegisterClass(hInstance);</p>
+<p>       // Perform application initialization:<br />
+  &gt;if (!InitInstance (hInstance, nCmdShow))<br />
+  &gt;{<br />
+  &gt;&gt;return FALSE;<br />
+  &gt;}</p>
+<p>&gt; hAccelTable  = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_MYTUTORIAL));</p>
+<p>       // Main message loop:<br />
+  &gt;while (GetMessage(&amp;msg, NULL, 0, 0))<br />
+  &gt;{<br />
+  &gt;&gt;if (!TranslateAccelerator(msg.hwnd, hAccelTable,  &amp;msg))<br />
+  &gt;&gt;{<br />
+  &gt;&gt;&gt;TranslateMessage(&amp;msg);<br />
+  &gt;&gt;&gt;DispatchMessage(&amp;msg);<br />
+  &gt;&gt;}<br />
+  &gt;}</p>
+<p>&gt;return (int)  msg.wParam;<br />
+  }</p>
+<p>&nbsp;</p>
+<p>Wow. This is  big, right? This is the main program. I believe it is quite clear that the  first line just indicates that this is where everything starts. I also hope you  have studied functions and thus know that the following 3 lines are just the  rest of the parameters passed to this function, written a bit more clearly.  _tWinMain is a variation of WinMain, these variations have small differences  such as what encoding they will handle, but generally the compiler chooses the  right one, meaning in different systems, it might replace _tWinMain with  another variation.<br />
+  Equally the  folowing are stuff you will not touch in general. I should clarify that I named  the project MyTutorial, so you can see an IDC_MYTUTORIAL parameter passed.</p>
+<p> MSG structures  are message structures, here you just create one of them to handle any incoming  messages. The message generally has four elements, as you can see back at the  WndProc(), an HWND, a window handle that is, which clarifies which window sent  this, a UINT, which is an unsigned integer, all messages have their own  representative number, a WPARAM and an LPARAM, which are the details. You will  generally work with WPARAM, and LPARAM only for more detailed stuff, like mouse  movements. WPARA M stands for word parameter, word here means that it has a  length equal that which can be handled by the OS, in your case it ought to be  32bit or 64bit, though I am certain that even in 64bit windows (which I will  refer to as x64) it remains 32bit for compatibility reasons. The LPARAM stands  for long parameter, a parameter with twice the length which carries more  details in case the WPARAM just isn&rsquo;t enough.</p>
+<p> LoadString()  functions do what they say, they just load text into a string.<br />
+  MyRegisterClass()  is used for further preparation of the window before it can be displayed, also  not much to mess around with.</p>
+<p> The if statement  that follows is a nice way to check if everything still works. When you place a  function in an if statement, it will execute as usual, and the statement will  take it&rsquo;s return value. The return value within the if refers to the WinMain,  so if the InitInstance() (the initialization of the instance) fails, it will  return 0, the if will activate and then WinMain will return 0 and exit.</p>
+<p>Main() and  WinMain() return values because a program can be executed by another program,  so the program has to let the other one know if it run successfully, if it  crashed, what the value of pi is, and so on.</p>
+<p>&nbsp;</p>
+<p>HACCEL are  acceleration tables, there&rsquo;s not much to do with them, all I can say is that  Windows use them at some point or another, and if you somehow manage to find  out how to fiddle with this then you are probably going to make the program  give an Access Violation code or something similar, it might not even launch.</p>
+<p> The While loop  that follows is the main program loop, you might see other referring to it as  the main loop, the program loop, the message loop and so on. As it is right  now, it will patiently wait for a message, so GetMessage works like cin, or  GetChar if you know some good C. This is where our modifications will start in  the next chapter.</p>
+<p> When the user  enters input, it will try to interpret it with TranslateAccelerator(), which is  where hAccelTable is used, you can think of it as &ldquo;does this refer to the  system? If yes, then the system will take care of it, if not, then let&rsquo;s see if  we have anything for it.&rdquo;. If it fails to handle it, then we send the message  over to WndProc() and try again.</p>
+<p> Perhaps I jumped  a bit forward. TranslateMessage() is the function sending it to WndProc().  DispatchMessage() takes care of removing the message from the message queue,  otherwise it would be checked over and over again.</p>
+<p>All messages  enter the message queue and are processed in the order they are given and are  then sent to the corresponding application.</p>
+<p>If everything  goes well and the program exits properly, which means that a proper quit  message is sent and the While loop exits, the program will return the word  parameter of the last given message to whatever has called it.</p>
+<p>// <br />
+  //  FUNCTION: MyRegisterClass() <br />
+  // <br />
+  //  PURPOSE: Registers the window class. <br />
+  // <br />
+  //  COMMENTS: <br />
+  // <br />
+  //    This function and its usage are only necessary  if you want this code <br />
+  //    to be compatible with Win32 systems prior  to the 'RegisterClassEx' <br />
+  //    function that was added to Windows 95. It  is important to call this function <br />
+  //    so that the application will get 'well  formed' small icons associated <br />
+  //    with it. <br />
+  // <br />
+  ATOM MyRegisterClass(HINSTANCE hInstance)<br />
+  {<br />
+  &gt;WNDCLASSEX  wcex;</p>
+<p>&gt;wcex.cbSize  = sizeof(WNDCLASSEX);</p>
+<p>&gt;wcex.style                 = CS_HREDRAW | CS_VREDRAW;<br />
+  &gt;wcex.lpfnWndProc     = WndProc;<br />
+  &gt;wcex.cbClsExtra            = 0;<br />
+  &gt;wcex.cbWndExtra            = 0;<br />
+  &gt;wcex.hInstance             = hInstance;<br />
+  &gt;wcex.hIcon                 = LoadIcon(hInstance,  MAKEINTRESOURCE(IDI_MYTUTORIAL));<br />
+  &gt;wcex.hCursor         = LoadCursor(NULL, IDC_ARROW);<br />
+  &gt;wcex.hbrBackground   = (HBRUSH)(COLOR_WINDOW+1);<br />
+  &gt;wcex.lpszMenuName    = MAKEINTRESOURCE(IDC_MYTUTORIAL);<br />
+  &gt;wcex.lpszClassName   = szWindowClass;<br />
+  &gt;wcex.hIconSm         = LoadIcon(wcex.hInstance,  MAKEINTRESOURCE(IDI_SMALL));</p>
+<p>&gt; return RegisterClassEx(&amp;wcex);<br />
+  }<br />
+  Essentially here  you can see that the code generated is also commented, so you get a rough idea  of what&rsquo;s going on. I am confident you will have no need to fiddle with this  too much, but there are a couple of stuff   I would like to say. To start with, wcex.style contains data on the form  of the window, how it will be. CS_HREDRAW and CS_VREDRAW are styles that  correspondingly allow horizontal and vertical resizing of the window. Since  this tutorial will aim at game developing and purely graphics issues, I suggest  that if you are making a game you should remove these two and replace this with  NULL. The line inbetween ( | ) is an AND statement, it allows for more than one  styles to be combined. There are other styles for windows, buttons, and other  elements.<br />
+  What is  interesting though is that by default this code that is for pre-win95 systems  is placed, and it returns the output of the code aimed at win95 and newer by  passing the parameters to the newer function, RegisterClassEx() function, take  a minute and look at its return value.</p>
+<p>// <br />
+  //   FUNCTION: InitInstance(HINSTANCE, int) <br />
+  // <br />
+  //   PURPOSE: Saves instance handle and creates  main window <br />
+  // <br />
+  //   COMMENTS: <br />
+  // <br />
+  //        In this function, we save the instance  handle in a global variable and <br />
+  //        create and display the main program  window. <br />
+  // <br />
+  BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)<br />
+  {<br />
+  &gt;HWND  hWnd;</p>
+<p> &gt;hInst = hInstance; // Store instance handle in  our global variable</p>
+<p> &gt;hWnd  = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,<br />
+  &gt;CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);</p>
+<p>&gt;if (!hWnd)<br />
+  &gt;{<br />
+  &gt;&gt;return FALSE;<br />
+  &gt;}</p>
+<p>&gt; ShowWindow(hWnd, nCmdShow);<br />
+  &gt;UpdateWindow(hWnd);</p>
+<p>&gt;return TRUE;<br />
+  }</p>
+<p>As  this section is also commented, I will only  note some basic things.<br />
+  CreateWindow has  some recognizable parameters, WS_OVERLAPPEDWINDOW contains in itself a few  other styles, while WS stands for Windows Style, essentially working just like  the styles mentioned above. After this we have the x and y coordinate at which  the window will appear, and the length and width of the window, so these you  can replace and test it. You can also replace szTitle with a string of your  own, but you will have to consult the Tips, Tricks and Secrets page to fix a  compiler error that will probably appear. I will not explain here since it will  take a small paragraph.<br />
+  The if statement  you might recognize as a control that checks whether or not it has succeeded.  If not, then now you know it.<br />
+  ShowWindow() is  the command that does the first visible magic, obviously, it shows the window  to the user. The two parameters are the handle to the window (now you know  why/how we use handles) and an integer with a suitable command. Once again you  have no real need to change this.<br />
+  UpdateWindow()  is equally self-explanatory, it commands the system to update the window,  refresh it, reprint it, or whatever you&rsquo;d like to call it.<br />
+  Finally the  return statement is just good programming practice, and is useful for placing  functions in if statements.</p>
+<p>// <br />
+  //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM) <br />
+  // <br />
+  //  PURPOSE:   Processes messages for the main window. <br />
+  // <br />
+  //  WM_COMMAND       -  process the application menu <br />
+  //  WM_PAINT  -  Paint the main window <br />
+  //  WM_DESTROY       -  post a quit message and return <br />
+  // <br />
+  // <br />
+  LRESULT CALLBACK WndProc(HWND hWnd, UINT  message, WPARAM wParam, LPARAM lParam)<br />
+  {<br />
+  &gt;int wmId, wmEvent;<br />
+  &gt;PAINTSTRUCT  ps;<br />
+  &gt;HDC  hdc;</p>
+<p>&gt; switch (message)<br />
+  &gt;{<br />
+  &gt;&gt;case WM_COMMAND:<br />
+  &gt;&gt;wmId    = LOWORD(wParam);<br />
+  &gt;&gt;wmEvent  = HIWORD(wParam);<br />
+  &gt;&gt;// Parse the menu selections:<br />
+  &gt;&gt;switch (wmId)<br />
+  &gt;&gt;{<br />
+  &gt;&gt;&gt;case IDM_ABOUT:<br />
+  &gt;&gt;&gt;DialogBox(hInst,  MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);<br />
+  &gt;&gt;&gt;break;<br />
+  &gt;&gt;&gt;case IDM_EXIT:<br />
+  &gt;&gt;&gt;DestroyWindow(hWnd);<br />
+  &gt;&gt;&gt;break;<br />
+  &gt;&gt;&gt;default:<br />
+  &gt;&gt;&gt;return DefWindowProc(hWnd, message, wParam, lParam);<br />
+  &gt;&gt;}<br />
+  &gt;&gt;break;<br />
+  &gt;&gt;case WM_PAINT:<br />
+  &gt;&gt;&gt;hdc  = BeginPaint(hWnd, &amp;ps);<br />
+  &gt;&gt;// TODO: Add any drawing code here...<br />
+  &gt;&gt;&gt;EndPaint(hWnd,  &amp;ps);<br />
+  &gt;&gt;&gt;break;<br />
+  &gt;&gt;case WM_DESTROY:<br />
+  &gt;&gt;&gt;PostQuitMessage(0);<br />
+  &gt;&gt;&gt;break;<br />
+  &gt;&gt;default:<br />
+  &gt;&gt;&gt;return DefWindowProc(hWnd, message, wParam, lParam);<br />
+  &gt;&gt;}<br />
+  &gt;return 0;<br />
+  }</p>
+<p>            This  is where the real fun is. This function is the one that handles events, which  include the command to display things.</p>
+<p> The  two integers stand for windows message ID and windows message Event, and the  chances you are going to use these anywhere are minimal.<br />
+  A  PAINTSTRUCT is an object used for painting, and is discarded automatically  after painting is complete. Once again you will probably not do much with this.<br />
+An  HDC is a Handle to a Device Context, and you <em>will</em> be using this. A device context is a surface where you draw  before printing to the screen. Furthermore, other than combining device  contexts to get the final image, it can be used as a buffer, with more than one  being used for multi-buffering. It is always passed as a parameter to other  functions, so the only meaningful thing to say is that it contains image data.</p>
+<p> The  switch that follows is the actual message handling; the integer stored in  message will get you to the appropriate code block. The problem is that it  cannot represent everything that happens, so it refers to a general category.  To go into more detail you will later handle the wParam and even the lParam.  You can see the wParam being used during the menu processing.</p>
+<p> Most  of the other things are explained in the comments, but I will go further into a  couple of things.</p>
+<p> You  will notice that wmId and wmEvent take a LOWORD or HIWORD version of wParam.  wParam actually has even further division, LOWORD and HIWORD are integers, each  containing some information, as you explore the different messages you will  learn some of the possible values.</p>
+<p> The  DialogueBox function creates a DialogueBox with the appropriate data, I will  analyze that in an appropriate section as there is much to say, though I doubt  anyone using this tutorial will use it so soon as it is not so practical for  games and primitive programs.</p>
+<p> The  DestroyWindow function is self explanatory, it destroys a window, which is one  of the things needed to terminate the application. Note that there are various  functions for termination, and the program usually fills in whatever else is  needed, but if you try to terminate the application as some point or another  and nothing happens, you can try all of them, it might be unprofessional, but  in programming you do whatever it takes so that the computer will do whatever  you want.</p>
+<p> Similarly  the PostQuitMessage function sends a quit message to the application, which  will terminate if everything is functioning properly.<br />
+You  will probably be more interested in BeginPaint and EndPaint. These  correspondingly put the program into a painting mode, it makes little  difference in general, but this is how it works. With BeginPaint the DC will  open for painting, and with EndPaint it will close by printing anything we  painted onto it. If nothing was painted the background will be drawn, though  there is a way to prevent that and leave the surface undrawn. Note however that  the window borders, menus and other elements defined by the styles we applied  earlier will still be drawn. You will learn how to do this in the Anti-Aliasing  section.</p>
+<p> Finally  DefWinProc is the Default Window Processor or Process. It is highly improbable  that it will do anything with input that has not already been processed, but it  will attempt to process anything that does not fit into the other options.</p>
+<p>// Message handler for about box. <br />
+  INT_PTR CALLBACK About(HWND hDlg, UINT  message, WPARAM wParam, LPARAM lParam)<br />
+  {<br />
+&gt;UNREFERENCED_PARAMETER(lParam);<br />  &gt;switch (message)<br />  &gt;{<br />  &gt;&gt;case WM_INITDIALOG:<br />&gt;&gt;&gt;return (INT_PTR)TRUE;</p>
+<p>&gt;&gt; case WM_COMMAND:<br />  &gt;&gt;&gt;if (LOWORD(wParam) == IDOK || LOWORD(wParam) ==  IDCANCEL)<br />  &gt;&gt;&gt;{<br />  &gt;&gt;&gt;&gt;EndDialog(hDlg,  LOWORD(wParam));<br />  &gt;&gt;&gt;&gt;return (INT_PTR)TRUE;<br />  &gt;&gt;&gt;}<br />  &gt;&gt;&gt;break;<br />  &gt;&gt;}<br />  
+  &gt;return (INT_PTR)FALSE;<br />
+  }</p>
+<p>            This  small part of code concludes the generated code and handles the case in which  we click on the About option from the Fie menu. You might have noticed it in  the end of a series of parameters given to a function in the previous menu,  I&rsquo;ll not tell you where exactly just to make you read the code once more a bit  more carefully.</p>
+<p> Over  here we can see some more complex code, most stuff make little sense and are of  little importance, but the WM_COMMAND case has a special interest.</p>
+<p> By  using an if statement with the wParam you can see what the user has pressed and  do something in response, like changing the value of a variable. Later I would  like you to split this if statement into a separate one for the IDOK (the OK  button) and another for the IDCANCEL (the Cancel button) and make the program  do something depending on the value of a variable which changes depending on  the user&rsquo;s selection. This can be the position of  a line of text for example, or an image. It  can even be used to enable and disable something, making a corresponding image appear  or disappear.</p>
+<p> EndDialogue  will close the dialogue box, so it can be placed into a further if statement  that checks whether a condition is fulfilled so that you can disallow invalid  options without trying to make the buttons unpressable.</p>
+<p>            This  concludes the analysis of the code that is generated automatically by your IDE  (Integrated Development Environment, Dev-C++, Visual Studio or anything else).  You can now proceed to reading about the continuous game loop, or more  meaningfully first look at Text Output or Bitmaps to have something to show,  but first pass through the very short Variables And Data Storage page, or you  might find yourself banging your head on the monitor.</p>
+</body>
+</html>

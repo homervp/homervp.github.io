@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>DirectX 1: Setting up Direct3D</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>DirectX tutorial 1</p>
+<p>            To begin  with, create a new Win32 application project. What we will do in this tutorial  is initialize DirectX, use a continuous game loop, and set DirectX up to render  a blue screen, which is essentially the background of an empty scene.</p>
+<p>            Before we  begin, we need to add the libraries of DirectX. To do this in Visual Studio  2010, right click on the project (beneath the Solution) and select properties.  Go to Linker-&gt;Input and select the Additional Dependencies field. Click it  again, and select edit. Add d3d9.lib and click ok and Apply. If you cannot get  it to work, open the sample from the link at the end of the tutorial and paste  your code over it&rsquo;s code.</p>
+<p>            Include  d3d9.h. Now you are ready to write DirectX.</p>
+<p>            First off,  we need a pointer to the DirectX object. The DirectX object contains all the  functions and constants needed, and is essentially a .dll file. .dll files, or  dynamic link libraries, contain a table with the address of all the functions  within them, and always contain all the functions of older versions of the  file, thus they are backwards compatible. The pointer is defined as<br />
+  LPDIRECT3D9  pD3D;<br />
+  pD3D is the name we gave to it. As you probably know from  the Win32 tutorials, LP stands for Long Pointer. The 9 at the end shows which  version we are using.</p>
+<p>            Second, we  need the device we will be using. Here, device is a bit more abstract than the  physical device, the graphics card you use. The device refers more to the  Hardware Abstraction Layer, or HAL, which allows you to emulate in software  what functions are not available by the hardware. No need to worry about that,  you won&rsquo;t be writing any code on it any time soon.<br />
+  The device  is declared as such:<br />
+  PLDIRECT2DDEVICE9  pd3dDevice;<br />
+  You will  again notice the 9 at the end. This is a general, untold rule.</p>
+<p>            Now we have  to define three functions: render(), cleanup() and initDirect3D(). You can name  them as you wish, but these names are probably more standard. The render()  function handles the rendering, this is where we draw our awesome blue  background. The cleanup() function does the cleaning up needed before we close  the program. To be honest, it is not that necessary, but it&rsquo;s always better to  have your back covered. initDirect3D() is the function that performs the  initialization. This is the longest function, and as such, I&rsquo;ll describe it  last.</p>
+<p>            Let&rsquo;s start  with render():</p>
+<p>//Note: As always with code copy-pasting, use your IDE's automatic inlining<br />
+  {<br />
+  if(NULL ==  pd3dDevice) //if we don&rsquo;t have a device<br />
+  {<br />
+  return;  //we can&rsquo;t draw<br />
+  }<br />
+  pd3dDevice-&gt;Clear(<br />
+  0, <br />
+  NULL,<br />
+  D3DCLEAR_TARGET,<br />
+  D3DCOLOR_XRGB(0,0,255),<br />
+  1.0f,<br />
+  0);<br />
+  <br />
+  pd3dDevice-&gt;Present(NULL,  NULL, NULL, NULL);<br />
+  }</p>
+<p>            So, first  we check if the device exists and has been properly initialized. If not, we  abort. If it exists, we clear the buffers and the screen. The first two  parameters, zero and null, are there so we clear the entire buffer and window.  The third parameter indicates that it is to be completely cleared. The fourth  parameter is the color to which it is cleared, which we set to Blue. Note that  the Alpha channel is not passed, the X in XRGB indicates that we ignore it. The  fifth parameter is the depth to which we will clear it. In the scene that is  rendered, pixels get a depth value between 0 and 1, of type float. One reason  you may not want to clear all the way to the back, would be so you don&rsquo;t need  to re-render a background that is in the distance, because it cannot have  changed and you know that beforehand. The final value, which is again zero,  concerns stencil masking. This is used to omit an area from the process, but  since we do not have any stencil we can use, and we don&rsquo;t really want or need  any stencils so far, we pass zero to indicate that.<br />
+Finally,  after we have cleared the scene, we present the window, meaning that we send  the buffer to the screen. This is the final step of the rendering process, and  all the rendering is done between these two functions. The parameters of this  function refer to which part of the back buffer is to be printed on the screen,  passing NULL to all prints the entire back buffer, which generally is what you  want. For a while there will certainly be no need to print only a part of it.</p>
+<p>            Next we  have the cleanUp() function:</p>
+<p>void cleanUp(void)<br />
+  {<br />
+  if(pd3dDevice != NULL)<br />
+  {<br />
+  pd3dDevice-&gt;Release();<br />
+  }<br />
+  if(pD3D != NULL)<br />
+  {<br />
+  pD3D-&gt;Release();<br />
+  }<br />
+  }</p>
+<p>            This is an  easy one. You check if the device and the DirectX object exist, and if they do,  you delete them respectively, using their own functions. Considering how it&rsquo;s  normal for a game to crash (normal, so to speak, I mean it won&rsquo;t ruin the  machine), I&rsquo;m confident nothing bad would happen if you omit this part, but  this way the code is more elegant and presentable.</p>
+<p>            And finally  we have the last function, iniDirect3D:</p>
+<p>&nbsp;</p>
+<p>bool initDirect3D()<br />
+  {<br />
+  pD3D =  NULL;<br />
+  pd3dDevice  = NULL;</p>
+<p>            //Create  DirectX object<br />
+  if(NULL ==  (pD3D = Direct3DCreate9( D3D_SDK_VERSION ) ) )<br />
+  {<br />
+  return  false;<br />
+  }</p>
+<p>            HWND hWnd;</p>
+<p>            getHandle:<br />
+  hWnd =  GetActiveWindow();<br />
+  if(GetParent(hWnd)  != NULL)<br />
+  goto  getHandle;</p>
+<p>            D3DPRESENT_PARAMETERS  d3dpp;<br />
+  ZeroMemory(&amp;d3dpp,  sizeof(d3dpp));<br />
+  d3dpp.Windowed  = true;<br />
+  d3dpp.SwapEffect  = D3DSWAPEFFECT_DISCARD;<br />
+  d3dpp.BackBufferFormat  = D3DFMT_UNKNOWN;<br />
+  d3dpp.BackBufferCount  = 1;<br />
+  d3dpp.BackBufferHeight  = 480;<br />
+  d3dpp.BackBufferWidth  = 600;<br />
+  d3dpp.hDeviceWindow  = hWnd;</p>
+<p>            if(FAILED(pD3D-&gt;CreateDevice(D3DADAPTER_DEFAULT,  D3DDEVTYPE_REF, hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &amp;d3dpp,  &amp;pd3dDevice)))<br />
+  {<br />
+  return  false;<br />
+  }<br />
+  return  true;<br />
+  }</p>
+<p>Now, this is a long one. I have to  note that every time I read through a tutorial or a book, something might be  different. This code is as recommended by many tutorials, but what I added is  the part which deals with hWnd. hWind was taken for granted in most tutorials,  but it&rsquo;s best to play it safe. Let&rsquo;s see the code:<br />
+  We nullify the device and DirectX  object. After that we try to create an object of version equal to that of the  SDK, if that fails, we return.<br />
+  Assuming we haven&rsquo;t failed, we  better get the handle to the active window beforehand. To do that, we request a  handle to the active window with GetActiveWindow(). However, this returns a  handle to <em>an</em> active window, which may  be a child to another. Thus we check if it has a parent, if it does, we request  for another one (the GetParent() part and the goto call).<br />
+  Now that we have the window (I  know, what if it fails to get it? Well, it shouldn&rsquo;t, this is too fundamental  an element of the Win32 to fail), we have to set the parameters under which the  application will be running. These are of type D3DPRESENT_PARAMETERS and we  store them in d3dpp. We set all the memory of d3dpp to zero, with ZeroMemory(&amp;address,  int length). Obviously we give it the location and length of d3dpp.<br />
+  The next few lines are relatively  straightforward. We set the windowed mode to true (thus it&rsquo;s not fullscreen),  when we swap the buffers we discard the old front buffer to write on it, we set  an &ldquo;UNKNOWN&rdquo; format to the back buffer (it&rsquo;s a good default format that keeps  the specifics out of the way). We tell it to use one back buffer after that.  This means that there will be one buffer we draw to and present in the next  frame, other than the buffer used for drawing the current frame. The optimal  technique when you are not sure if you can render two frames between two  updates is triple buffering, which always has one more current frame ready to  print, and is drawing on an older one, thus you always have a frame ready.  Multiple buffers are used when you need to go back to a previous scene, for  example when you do a replay. Chances are that NVidia ShadowPlay technology is  based on a large number of buffers. Finally, you set the width and height of  the screen and then pass it the window handle I so artistically found earlier.<br />
+  In the end, we see if creating a  device fails. The device is created through the DirectX object, and we tell it  to use the default adapter, the reference device type (used during development  for easier debugging and measuring of performance), the handle to the window it  will be using, that we&rsquo;ll be using vertex processing so it should have the  software for that ready (in case the hardware does not support it), and finally  we pass by reference the present parameters and the address of the pointer that  will point to the device, so the pointer will be updated.</p>
+<p>Now we have to call these functions  in the code that runs, which is, as you&rsquo;ll remember from Win32, _tWinMain (or  similar). Before the existing while() loop, add</p>
+<p>if( !initDirect3D() )<br />
+  {<br />
+  return false;<br />
+  }</p>
+<p>so that the program terminates if  we fail to create a Direct3D device and object. Accordingly, modify the  contents of the while() loop so they are like this:</p>
+<p>while (true)<br />
+  {<br />
+  if  (PeekMessage(&amp;msg, NULL, NULL, NULL, PM_REMOVE))<br />
+  {<br />
+  TranslateMessage(&amp;msg);<br />
+  DispatchMessage(&amp;msg);<br />
+  }<br />
+  else<br />
+  {<br />
+  render();<br />
+  }<br />
+  }</p>
+<p>The entire loop should be just like  the one we defined in the corresponding Win32Api tutorial, it checks if there  is a message but doesn&rsquo;t wait for it. If there is no message, we call render()  to show our beautiful blue background. Later on we&rsquo;ll also call the  application&rsquo;s main update() method.</p>
+<p>You can download the project <a href="DirectX9Template.rar">here</a>.</p>
+<p>You have now set up DirectX and it  is functioning. In the next tutorial we will load and display a bitmap. I will  also give simple code to make it move a bit, though I will not document it, as  it has been documented in the Win32 message handling tutorials.</p>
+<p>Note: I forgot to empty the while() from the GetMessage() function, just empty it and write &quot;true&quot; inside (without the quotes). Otherwise you'll have to close the program through the task manager.</p>
+</body>
+</html>

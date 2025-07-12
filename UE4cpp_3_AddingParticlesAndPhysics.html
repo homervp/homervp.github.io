@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>UE4 tutorial 3 - Adding a Particle Effect and Physics</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" alt="home" name="home" width="494" height="68" id="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p><strong>Unreal Engine 4: Tutorial 3 - Adding a Particle Effect and Physics</strong></p>
+<p>We've seen how we create a mesh for our class, and adding most other stuff is just as easy - though to get some more complex stuff to behave the way you want them may require more code, like animating a skeletal mesh for example.</p>
+<p>Though it's advisable to place stuff in the header, we'll just keep the code all together and add this to to the constructor - after all I don't have to show you how to move a declaration, do I?</p>
+<table width="1629" height="360" border="1">
+  <tr>
+    <td><p><br />
+    UParticleSystemComponent* ParticleSystem = CreateDefaultSubobject&lt;UParticleSystemComponent&gt;(TEXT(&quot;Particles&quot;));<br />
+    <br />
+    ParticleSystem-&gt;AttachTo(SphereMesh);<br />
+    ParticleSystem-&gt;bAutoActivate = true;<br />
+    ParticleSystem-&gt;SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));<br />
+    <br />
+    static ConstructorHelpers::FObjectFinder&lt;UParticleSystem&gt; ParticleAsset(TEXT(&quot;/Game/StarterContent/Particles/P_Fire.P_Fire&quot;));<br />
+    if(ParticleAsset.Succeeded())
+    <br />
+    {<br />
+    ParticleSystem-&gt;SetTemplate(ParticleAsset.Object)
+    ;<br />
+    }</p>
+    <p>// And now, the moment we've all been waiting for.. Physics!<br />
+      <br />
+    SphereComponent-&gt;SetSimulatePhysics(true);    </p></td>
+  </tr>
+</table>
+<p>Now to take a look at the code:</p>
+<p><strong>ParticleSystem-&gt;AttachTo(SphereMesh);</strong>. This time we attach it to the mesh. This way, if the mesh changes position relative to the object, the particle effect follows it, so a burning satelite's particle effect follows the satelite as it moves around the planet (to which the satelite is attached to maintain a relative position) for example.</p>
+<p><strong>ParticleSystem-&gt;bAutoActivate = true;</strong> We want the particles to start right away. We can set it to false to trigger them later on during gameplay, which is more likely for you to use later on, but for learning's sake we'll see it this way.</p>
+<p><strong>ParticleSystem-&gt;SetTemplate(ParticleAsset.Object);</strong>. With particles, we use a template, as they have randomized behavior (so that explosions don't all look the same, and anything else doesn't exactly play in a loop).</p>
+<p><strong>SphereComponent-&gt;SetSimulatePhysics(true); </strong>Remember how we set a physics property of the collider? It handles physics on it's own, we just have to tell it to!</p>
+<p>I know it looks like a relatively small and pointless tutorial, but trust me, if you tried to do these things on your own, you would waste quite a while searching - everyone does, and I did too - so it's best to see as much as possible before you go looking for more functionality.</p>
+<p>Note that often you have to reopen the editor, or preferably just delete and place back in there the instance of the object you mdofied so that the changes can take effect.</p>
+<p>In the next tutorial we will add gravity and physics to our class.</p>
+</body>
+</html>

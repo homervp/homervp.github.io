@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>GDI Tutorial VII: Dialog boxes - Homer Papadatos Vasilakis</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>GDI Tutorial VII: Dialog boxes</p>
+<p>Many applications provide dialogue boxes to communicate with the user. A simple example is the a dialog box presented when the application crashes, showing a message and featuring a single OK button. A step further is when it asks confirmation for an actions, such as deleting a file, with OK and Cancel buttons. This can go on, on installations when a file is missing or corrupt, you might have come across a dialog box with an OK, a Retry and a Cancel option. In this tutorial we will see how we can create custom dialogue boxes that will notify us of changes and allow us to give the application some more input.</p>
+<p>Let us go back into our WndProc function, in the first switch, under the IDM_ABOUT case. You will notice that right below is a DialogBox() function, in fact I pointed that out in the previous tutorial. This is the function we will be using, it creates a <em>modal</em> dialog box, which means that it will not allow the user to act on the window it belongs to while the box is open. The syntax is as follows:</p>
+<p>DialogBox(HANDLE, LPCTSTR, HWND, DLGPROC);</p>
+<p>The first parameter is  &quot;the instance handle of the module whose executable file contains the dialogue box template&quot;, as stated in the Windows NT Win32 Api Superbible. Essentially to the instance of the window. For this we will use the hInst variable that is already present and directly accessible in the WndProc function, it is more or less the same instance handle we have been using for the window.</p>
+<p>The second parameter is a &quot;pointer to the character string containing the name of the dialogue box in the resource file&quot;. This is clearer actually. Looking at the dialogbox for the &quot;about&quot; we see that it passes IDD_ABOUTBOX, if we head to Resource.h you will see it defined in there. However there seems to be little more than that, even if you right click and press find all references, there will be no other results. The key to this is the &quot;in the resource file&quot;. If you look in the resource file you will find the following part:</p>
+<p><br />
+  /////////////////////////////////////////////////////////////////////////////<br />
+  //<br />
+  // Dialog<br />
+//<br />
+IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62<br />
+  STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU<br />
+  CAPTION &quot;About GDI_Tactical&quot;<br />
+  FONT 8, &quot;MS Shell Dlg&quot;<br />
+  BEGIN<br />
+  ICON            IDR_MAINFRAME,IDC_STATIC,14,14,21,20<br />
+  LTEXT           &quot;GDI_Tactical, Version 1.0&quot;, IDC_STATIC, 42, 14, 114, 8, SS_NOPREFIX<br />
+  LTEXT           &quot;Copyright (C) 2014&quot;, IDC_STATIC, 42, 26, 114, 8<br />
+  DEFPUSHBUTTON   &quot;OK&quot;, IDOK, 113, 41, 50, 14, WS_GROUP<br />
+END</p>
+<p>Now that's a lot of script, but this is what we care about here, so let's look into it. The numbers in there refer to pixels, and are generally x and y coordinates. From the top now (after the comments of course):</p>
+<p>IDD_ABOUTBOX is what is passed to the DialogBox function, if you copy the script above and paste it, then change this field to another IDD_ value (and of course define it in the Resource.h file), you can call another DialogBox() function which will call your own dialog box, in fact this is what's best to do to be sure you have a working dialog box.</p>
+<p>DIALOGEX indicates that it uses the expanded dialog box format, remember RegisterClass and RegisterClassEx? It just indicates what format is used.</p>
+<p>The following 4 numbers are x, y, width and height of the dialog box, with respect to the top left of the main area of the window, under the menu bar. You can modify these as you wish.</p>
+<p>STYLE indicates that the following styles are used. The binary OR operator ( | ) is interesting in how it works, it will gather all the elements of the following styles, taking overlaping elements just once, and applying everything at once. The styles are recognizable by the WS_ prefix, presumable Window Style.</p>
+<p>CAPTION gives the dialog box it's name, the title in it's title bar.</p>
+<p>FONT indicates what font size and what font style to use, if you feel confident that you will get the font name right you can change that too. The size is safe to change.</p>
+<p>Then we have the BEGIN-END block we saw in the previous tutorial, which defines what is in this dialog box. here we have. Within it we have an icon with it's coordinates in the window, and two text fields. The parameters these take, other than the coordinates, are well beyond the scope of this tutorial, as there is a very big list of attributes and styles they can have. It is a good idea to copy whichever of these you want, in the simplest form present, and reuse it.</p>
+<p>Similarly the OK button is defined below, in the Resource.h file you can see more than just the IDOK, so you can give other tags to the button to handle in it's event handler, and you can directly change the text from here. Again you will have to use coordinates to properly align.</p>
+<p>Let's get back to the DialogBox() command. The third parameter is a handle to the window (remember, it was the instance earlier), which again we have ready as hWnd, which we pass. The final argument is a callback function, which is the message handling function the box will use. Let's go and take a look at that:</p>
+<p><br />
+  <br />
+  // Message handler for about box.<br />
+  INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)<br />
+  {<br />
+UNREFERENCED_PARAMETER(lParam);<br />
+switch (message)<br />
+{<br />
+case WM_INITDIALOG:<br />
+return (INT_PTR)TRUE;<br />
+case WM_COMMAND:<br />
+  if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)<br />
+  {<br />
+  EndDialog(hDlg, LOWORD(wParam));<br />
+  return (INT_PTR)TRUE;<br />
+  }<br />
+  break;<br />
+  }<br />
+  return (INT_PTR)FALSE;<br />
+  }</p>
+<p>Again, I apologize about the indentation. The structure of this function is virtually identical to that of WndProc, and it's parameters are the same so I'm not going through them again (after all, we have seen most of these in the past, so you probably recognize them anyway).</p>
+<p>UNREFERENCED_PARAMETER() is a macro that suppresses a compiler warning, the compiler will optimize the code produced and eventually remove it. If it did not exist, it would make no difference, other than showing 1 more warning, which programmers generally do not heed (literally, I am not joking).</p>
+<p>The switch handles everything more or less. The WM_INITDIALOG is a message sent when the box is first created.It is a message handled by the system and is of no use to us. Of course this does not mean you can remove it, never tamper with the generated code unless you are told it is safe to do so, or you have good understanding of it.</p>
+<p>Finally, so that the cmpiler &quot;sees&quot; that the function exists you have to go to the formal declaration of the callback function About, copy and paste it below and change the name. Even if you do it below the WndProc it will work, it just has to be before you call the function, but it's better to have them packed together.</p>
+<p>The WM_COMMAND case is where all the magic is done, and you can see that you use the tags we used in the .rc file to recognize which button was pressed. Thus this is clear and easy to use, as essentially you have it set up and only need to modify the buttons. Below I wrote code for a dialog box that will change it's name when you press the OK button, and close when you press the Cancel button:</p>
+<p><br />
+  <br />
+  INT_PTR CALLBACK CustomBox(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)<br />
+  {<br />
+UNREFERENCED_PARAMETER(lParam);<br />
+switch (message)<br />
+{<br />
+case WM_INITDIALOG:<br />
+return (INT_PTR)TRUE;<br />
+case WM_COMMAND:<br />
+  if (LOWORD(wParam) == IDCANCEL)<br />
+  {<br />
+  EndDialog(hDlg, LOWORD(wParam));<br />
+  return (INT_PTR)TRUE;<br />
+  }<br />
+  else if ( LOWORD(wParam) == IDOK)<br />
+  {<br />
+  SetWindowText(hDlg, L&quot;Changed title!&quot;);<br />
+  }<br />
+  break;<br />
+  }<br />
+  return (INT_PTR)FALSE;<br />
+}</p>
+<p>Do not forget to declare it befre WndProc. You will also have to add<br />
+DEFPUSHBUTTON   &quot;Cancel&quot;,IDCANCEL,113,61,50,14,WS_GROUP<br />
+in the .rc file in your box's description. IDCANCEL is #defined already as 2, no worries about that.</p>
+<p>So this will make the OK button change the text in the title bar of the dialog box, while it adds a cancel button to close it.</p>
+<p>You can call dialog boxes from others, it's not a problem, and you can look in the Resource.h file to see what else is defined, to add many more options and create dialog trees, essentially it could be a dialog system in a game. And don't forget you have access to global variables and can work with them through here so they can work as further controls for your program.</p>
+<p>Further customization of the dialog boxes will be analyzed in a subsequent tutorial, 'till then see what you can make, keep practicing and have fun coding!</p>
+</body>
+</html>

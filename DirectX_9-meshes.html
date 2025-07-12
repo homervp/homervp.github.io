@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>DirectX 9: meshes</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>DirectX tutorial 9: Meshes</p>
+<p>It has been a long road, and though  I tried to cover any common issues (many of which plagued me for a half month)  you probably needed a while to get here too. Today our work is rewarded. We  know how DirectX works down below so we are ready to move one layer up. Though  you may be wandering why we didn&rsquo;t go to meshes in the first place and instead  spent so much time with low-level programming, you will – or at least should –  realize that this knowledge will possibly help you a lot in future debugging,  and also optimization.</p>
+<p> Meshes contain the vertex buffers  and all the information needed to render a mesh, including poly counts and UV  coordinates. This means that you&rsquo;ll just load it once and stop editing  individual vertices. This also means that you&rsquo;ll be able to make models in  external software and import much more complex geometry for your application,  such that would be practically impossible to create with pure code.</p>
+<p> The default mesh file used by  DirectX is the .x file format. In the code we will be using LPD3DXMESH  interface pointers. Let me note that I consider the notion of learning how to  save a mesh before learning how to load it pretty much ridiculous. You  definitely are eager to load a file with something cool in it, not save a  disfigured, paraplegic cube so you can see it again. You will probably only  want to save geometry deformed or edited in your application.</p>
+<p> Let&rsquo;s start with some cleanup. We  need to get irrelevant code out of there, so clear out vertex declarations and initializations,  essentially that means you empty init_graphics() and it&rsquo;s unindexed  counterpart. Correspondingly remove anything referencing the texture or the  buffers from the Render3D() function, and its unindexed counterpart. Same for  cleanUp(). Build the project to see if you&rsquo;ve missed anything.</p>
+<p> Ok, I assume you have a successful  build without any buffers or textures in there. Well, ok, there&rsquo;s buffers  involved, but no manual loading! Create an LPD3DXMESH variable, this will hold  your mesh, I simply call it &ldquo;mesh&rdquo;. Then create 3 LPd3DXBUFFER variables, these  hold the adjacency buffer, the material buffer and the effect instances.</p>
+<p> The adjacency buffer is used by  DirectX mostly for mesh processing, it makes mesh optimization easier by giving  direct data about the angles between lines and similar stuff. More advanced  users probably can find ways to make use of it for their own needs. It is  similarly useful for creation of LOD meshes.<br />
+Mesh optimization refers to  reorganizing the mesh, generally into triangle strips with substantial length,  so as to create more compact chunks of data that can be rendered with fewer  transitions.</p>
+<p> LOD meshes, where LOD stands for  Level Of Detail, are meshes that have high-poly models for close-up rendering,  and lower poly models for distant rendering. Since a screen will fit fewer  models of the same sort in a close shot than far away, it can cope with  rendering more polygons fewer times. When far away you may have many more  models in the viewport, but due to the distance, the user cannot see as much  detail, so you can balance it with lower polygon counts. This is often visible  in strategy games with more free camera movement, I believe it is easier to  observe in Empire: Total War.</p>
+<p> The material and effects buffers  are self explanatory, they contain the materials and the effects that are to be  applied on the mesh. Textures are stored separately, so they are not part of  the loading of the mesh file per se, even though UV coordinates are.</p>
+<p> Finally you will need a DWORD, or  an integer at any rate, which will store the number of materials, and also  declare a material array: D3DMATERIAL9* pMeshMaterials. Now we can load the  mesh. In init_graphics() add the following code:</p>
+<p>HRESULT hr = D3DXLoadMeshFromX(<br />
+  L&quot;Enterprise.x&quot;,<br />
+  D3DXMESH_SYSTEMMEM,<br />
+  device,<br />
+  &amp;adj,<br />
+  &amp;mat, <br />
+  NULL,  //No particular need or use for effects<br />
+  &amp;pNumMaterials,  //so we find out!<br />
+&amp;mesh);</p>
+<p>            //Get  the location of the materials<br />
+  D3DXMATERIAL*  materials = (D3DXMATERIAL*)mat-&gt;GetBufferPointer();<br />
+  //<br />
+  pMeshMaterials  = new D3DMATERIAL9[pNumMaterials];</p>
+<p>            for  (DWORD i = 0; i &lt; pNumMaterials; i++)<br />
+  {<br />
+  pMeshMaterials[i]  = materials[i].MatD3D; //copy them</p>
+<p>                        pMeshMaterials[i].Ambient  = pMeshMaterials[i].Diffuse; //D3DX does not guarantee ambient is to be set<br />
+  }</p>
+<p>Let&rsquo;s take it from the top. We keep  the result of the loading function to know if it succeeded, as it is the most  prone to failure. If it returns S_OK then you know that the file is there and  is readable. The D3DXLoadMeshFromX function loads a mesh from a .x file, quite  obviously, and it&rsquo;s parameters are:</p>
+<p> -The name of the file (remember to  either put it in the same folder as the source files, or use an explicit path)</p>
+<p> -The second parameter is called  &ldquo;Options&rdquo; and we set it with flags.<br />
+-Next you need the device. (Decent  knowledge of pointer logic should make it lear when we need and when not the  address of an object)</p>
+<p> -After that come the adjacency and  material buffer, while we skip the effects buffer.</p>
+<p> -Finally we have the mesh itself.</p>
+<p> After that we create a material  pointer which we point to the material buffer. We also create a pointer to  D3DMATERIAL9 objects, which we initialize as an array with length equal to the  number of materials. Then, we simply copy each material.</p>
+<p>At this point I would like to note  that the book I am mainly following, to the discredit of the writer, is getting  sloppy. Therefore I try to fill in the information from the other sources I  have been using for aid.</p>
+<p>Now we should be ready to draw the  mesh. In Render3D() create the same for(;;) loop we created above, and then  call:</p>
+<p> pd3dDevice-&gt;SetMaterial(&amp;pMeshMaterials[i]);</p>
+<p> mesh-&gt;DrawSubset(i);</p>
+<p> Given the mesh I have provided,  this should render a black mass if you&rsquo;re working straight off the previous  tutorial, so you&rsquo;ll have to set the lights (just uncomment the corresponding  function). Now, build and run!</p>
+<p>Ok, there&rsquo;s no texture. Actually it  looks like many people get sloppy by this point and start omitting things, I  actually had to edit and reupload the tutorial for this.</p>
+<p> You will need to declare an LPDIRECT3DTEXTURE9*  pMeshTextures variable along with the corresponding material variable. Again,  like the corresponding material variable you will have to initialize that as an  array of length equal to the number of materials, and in the loop you will add  the command D3DXCreateTextureFromFile(device, materials[i].pTextureFileName,  &amp;pMeshTextures[i]). This will get the texture from each of the materials  and apply it. If there is no texture you may have to remove it, typically you  either keep track of it and use appropriate calls for each model, conform to a  specific standard and make all models compliant with it, or add extra checks to  avoid errors. The first solution is possibly the fastest if you have a wide  variety of models and know how to work well, function pointers are useful for  that, the second is the simplest to implement (actually you have to do nothing  more than we did just now) but if there are big differences it may take up a  little more memory, and the third is more fast and dirty, meaning you burden  the code with extra checks but you may be able to get it working sooner.</p>
+<p>A final note, in the code provided,  I also do a conversion between LPSTR and LPCWSTR for the function. Though in  general I see that this is not needed, and I suggest you remove it, if you need  to use it elsewhere, it requires that you include atlbase.h, iostream.h and  windows.h, and call the function macro USES_CONVERSION;. Finally I may have  changed the cameral location so as to fit the Enterprise if you choose to switch to that  model. If you do, it may look more clear with textures omitted.</p>
+<p> In the rendering function, simply  add pd3dDevice-&gt;SetTexture(0, pMeshTextures[i]) inside the loop, and you&rsquo;re  ready!<img src="DirectXtut9.JPG" width="512" height="287" alt="Tutorial9(cube)" /></p>
+<p> Now, I&rsquo;m fairly sure you&rsquo;ll have  your mesh there, but there may be issues nonetheless, which may disappoint you  if they occur. These however are issues of the 3D package. I have made great  efforts to use Blender3D, the only completely free commercial use graphics  package. Many are more than happy with it, but many others find its behavior  erratic, including me. Other than the interfaces which are hard to figure out,  it often sets the normals of many polygons the wrong way, which means you&rsquo;ll  have to manually flip them, this accounts for faces not showing up in the  model. On purpose in the code I provide I have placed a very low poly model of  the Enterprise,  the star ship from Star Trek, with such defects. I have also passed it through  the student edition of 3DS Max, which though free, cannot be used even for a  showcase, and still automatic fixing of the issue was impossible.</p>
+<p> My point is, choose your modeling  package wisely, take your time to see which works best for you and which you  feel comfortable with. 3DS Max may cost close to 5000$, but it is the industry  standard, which means it&rsquo;s reliable, efficient and immensely powerful, not to  mention it&rsquo;s much easier to use thanks to wise UI design and good automations.  But it does cost a lot. The next package people go to a lot is Milkshape3D. It  takes a more brute force approach and is designed for low-poly models, in fact  it was developed to create models for the early Half-Life 1 game, and  immediately afterwards extended for games like Halo. Today it boasts an  extensive library of formats including the highly wanted format of the Unreal  Engine, and its cost is 25$, which is very, very affordable. It is not the  easiest to work with, but it is highly deterministic, which means that you  won&rsquo;t get any unpleasant surprises (cough-cough, flipped normals, skeletal  meshes rotate by 90 degrees upon export).</p>
+<p> With that final advice we shall  close this tutorial. There may be some disappointment if you have a bad mesh,  like I had when I got the code to work, but consider how little time it took to  render it. Also note that the same issue would exist in any game engine  (personal experience, UDK displayed the same thing) and that it is an issue  that doesn&rsquo;t only occur to amateurs.</p>
+<p> I have included 2 different models,  the Enterprise (Created in Blender3D 2.72) and a box with the DirectX logo on it (pretty much the one we failed to create  in the previous tutorial, created with 3DS Max 2013 student version). You now know how to change between them, so you can  also try to render the both at once.</p>
+<p>In the next tutorial we will look  at particle effects and billboarding, techniques used to render lots of small  or distant items, usually used to create effects like explosions, fire and  smoke, or to render vegetation and forests covering very large areas. These are  an important part of any big production, and will enhance a lot the look of  your game. Of course you cannot expect magic right away, there are entire books  on the subject, but we&rsquo;ll set the basis for all those stuff.</p>
+<p>The project files can be found <a href="DirectX9Tutorial9.rar">here</a>,  don&rsquo;t be afraid to play around a bit and start experimenting!</p>
+</body>
+</html>

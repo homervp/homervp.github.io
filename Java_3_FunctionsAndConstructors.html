@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Java Tutorial III: Functions and Constructors</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>Java Tutorial III:  Functions and constructors</p>
+<p>Assuming you already  know how to program in other languages, you should be familiar with functions,  if you are a first timer though you will be delighted to see them, or you will  be after you understand how much they can speed up your work. Functions are  code blocks (code encapsulated by curly brackets) which we can &ldquo;call&rdquo;, which  means execute, just by calling a single command. To better understand a  function let&rsquo;s use an example:<br />
+  <br />
+  int square(int x)<br />
+  { <br />
+  int square = 0;<br />
+  square = x * x;<br />
+  return square;<br />
+}</p>
+<p>I tried to make the  code include enough features to give you a taste of what you can do with  functions while keeping it short. When declaring a function you must define it&rsquo;s  type, functions, just like mathematical functions have a result, so when you  assign a function to a variable you assign the value it returns, which is the one  next to the return command. Thus, when you call square(), if you it is being  assigned to a variable, the variable will get the value of the functions  variable square.</p>
+<p> There is no problem  with having variables that have the same name as the function, they are told  apart by the parentheses.<br />
+Within the function  you can do anything you would normally do, including calling other functions.</p>
+<p> The parenthesis has  within it what we call &ldquo;function arguments&rdquo;, these are values that you write  into the parenthesis when calling the function, and the variable is assigned  whatever is given to the function at the specific time. This allows us to use a  function on different variables without making any changes.</p>
+<p> Another feature of  functions is polymorphism, literally meaning &ldquo;having many forms&rdquo;, by which we  can declare a function of the same name but with a different number and/or type  of argument(s) and different code in each case. Java knows which one you want  to call because of the different argument list.</p>
+<p> The &ldquo;this&rdquo; keyword is  used to refer to variables within the class that have the same name with an  argument of the function.</p>
+<p> Finally it is worth  noting that the moment a function reaches a return statement, it immediately  exits, returning the specific variable.</p>
+<p> This is roughly what&rsquo;s  going on with functions, so we can now turn our attention to very particular  form of functions, constructors.</p>
+<p> Constructors are functions  that are called when creating an instance, and are either called with the &ldquo;new&rdquo;  keyword when a new instance is to be made, or by themselves when we want to  mould data into the appropriate form so as to assign it to an existing object.  A constructor always has the same name with the class to which it belongs, and  is subject to approximately any other attribute of functions. However I  seriously suggest you do not call it from within the class itself, except if  you make it polymorphic and call it from another form of it, for example if  there it takes variables a and b, you can have a form which only takes a and  calls the initial form passing it a default number for b.<br />
+  In constructors you  essentially load all the data into the object, you initialize it. It has no  return type, as essentially what it does is returns allocated memory with a  particular setup if you call it with the &ldquo;new&rdquo; keyword, otherwise it takes the  same memory and returns it overwritten with the new data. Without calling the  constructor with new in front, your object remain uninitialized, as no memory  has been allocated to them.<br />
+Look through previous  code you have written and look for constructors you might have used, if you  tried making a List then you have certainly used one.</p>
+<p> Try experimenting with  functions, see what you can do and how much you can organize stuff. I know you  don&rsquo;t have much to work with, but soon you will have quite some power in your  hands, and java gives you access to all the important stuff in creating a GUI  and 2D graphics, so you will soon be able to create useful applications. Keep  coding and keep reading!</p>
+</body>
+</html>

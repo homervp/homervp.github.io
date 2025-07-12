@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" alt="home" name="home" width="494" height="68" id="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Central</a></p>
+<p><strong>C Expanded Tutorials I:  Bitwise operators and bit handling:</strong></p>
+<p>            Though you might not be certain of  why and where you may use these, they are fun to know and interesting to mess  around with. Mostly these are useful for experimentation, for example if you  have already started doing stuff that are not advisable, you might have already  &ldquo;looked&rdquo; into the memory heap that is given to your program (some interesting  use of pointers actually), and you might want to look at what the machine code  over there looks like. Though I cannot tell you if it is actual code or just  some junk that is going to be erased as soon as you need more memory, I can  tell you how to turn it into 1&rsquo;s and 0&rsquo;s. Another nice use of this is to mess  up you variables in a reversible way, creating some sort of  encryption-decryption system.</p>
+<p> <br />
+  -But before all that, it is good to  just know the various bitwise operators that are going to help us, consider 3  variables, A, B and C, of equal length in bits:<br />
+  -Bitwise AND, &amp; : A = B&amp;C;  will place in each i-th bit of A 1 if the i-th bit of B and C are both 1,  otherwise it will place 0.<br />
+  -Bitwise OR, | : A = B|C; will place  in each i-th bit of A 1 if either or both the i-th bit of B, and that of C, is  1.<br />
+  -Bitwise XOR, ^ : A = B^C; will place  1 in each  i-th bit of A if the i-th bit of B or that of C is 1, but not when they are  both 1. Essentially you want this one so you can use the logical phrase &ldquo;If  they are different&rdquo;.<br />
+  -
+  Bitwise NOT, or one&rsquo;s complement, ~  : A = ~A; will place 0 where A had 1, and 1 where A had 0 and vice versa. This  switches between one&rsquo;s complement and simple annotation. <br />
+  -
+  Shift operators: &lt;&lt; #,  &gt;&gt; #: The double arrows indicate the direction of the shift, the number  is the number of bytes the number will shift. You probably do not know this,  but a shift slides all bytes to one direction, sending the ones that are pushed  out of the variable further out to oblivion, and filling in the gap that is  created with the first bit.</p>
+<p> All above operators can be used to  store the result in other variables or on the ones being processed themselves.  Note that the result does not take effect on any variable unless specifically  instructed to (by assignment).</p>
+<p>So what is there to do with these?  Let&rsquo;s first look at how we can isolate bits.<br />
+  To isolate a bit a great idea is to  shift the variable so that the bit in question is now the last one, i.e, if it  is the 3rd bit, you should shift it by 2, so it becomes the first  bit. After that you can AND it with 1, which is (assume an 8-bit system) 0000  0001 (for longer systems just fill in with zeros, that&rsquo;s how it works. Negative  numbers have a 1 in  front). This will give you the very first bit (counting from the least  significant, the right-most one, to the left).
+You can further make an overloaded  function for this so you can specify which bit you want to inspect.</p>
+<p> Another nice idea for tampering with  bits is by use of file I/O. You can make two programs, one to read from a file  and display, another to read from one file and write to another. The catch is  that you have encoded the text, so the source file for the reader is encrypted  (well, no serious encryption, but even programmers unfamiliar with encryption  are unlikely to find out anything), and the destination file for the writer has  that exact encryption, the source file for the later being plaintext.<br />
+  A simple operation would be the  bitwise NOT, also known as one&rsquo;s complement, which inverts all the bits. The  resulting text is gibberish, it&rsquo;s not even readable characters mostly, but the  operation is absolutely reversible so it&rsquo;s the same single like of code that  does encryption and decryption.</p>
+<p>            Make these:</p>
+<ul>
+  <li>A  program that reads various data types and then shows them in binary.</li>
+  <li>A  program that reads text from a file and displays it in binary.</li>
+  <li>The  afore mentioned set of programs where given file A and B, the first program  reads from A, passes it through a reversible encrypting procedure and writes it  to B (the program will not display anything, it will run and close nearly  instantly). The second program reads file B, decrypts and displays it&rsquo;s content  without saving it to a file (which someone else might see).</li>
+  <li>Your  own encryption and decryption methods, allowing for better security and  experience with the logic behind reversible processing and ciphers.</li>
+</ul>
+<p>In the future you can further exploit bitwise  operations to encrypt save files for games, or just custom file types for your  programs, so users cannot just edit their way passed a level or use your files  without your software.<br />
+  Though you might be thinking that you have  nothing serious to protect, you have certainly been in a condition where you  wanted a message passed to someone without anyone else seeing it. Plus, Rome was not built in a  day…</p>
+<p>From here you can expand into ciphers with  relative ease, you may not know cryptography with all the fancy math, but there  are still some really cool and effective ciphers you can use out there.</p>
+<p> Keep practicing and learning, apply your  knowledge and complete what you start, and eventually you will have something  to at least show your friends and family.</p>
+</body>
+</html>

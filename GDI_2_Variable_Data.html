@@ -1,0 +1,20 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p>Variables and Data Storage.</p>
+<p> There  is some concern about variables, many think that they should allocate memory to  the program (false), that they should not use global variables (it is not that  safe but it&rsquo;s hard to mess it up too much), or that they should use other  methods like modifying functions to take anything needed as a parameter and  have absolutely no global variables (suicidal).</p>
+<p> After  having attempted to allocate heap memory, I realized one could just go ahead  and use global variables, all stored in one place so as not to be searching too  much. Ever since, I always include a Variables.h header file, in which I place  all my variables so I can access them immediately.</p>
+<p> What  will probably force you to go global is the fact that when you go into WndProc  you will not be able to access what was created in WinMain, because the one  cannot &ldquo;see&rdquo; the other. Another issue is that by creating variables in  functions will eventually lead to lots of searching when the program becomes  complicated, while keeping track of which variable is visible to which function  becomes painstaking.</p>
+<p> The  only variables you do not want to put in global scope are counters for loops,  temporary variables used in between calculations or other operations, and  objects that should be deleted. In particular, BITMAP objects are created to  load a bitmap onto, so one can paint, but these should either be created once  (which will theoretically take up dangerous amounts of RAM if the program  becomes complex) or should repeatedly be created and deleted, it does have the  downside of taking up processing power, but it is safer.</p>
+<p> That&rsquo;s  what I have to say about managing variables and objects, few and simple facts  but it took me some time to organize these thoughts so I thought I&rsquo;d spare you  the trouble.</p>
+</body>
+</html>

@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<link rel="stylesheet" type="text/css" href="style.css" />
+<meta name="description" content="Homer Papadatos Vasilakis, Tutorials"/>
+<meta name="keywords" content="Homer Papadatos Vasilakis, CV, Projects, programmer, game developer, indie game developer, amateur web developer, patras studentS"/>
+<title>Tutorials - Homer Papadatos Vasilakis</title>
+<style type="text/css">
+.auto-style1 {
+	color: #354690;
+}
+</style>
+</head>
+
+<body>
+<p><br />
+  <a href=index.html><img src="MyName.jpg" width="494"height="68"/></a></p>
+<p><strong>&nbsp;Intro to x86 Assembly for Windows: concepts and tools</strong></p>
+<p>Welcome to a series of tutorials on x86 assembly for Windows systems. The 
+concepts and teachings of these tutorials are applicable to all operating 
+systems that run on Intel or AMD processors, whether x86 (32 bit) or x64 
+(64bit). In this tutorial we will look at assembly in general from a far scope, 
+and cover a few historical issues, as well as explain why we use some 
+Windows-only functionality and why that does not differ from writing on another 
+system.</p>
+<p><strong>Part 1: The tools.</strong></p>
+<p>Most of you probably want to get down and dirty with some code, that much we 
+do in the next tutorial, but for now we can set up our tool of choice:
+<a href="http://www.masm32.com/">MASM32</a>. The 32 part refers to the 32bit 
+systems targetted by this assembler, and MASM stands for Macro ASeMbler, and it 
+traces its routes back to the Microsoft Macro Assembler. You can download the 
+installer from the <a href="http://www.masm32.com/download.htm">downloads page</a> 
+and mostly any info you need for the installation
+<a href="http://www.masm32.com/install.htm">here</a>. Actually there is also a 
+lot of info in that last link telling you that this software operates as 
+autonomously as possible.</p>
+<p>An <em>important</em> point to keep is that you have to tell MASM32 where 
+you're working. Create a new file with the .asm extention (still editable in 
+notepad or whatever, it's still an ASCII file), open it up, and then go 
+File-&gt;Set Current Directory (Shift + F12). Otherwise you'll get complaints that 
+the file wasn't found. To keep things clean, I keep my code in a folder named 
+"Assembly" in the C or D drive, the essense is that it is easily accessible so I 
+don't have to navigate too much.</p>
+<p><em><strong>Attention! </strong></em>When editing a sample from within 
+MASM32, or anything for that matter, always save a copy (File -&gt; Save As)
+<strong>BEFORE</strong> saving anything and work on that. This is because 1) you
+<em>will</em> overwrite the file when saving, and 2) Undo works only up to the 
+last save, i.e. if you don't remember what was there before, you'll be looking 
+real hard to find it elsewhere.</p>
+<p><strong>Part 2: Intro.</strong></p>
+<p>The Microsoft Macro Assembler was used in conjunction with Microsoft Visual 
+C++ 2.0 (I have an already really old book on VCpp 5.0 so you get the picture of 
+antiquity) to create the original Grand Theft Auto. This small detour is just an 
+indicator of how realistic it can be to write assembly. Of course today's insane 
+specs lead programmers to just write in sloppy languages with immense overhead, 
+but there is always a demand for highly skilled, very well paid assembly 
+programmers in the most demanding fields out there, including the gaming 
+industry, operating systems developers (can't avoid assembly there), and 
+high-performance applications. Assembly may well be used in software drivers or 
+firmware, so expect to see them in Google's datacenters, as they use their own 
+file system for their immense data, as well as in the Wacom pen tablets, which 
+calculate the pressure of your pen and the exact coordinates where you're 
+drawing.</p>
+<p>Assembly is sought after because it is as fast as possible, given that the 
+assembler translates what you write directly into machine code, and there are no 
+language-added segments, calls etc inserted so as to cover all possible uses. In 
+short, you sacrifice more general, faster to use methods, for very specific 
+commands that will be executed without question, doing only what you say and 
+nothing more. This is what makes assembly programming fast, and the programms 
+created very small.</p>
+<p><strong>Part 3: Concept.</strong></p>
+<p>I was about to name this part "Intuition", but that's something that comes 
+with experience. As mentioned in Part 2, your commands are translated directly 
+into machine commands. It's not that you can't use existing functions etc, you 
+most definitely can. But you won't get generalizations and "shortcuts", which 
+often add a few more commands, which when piled up in a nested loop can multiply 
+the total commands executed. So what do you work with?</p>
+<p>The most obvious things you work with are additions, subtractions, 
+multiplications, divisions. Each one takes two things and stores the result in a 
+third place. Then you've got data loading and storing methods. This refers to 
+storing data into memory, as your commands will work with CPU registers, which 
+are limited. There are other commands that complement all these aforementioned 
+commands, such as XOR for example, or block-transfer commands for copying large 
+amounts of memory.</p>
+<p>The next level of things you'll need are branching statements, here
+<span class="auto-style1">goto</span> rules. You'll place tags which mark the 
+important points in your code, routine entries, where a loop starts and so on. 
+Then you get branch and jump commands, which allow you to go to another part of 
+code based on the result of an operation. This just means that to execute an 
+if() statement, you'll execute the operation within, and then tell the computer 
+to go to an appropriate place if the result is the one specified. We'll get 
+there soon, don't worry too much. The main thought to keep is that a loop is 
+just an if() with a goto statement, as long as the condition is true, goto the 
+start of the loop.</p>
+<p>Finally, we'll see how to use functions, i.e. commands created by others or 
+even ourselves. We'll be loading libraries from the very first tutorial so we 
+can print our results to the terminal. Later we'll be creatng windows through 
+assembly code too, and this is the only limitation put by this tutorial 
+essentially, my choice of libraries. Locate the right libraries on any other 
+system, and it'll work just fine.</p>
+<p><strong>Part 4: Historics.</strong></p>
+<p>It is usefull to know a bit on the history of Intel processors, as you'll get 
+an idea of what is true why and when. I'll only go over the basics here, and use 
+up a slot in the extended session to go over the detailed history. We call it 
+x86 assembly, and the 32bit processors x86, because the first processor of this 
+type was the Intel 8086. Now, the x part is because it was an entire series of 
+processors, as it was followed by the (rarely mentioned) 80186 and (more often 
+noted) 80286, which is refered to as simple 286 (two eighty-six) or .286 (note 
+the dot in front, as if denoting a .50 caliber Browning M2 "Ma Deuce"), and then 
+the 386, 486 and so on. The x87 co-processor was following in the steps of the 
+x86, adding native floating-point functionality, which would take a lot of time 
+to compute with the non-floating-point-capable CPU. Thus floating-point 
+operations were delegated to the x87 when needed and the result copied back. By 
+the time we moved on from the x86 processors, we got the Pentium processors, 
+which are still in production and have, in fact, ahieved a whooping 4.7GHz on 
+overclocking without being submerged in liquid nitrogen. These single-core 
+processors saw the rise of video games with graphics, though as you know, 
+graphics cards are still essential in video gaming. This (the need for a 
+graphics card) is directly comparable to the x87's role as a co-processor.</p>
+<p>Moving on, the importance of this is that with each CPU, a few more 
+instructions were added. Because the x86 systems are not RISC (Reduced 
+Instruction Set Computer) but CISC (Complex ISC), there was room for more, and 
+most of these commands do what you would do with multiple commands in fewer 
+clocks that you could before. The complete list can be found in
+<a href="https://en.wikipedia.org/wiki/X86_instruction_listings">Wikipedia over 
+here</a>, and I suggest you take a brief look at how many are added in each CPU. 
+What you should have noticed is that a ton of instructions came with the 
+original CPU, quite a few with the 186, a not-so-very few with 286, but an 
+impressive amount with the .386. After this we don't see significant additions, 
+with perhaps the most important one being the addition of SSE2 instructions 
+added with Pentium 4 in 2001, which parallelizes commands (SSE2 meaning Steaming 
+SIMD Instructions 2, where SIMD is further expanded to Single Instructin 
+Multiple Data, which essentially means "execute this command on a bunch of stuff 
+simultaneously"). The main point of this analysis is that the largest parts of 
+your code, will be backwards compatible with all the processors all the way back 
+to, and including, the .386! Oh, and of course the libraries you use must be 
+included in the OS you're using, but it's safe to assume that what we'll use 
+should work at least with Windows 98, which is the oldest Microsoft OS being 
+used by 0.1% of the population (!!!!). Note that last year Windows 3.11 crashed 
+likely for the first time after 25-30 years of running in a French Airport, they 
+wrote good code back then. Also note that I was upgrading and maintaining the 
+computers of the national healthcare services' ambulance station near the 
+university very recently, most computers are running Windows XP. So I suggest 
+backwards compatibility at least with Windows XP, as customers that will require 
+assembly may well be using old machinery because they honestly don't need 
+anything newer as they're probably not playing video games on them or running 
+bloatware.</p>
+<p>Now you have a thorough idea of what rules govern assembly and are ready to 
+proceed to programming.</p>
+</body>
+</html>

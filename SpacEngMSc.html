@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+
+<head>
+	<link rel="stylesheet" type="text/css" href="mainStyle.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Homer Papadatos-Vasilakis</title>
+</head>
+<body>
+<script src="commonHeader.js"></script>
+
+<!--object type="text/html" data="global.html" width="100%" style="position:fixed; top:0; color:gray; height:50px;"></object>
+<object type="text/html" data="global.html" width="100%" style="height:50px;"></object-->
+
+<div class="container-fluid">
+  
+
+	<h1>
+	MSc in Space Engineering
+	</h1>
+	One very busy year, 8 modules and 175 thousand orbits later I received an 
+	MSc in Space Engineering with Merit. It wasn't easy, but to paraphrase what 
+	J.F.Kennedy said about going to the Moon, I didn't choose to do this Masters 
+	because it was easy, but because it was hard (and pretty much the best way 
+	to get involved in the design part of space engineering and astrodynamics). <p>
+	<h2>Modules:</h2><p>
+	<strong>Semester 1:<br></strong>- Mission Design and Analysis<br>- Space 
+	System Design<br>- Space Remote Sensing<br>- Space Avionics <br><strong>Semester 2:</strong><br>
+	- Space Structures and Mechanisms<br>- Advanced Guidance, Navigation and 
+	Control <br>- Space Environment and Protection<br>- Launch Vehicles and 
+	Propulsion<p>
+	<h2>Dissertation:</h2>
+	<p>
+	The topic was &quot;Survey of Periodic Orbits for Solar Coronagraph Missions&quot;. 
+	The main task was to simulate the orbits in the Rastrepo &amp; Russel database 
+	(2018) in order to find those suitable for solar coronagraph missions using 
+	the Eckersley/Kemble methods, as patented by Airbus. This method uses a 
+	planet as an occulting body to obtain a better image than with a 
+	coronagraph. The idea was first proposed for use with the Moon as an 
+	occulting body, but as this created significant complications in the 
+	computations (the target zone changed in distance and orientation relative 
+	to the Moon as it and the Earth progressed through their respective orbits), 
+	the Earth was selected as a primary goal and the Moon as a secondary. Due to 
+	long debugging times, large avoidable with some more experience as many of 
+	the problems came down to a discrepancy in the last digits of &#956;, there was 
+	only time for the Sun-Earth system to be explored. I am, however, very 
+	interested in continuing the project for the Earth-Moon system upon 
+	graduation. The simulation used the Circular Restricted Three Body Problem 
+	running with Microsoft's Open Solver for Differential Equations library for 
+	the RKF45 integrator, but it was also implemented in MATLAB for prototyping 
+	with its respective integrator, thus cross-validating the results in 
+	individual tests; the final batch processing of the approximately 175.000 
+	orbits was done in the C# version for the improved performance and natively 
+	provided multithreading optimization. A total of about 3500 orbits of 
+	various shapes were found that pass through the target zones, with over 30 
+	passing at least 4 times per year. Bellow is a sample of the various orbits 
+	(thos in red are from the software I developped, those in blue are details 
+	from Matlab):<p>
+	<img alt="" height="504" src="orbits/thesis2020/orbit1.png" width="504"><img alt="" height="505" src="orbits/thesis2020/orbit2.png" width="505"><img alt="" height="503" src="orbits/thesis2020/orbit3.png" width="504"><img alt="" height="505" src="orbits/thesis2020/orbit4.png" width="504"><img alt="" height="505" src="orbits/thesis2020/orbit5.png" width="505"><img alt="" height="506" src="orbits/thesis2020/orbit6.png" width="505"><img alt="" height="611" src="orbits/thesis2020/orbitDetail1.png" width="659"><img alt="" height="610" src="orbits/thesis2020/orbitDetail2.png" width="622"><p>
+	The database that resulted from this effort can be found 
+	<a href="http://students.ceid.upatras.gr/~vpapadatos/SpacEngMSc/Earth_TZ.rar">here</a>, and 
+	1000-point records of one period of each can be downloaded
+	<a href="http://students.ceid.upatras.gr/~vpapadatos/SpacEngMSc/Earth_TZ_Detail.rar">here</a>.</div>
+	</p>
+
+</body>
+</html>

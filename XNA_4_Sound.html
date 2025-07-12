@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>XNA 4: Playing Sound - Homer Papadatos Vasilakis</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>XNA  Tutorial 4: Playing a sound effect</p>
+<p>Sound is also  very straightforward in XNA, so much that no intro is actually required!<br />
+  Import the  sound into the project just like you did with textures. WAV is the preferred  format in most environments, however MP3 should be fine too.</p>
+<p>Other than the  project knowing of the existence of the sound, the program must store it too,  so you will create a SoundEffect object with a suitable name, let&rsquo;s assume it  to be mySoundEffect. The same content.Load&lt;&gt;() function is used, I trust  it is now more obvious to understand how the &lt;&gt; symbols work. In this  case, similarly assuming that content is the default ContentManager, the  command should be <br />
+  <br />
+  mySoundEffect = content.Load&lt;SoundEffect&gt;(&ldquo;my_effect&rdquo;);<br />
+  <br />
+  Now, to get  this to play, you will use a function that is built into the class,  conveniently, <br />
+  <br />
+  mySoundEffect.Play();<br />
+  <br />
+  and that&rsquo;s it. This will play the sound effect once and then stop. Note that though  you can overlap sounds without any problems, if you repeatedly play the same effect  at a high rate, the sound will be distorted beyond all recognition, it might  remind you of the sound exploding cars mage in GTA: Vice City to some extent,  that metallic vibrating sound.  Try to  limit the rate at which the effect is being played using timers (next tutorial).</p>
+<p>Now, to go  more into depth, we shall see how you loop the sound. This is useful if you  want music to play in the background for example, though it is most commonly  used for engines of vehicles. To do that you create an object called  SoundEffectInstance, assigning it the returned object from  mySoundEffect.CreateInstance(). After that, all you need to do is call it&rsquo;s  Play() function.</p>
+<p> This class  has many interesting functions that I suggest you check out on MSDN. Other than  Pause(), Stop() and Resume(), an additional function is Apply3D(), which gives  it a position in 3D space, taking as arguments one or more listeners and an emitter.  This will probably not be of use to you currently, but if you move into 3D XNA  programming, it will be of great value.</p>
+<p> Note that  you may have up to 16 different SoundEffectInstance object playing  simultaneously, this should be more than enough however.</p>
+<p>Now you can  add some life to your game, essentially anything that does not require rotation  of images can now be done with what you know.</p>
+<p> In the next  tutorial we will talk about timing, which opens many more opportunities, from  well balanced animation to timed events, this will essentially complete the  needed knowledge in terms of the language you need to know to develop your  projects. After this, in the 2D realm, you will probably only need rotation  commands.</p>
+<p> Future  tutorials will mostly focus on how things are done effectively, from collision  detection to better animation in terms of code, for example how to make  particle effects or effect changes in the state of actors.</p>
+<p> &lsquo;Till next  time, happy coding!</p>
+</body>
+</html>

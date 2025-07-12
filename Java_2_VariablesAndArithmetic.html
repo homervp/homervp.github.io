@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Java Tutorials II: Variables and Arithmetic - Homer Papadatos Vasilakis</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>Java Tutorial II:  Variables and arithmetic operations</p>
+<p> In this tutorial we  will see how we can store data in variables and how to process arithmetic data  doing simple arithmetic operations.</p>
+<p> To start with,  variables are small pieces of memory, from one to 8 or 16 bytes, where data is  stored, such as a number or a character. They are all numbers eventually, as  you will discover by looking up the ASCII or Unicode tables. At any rate there  are a number of variables, most useful of which are int (integer), float (floating  point, or real), char (character), and bool (Boolean, storing true of false as  a value). There are also byte, for storing an integer that is between 0 and  255, double, which takes two times as much space as float does (in turn twice  as big as int), and short, which holds twice as much space as byte and half the  space of int. In general:</p>
+<p><br /> 
+  byte – 1 byte<br />
+  short – 2 bytes<br />
+  int – 4 bytes<br />
+  float – 8bytes<br />
+double – 16 bytes</p>
+<p> char is the variable  type used for characters, essentially it is a byte, and you will use it mainly  as an array, with the form of a String[]. Arrays are as they suggest, an array  of numbers, one after the other, they have a common name and are distinguished  by their own unique index, which starts from 0 and is incremental.  To understand why from 0 and how this works  you can directly view the &ldquo;pointers and arrays&rdquo; tutorial in C, as the same  principles apply. Note that arrays are static data structures, which means they  have specific memory allocated to them and their size cannot change. In C you  could change the size by feeing memory and reallocating memory to the array,  however because Java has managed code and fewer low level actions, you cannot  do this. You can however declare the array and state how many places it will  hold afterwards, so you can have some flexibility and have arrays get the size  they need when first created, without needing the workarounds found in C.</p>
+<p> The dynamic data  structure in Java is the List, or ArrayList. In fact you declare the structure  as a List and then initialize it as an ArrayList. These two are in Java.util.  You will find List in Java.awt, however choose to import Java.util as the  ArrayList is normally only detected there.</p>
+<p> To import a class,  either manually type the command import [package].[class], or just write the  element you need and the IDE should underline it with red, then, upon hovering  over it or right clicking, it should suggest you import the appropriate item.  To import individual items rather than the entire class go further by adding  .[item] at the end of your import, though this does not hold and great  advantages. Below I demonstrate declaring a variable, a list and then adding  the variable to the list. After that I go through the list with an extended for  loop, assigning 5 to every integer within it. I also declare an array to show  you how it is used:<br />
+int myNumber;</p>
+<p><br /> 
+  int myArray[] = new int[2];<br />
+  <br />
+  myArray[0] = 0;<br />
+  myArray[1] = 1;<br />
+  <br />
+  List myList = new ArrayList();<br />
+  myList.add(myNumber);<br />
+  <br />
+  for (int aNumber: myList)<br />
+  {<br />
+  aNumber = 5;<br />
+}</p>
+<p> I will explain the  extended for loop in a subsequent tutorial, but I wanted to demonstrate how the  List is more versatile than the array, and more abstract, as you can just make  the program go through every single element instead of being specific with the  index. This is of much use if you have data being dynamically added, whether it  is port logs about ships coming and going, soldiers in a game, or packages in a  network.<br />
+  Arithmetic operations  are pretty much the same in all languages, so you can also check the C tutorial  if you wish. The symbols are used as they are in everyday life, with the  exception that multiplication is done with an asterisk instead of a dot or an  x.  In general, you have direct access to  addition and subtraction, multiplication and division, as well as the modulus.  Only parentheses are used, not brackets, and the order of operations is the  just as we know it.<br />
+myArray[0] =  2*(myArray[1] + myNumer/3);</p>
+<p> This will first do  myNumber/3, then will added with myArra[1], and then will multiply the result  with 2 and store it in myArray[0].<br />
+There are also certain  short versions of operations, which are:</p>
+<p><br /> 
+  myNumber += 5; //adds  5 to the variable, correspondingly -=, *=, /=, all these perform the operation  between the variable and the number to the right, then store the result in the  variable.<br />
+  myArray[0] =  myArray[1]++; //this will assign myArray[1] to myArray[0], and <strong>then</strong> will increase myArray[1] by 1. --  signifies decrease by 1.<br />
+myArray[0] =  --myArray[1]; //this will first decrease myArray[1] by 1, and then will also  assign the new value to myArray[0].</p>
+<p> The ++ and --  symbols signify increase and decrease on the  variable itself, they affect the variable they are prefixed or suffixed to. It  they are before the variable, the change effects any assignment being done, if  not, the change takes effect after the assignment.</p>
+<p> This concludes this  tutorial, in the next tutorial we shall talk about functions and constructors,  following that, about input and the try-catch statement, branching and looping,  and after that about multiple classes. Not far ahead of those we will start  working with the GUI Java offers us.</p>
+</body>
+</html>

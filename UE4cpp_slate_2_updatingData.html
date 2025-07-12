@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>UE4 Slate UI tutorial 2 - updating HUD text</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" alt="home" name="home" width="494" height="68" id="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p><strong>Unreal Engine 4: Slate UI Tutorial 2 - updating HUD text</strong></p>
+<p>This tutorial example assumes you have entities on the map, and that you can &quot;select&quot; an entity through mouse hover, or by looking at it, as well as you store it automatically in the character you are controlling (only a reference). It was written after tutorial 7 from the C++ series was completed, but the basic premise of updating the HUD should be learnable despite the lack of the rest of the code, or with the code from around tutorial 4.</p>
+<p>HUDs are, from the beginning of games, an essential element of the game, not because it was just there, looked good or anything, but because it provided information in real time about the player's condition and the world around him. Our HUD however does not do any such thing, so it is currently pointless! What could it do though? Well, when you are picking up an item, you want to be sure that you are picking up the right item, right? So let's make the HUD tell us what the item we are looking at is.</p>
+<p>We will have to do some preparation for that.First of all, add a string to the entities you have been spawning (those balls with fire if you are following my tutorials) and in the constructor initialize it to something descriptive of them. Now add a public function to read its name, this is necessary if the string is private, which is safer.</p>
+<p>Now go to you character's class, and add a function that will check if there is an object in focus, and if there is it will return the name/description of the object:</p>
+<table width="1652" border="1">
+  <tr>
+    <td width="1642"><br />
+      FString AMyProjectCharacter::getFocusedItemName()<br />
+      {<br />
+&nbsp;&nbsp;&nbsp;&nbsp;if (FocusedActor)<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return FocusedActor-&gt;name;<br />
+&nbsp;&nbsp;&nbsp;&nbsp;else<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return &quot;&quot;;<br />
+}</td>
+  </tr>
+</table>
+<p>Simple and effective!</p>
+<p>Now we get to the UI, actually to the widget itself, so we keep our HUD clean.</p>
+<p>In your header file, add the following line:</p>
+<table width="1652" border="1">
+  <tr>
+    <td width="1642" height="47"><p>//in the headers list<br />
+      #include &quot;MyProjectCharacter.h&quot;</p>
+      <p>//in the class definition<br />
+      FString SMyWidget::getFocusedItemNameS();</p>
+      <p><br />
+    AMyProjectCharacter* character;</p></td>
+  </tr>
+</table>
+<p>Note that you don't need to be specific about the SMyWidget:: part, you can just declare it with its name. I did a small copy-paste as I first built the function and then declared it, thus it remained in my declaration.</p>
+<p>Now, you'll notice how the widget has a pointer to a character of the type we use, this is because we don't want to retrieve the character every now and then. Since we only have one character, we blindly grab the first character in the character array provided by the engine, to do that, go into the C++ file, and in the constructor add:</p>
+<table width="1652" border="1">
+  <tr>
+    <td width="1642" height="91"><p><br />
+      #include &quot;Engine.h&quot;    </p>
+      <p>//Constructor<br />
+        TArray&lt;APlayerController*, FDefaultAllocator&gt; controllers;<br />
+        GEngine-&gt;GetAllLocalPlayerControllers(controllers);<br />
+    character = (AMyProjectCharacter*)(controllers[0]-&gt;GetPawn());</p></td>
+  </tr>
+</table>
+<p>In detail, we create an array of player controllers, using the default allocator (a property we don't care about modifying until we get professional), we get all the player controllers from the engine (#include Engine.h required for version 4.4 and up), and we retrieve the Pawn controlled by the first controller. Since we are still in single player, we can rest assured that the first controller is probably the only one and is the one we are controlling. In multiplayer this may hold true as it is highly likely that the local player is initialized before server data creates the rest, but this is dependent on the implementation.</p>
+<p>Now that we know who is controlling this HUD, we need to dynamically update the HUD to match the player's data. To do this we will use a TAttribute&lt;&gt;, which also accepts a function pointer as a value, acting as a delegate. Its syntax may look a bit intimidating at first, but is eventually easy to reproduce for further data:</p>
+<table width="1652" border="1">
+  <tr>
+    <td width="1642" height="75"><p>TAttribute&lt;FString&gt; Value = TAttribute&lt;FString&gt;::Create(TAttribute&lt;FString&gt;::FGetter::CreateRaw(this, &amp;SMyWidget::getFocusedItemNameS));</p></td>
+  </tr>
+</table>
+<p>Ok, from the top.</p>
+<p>The template is set to FString, as that's what we'll be returning as a value. Value is just the name.</p>
+<p>We call Create() from TAttribute, and the rest of the line is Create's argument.</p>
+<p>As an argument, we use an FGetter from TAttribute, which we create with the CreateRaw() function of FGetter's static class.</p>
+<p>CreateRaw receives two arguments, the first one is the object instance, which will be &quot;this&quot; in this case, as we are housing the function in the widget. The second one is a pointer to the function, this requires that the class is specified (SMyWidget::), as you could specify a superclass's function instead of its overriden version, or a function from another class than the one in which it is to be used (could be static as well). Note that you give a pointer to the class's function and not the instance's function because technically the instance uses the class's function, as functions are exist once per class in the memory, and are not duplicated with instances.</p>
+<p>Well, that's it, we've got an argument that updates itself, kind of like a property (for more advanced C++/C# and generally OOP users). Using it is simpler than placin static text was, as we skip the LOCTEXT macro itself, and we only use the attribute's name:</p>
+<table width="1652" border="1">
+  <tr>
+    <td width="1642" height="75"><p>.Text(Value)</p></td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+</body>
+</html>

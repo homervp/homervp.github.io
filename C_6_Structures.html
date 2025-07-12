@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p><strong>C Tutorial VI: Structures:</strong></p>
+<p>Arrays, if you used them correctly, probably  helped you do some more organized coding. If you also went into the trouble to  implement pointers you now know how useful they can be for better accessing  data. However there&rsquo;s more in store, there are even better ways to organize  your data, with more freedom and a more clear structure.</p>
+<p> Structures, or structs, are just what they say  they are. Let&rsquo;s assume you own some stores, what you need to know is their  address, perhaps four goods they sell, the price of these goods, and how much  revenue is made. This can be stored as a string, four pointers (it is better to  have all the goods listed in one place than individually placed in each  structure), a float array and one more float respectively. You can do all this  with parallel arrays (if you&rsquo;ve been studying you have already noticed that you  can place some of what I mentioned in another array for better organization),  but how would you like it if you could put all this in one place? Let&rsquo;s see  what a structure looks like:<br><br />struct  shop{<br />
+  char *address; //the string is an  array of characters<br />
+  int *goods[4]; <br />
+  float prices[4];<br />
+  float revenue;<br />
+}  shops[10];</p>
+<p>This is a struct. I declare that it  is a struct just like that, then I give it a name. In the brackets are all the  data I want to know for every individual store. After the brackets you may or  may not also declare a variable of this type, or more appropriately a struct of  this type. Now I want to note a useful thing, a command called typedef. To  create a struct you have to type<br />
+<br />struct shop  myshop;<br />
+<br />However I could type<br />
+<br />typedef  struct shop store;</p>
+<p>instead, and then I could refer to  &ldquo;struct shop&rdquo; as just store. You can use typedef on just about anything, you  can use it to set alternate names for integers, a name to signify an array of a  set size of floats, a pointer of some type, anything. It is very similar with  the #define preprocessor command, only the last one can do this for absolutely  anything, including code, commands, operators etc.</p>
+<p> So, back to the point, this is how  you create a structure, and also how to rename it so you don&rsquo;t have to type in  &ldquo;struct&rdquo; every time you create an instance of it. But how will you use it?  Placing a dot at the end of the structure&rsquo;s name will grant you access to it&rsquo;s  internal variables, like this:<br />store  mystore;<br /><br />
+  mystore.revenue  = 8.7;</p>
+<p>This sets mystore&rsquo;s revenue to 8.7. In general,  the variables are just treated as variables, there are no syntax differences  except one. You can have a pointer to a structure, and handling that is  slightly different, but nothing exceptional:<br /><br />
+  store  *pointedStore;<br />
+  pointedStore  = &amp;mystore;<br />
+*pointedStore-&gt;revenue  = 8.7;</p>
+<p>            Remember your pointer syntax, I  accessed the value of the variable pointed at by pointedStore. The arrow, essentially  a minus and a bigger-than operator, is what you use to access struct pointers&rsquo;  members. Note that members is a characterization of variables inside  structures, they are called member variables.</p>
+<p>  Now let&rsquo;s get a little deeper, shall  we? Let&rsquo;s assume that we also defined a structure called products, I declared  the goods that are sold by the shop as an int, why not declare them as of type  products? Actually that&rsquo;s a brilliant idea, as this will allow me to store  extra data for them! A name, a selling factor, a supply rate, anything. Try it  out. Now, to access the name, for example, you would type  *mystore.goods[0]-&gt;name, it&rsquo;s a very reasonable pattern. The arrow operator  is just because goods is a pointer, it would be the dot in any other case, but you  get the idea.</p>
+<p> Let&rsquo;s take another example, consider  a squad of marines. Let&rsquo;s say you have a rifleman, a radioman, a bazooka and a  machine-gunner. Let&rsquo;s also assume that they have a stat called hp, their  hitpoints. The soldiers are of type struct soldier, and struct squad contains  four of them. To see what are the hitpoints of the radioman you will type  mysquad.radioman.hp, easy as pie.<br />
+  So we saw some weird stuff today, I  can make it weirder, but I&rsquo;m going to leave this stuff for another tutorial, a  bit more advanced. The weirder stuff are groups of structures that can be  expanded, they are called lists. Of course lists are not the only weird thing  out there, but it&rsquo;s a start. I will analyze at some other point, but  malloc-allocated memory remains until you use free() on it, which allows us to  continuously allocate more memory on demand (until we run out of it that is),  and give it to our group. Everything in the linked list is linked to the next  member (and possibly the previous too) with a pointer within the member itself.  Bearing that in mind, you can have the last one point the first, and then just  change that and allocate new memory for the last to point at, giving you  another link for the list. It sounds complex, but you will see that it&rsquo;s simple  as a concept (though it does take a little debugging to get to work at first).</p>
+<p>In the next tutorial I will teach  you how to make your own functions, this will probably give you a very good  feeling, and you might want to kill me for not teaching them earlier, but the  good news is that structs do not need much practice, so you can jump straight  to functions and then apply them both without much trouble.</p>
+<p>What now? Well, assuming you do not  want to go read functions (which I suggest) I would suggest you make a game  with ships. Have your own ship and two enemy ships, each one being created with  a struct, and changing targets with a pointer. Member variables are to include  hitpoints, armor, power and maybe speed. You can of course elaborate  infinitely, adding number of guns (especially for pirate era ships),  engines/sails, rangefinders, perhaps a scout plane and some AA guns, and  anything you want. You can also make a small tycoon, an array of stores you own  with some upkeep to keep you busy, where you set the goods they sell and the  sales depend on supply and demand, check the &ldquo;games for inspiration&rdquo; page for  some ideas. Just remember, if you go learn functions things will be a lot  easier.</p>
+</body>
+</html>

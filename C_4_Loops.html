@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p><strong>C Tutorial IV: Loops, for,  while, do while</strong></p>
+<p>            Branching is important for programs  and games, as it makes them multifunctional and more diverse. It also helps in  breaking down the problem into smaller ones. However you will have noticed that  you still have to exit and re-enter the program to repeat the process, and in  the case of games, the player can only choose a linear path, cannot revisit  other locations, cannot go on forever.<br />
+  To have a program go on &ldquo;forever&rdquo;  and not require exiting to repeat a step, you need loops. A loop is a part of  code that is repeated as long as a condition is fulfilled. We will start  historically speaking, go on with the different kinds of loops, and then as  usual I will conclude with ideas and examples of their usefulness.<br />
+  </p>
+<p>The traditional way of making a loop  is using the GOTO command, meaning &ldquo;go to&rdquo;. Many compilers still have this  command for compatibility purposes, but the problem was that goto could send  the program to absolutely any point. You would put labels across the code, and  by referring to these labels you could &ldquo;goto&rdquo; that point at any given time with  this command. Imagine the code, there is no tabbing in, no brackets to tell the  code blocks apart, no functions, no loops and so on. Due to these issues  concerning maintenance of the code (neither you nor someone else could easily  correct mistakes after a certain time period), looping statements were created,  and goto was locked up for safety. Some refer to it as the &ldquo;black sheep&rdquo; of  programming, I&rsquo;ll just say it is an old and hard way to do the job, because we  cannot call everything we replace with something new and easy a black sheep.  Plus it is not politically correct.<br />
+  </p>
+<p>So times changed and so we can enjoy  a C without such tiring practices. There are three forms of loops, each serving  its own purposes, and I&rsquo;ll tell you what&rsquo;s good about each.<br />
+  </p>
+<p>First up is the <strong>for</strong> loop. The for loop is the most generic form of loop, it&rsquo;s  syntax is &ldquo;for (&lt;initialization&gt;; &lt;condition&gt;; &lt;variable  handling&gt;)&rdquo;. I could not name the last one anything better. Let&rsquo;s take an  example to work with: for (int i=9;i&lt;30;i++) and let&rsquo;s analyze it.<br />
+  </p>
+<p>I actually declared a variable in the first  part of the for formation. This is allowed from C99 onwards, in other words,  earlier versions of C (K&amp;R C, C95/ANSI C) do not allow this. However  because C++ allows it and most compilers work with C99 or C2011 –note that GCC  works by default with C95 and you have to use the suffix –std:C99, with the  dash and with a space between this and other commands)- I will be using it. If  you want the most backwards compatible code, declare your variable, usually a  counter, outside the loop. Further on you will notice that this means that the  space it occupies in memory will be held on longer than the loop, though this  should not be a problem. Because I analyzed this a bit too much, I will sum it  up: in the first part you can declare a variable, and you can assign a value to  a variable.<br />
+  </p>
+<p>In the second part, you have a logical  condition. Create these conditions like in the if statement, and your for  statement will continue looping as long as the condition is true. The condition  can contain anything you want.<br />
+  In the last part you place operations that  occur once the loop is finished and before the check for the other loop occurs.  In this example we increase the counter by one. As a whole, the example will  execute the loop 30 times, and inside the loop we can see which execution is  going on by using i + 1.<br />
+  It will be i + 1 because i starts as 0. In general this is how  computers start counting, from 0. When studying arrays and pointers you will  see a good reason for this, while if you also go through my binary tutorials  you will see a more elemental reason too.<br />
+  </p>
+<p>Let&rsquo;s also note that you can work with i, you  can change it in the middle of the loop. This means you can interrupt the loop  by making sure i is out of range on the next check.<br />
+  </p>
+<p>For loops are considered to be for using  counters, however this is no restriction, and I use a for loop in most cases.  However don&rsquo;t suffice to this, I also use the other loops and you should too if  you are to be considered a decent programmer.<br />
+  </p>
+<p>The next form of loop is the while loop. The  while loop just takes it&rsquo;s condition in a parenthesis next to it, and runs  while the condition is true. In this case you have to already have declared any  variables you use, while if you use a counter you have to manually add 1 to it  at the end of the loop. There is really not much to say about this one, it&rsquo;s  straightforward and simple, presumably used for logical conditions.<br />
+  </p>
+<p>The last form of loop is the do-while loop. You  first type &ldquo;do&rdquo;, add the code block (with curly braces and all), and finally  type while and the condition in the parenthesis. Essentially this works just  like the while, but instead of having the condition in the beginning, it has it  in the end. This way it first enters the loop, executes everything once, and  only then does it check to see if it should repeat.<br />
+If for example we wanted to start adding  numbers and wanted to output the result, we could use the do-while so we could  get an entry to start with and then keep adding until the user enters 0. Here&rsquo;s  the code for the do-while:</p>
+<p><br />int x, y;<br />
+  y = 0;<br />
+  do<br />
+  {<br />
+  scanf(&ldquo;%d&rdquo;, &amp;x);<br />
+  y += x;<br />
+  }<br />
+  while(x !=  0)<br />
+  <br />
+This will force the program to add  at least one number. The same with a simple while loop:</p>
+<p><br />int x, y;<br />
+  y = 0;<br />
+  scanf(&ldquo;%d&rdquo;,  &amp;x);<br />
+  y += x<br />
+  while (x !=  0)<br />
+  {<br />
+  scanf(&ldquo;%d&rdquo;, &amp;x);<br />
+  y += x;<br />
+}</p>
+<p>Notice two things, one is that we  also put the internal code outside the loop. This is to execute once. The other  is that we add x and then we check if it is valid. However, if x is invalid and  doesn&rsquo;t qualify to be added to y then x is 0 and therefore y is not changed. I  did this by mistake, but seeing how this turned to work out anyway, you might  do this on purpose, and it&rsquo;s ok as long as you are aware of it and know it  doesn&rsquo;t affect the execution.<br />
+  </p>
+<p>For the for loop the same applies,  you also type it once outside the loop. Let&rsquo;s see however how we can modify  your calculator. You should ask the user whether or not he wants to continue  using it, thus you need a sentinel variable. However you will check only after  the first time, since he probably ran the program for a reason. Thus you can  put the program in a do-while loop.<br />
+  Now let&rsquo;s see what can be done with  a game. The same applies to the main menu, and possibly the decision taking  menu. However in combat you can have for example four variables: the player and  the enemy&rsquo;s hp (hitpoints), and their dp (damage points). In a while loop you  can have the hp of each character decreased by his/her enemy&rsquo;s dp, and at the  end of the loop you can ask whether the player wants to fight or flee.<br />
+  </p>
+<p>Equally you can have them shoot  bursts from machineguns, and use a for loop to repeat the damaging process five  times for each of them.<br />
+  You will be wondering why would the  player wait to see if he should fight or flee since it&rsquo;s simple math, and why  subtract five times if we can calculate the damage, the answer is that you can  go and see the supplementary lessons and find the rand() function, you can  randomize the numbers a bit, add the factor of accuracy and make it a bit more  random so the player has a chance against a superior foe, and has chances of  loosing to an inferior one.<br />
+  </p>
+<p>This is just about all there is to  tell about loops, they&rsquo;re simple to use and you should jump straight to using  them. In the next tutorial we will discuss pointers and arrays, these two are  usually taught separately, however when you have read and understood the next,  much longer tutorial, you will have a very good understanding of arrays (pointers  are hard to grasp, many professional programmers learn them by practice and by  getting the feeling rather than understanding them in depth).</p>
+<p>What now? I just gave you a couple of examples,  upgrade your calculator, add some fighting in your game. Maybe you can let the  player choose to visit a number of places, perhaps he has a demolition derby  car, so he can go to the shop to buy upgrades (increase hitpoints and  durability), to the garage to see his stats, to the derby to demolish and get  some cash. Maybe he is a cowboy, he can go to the ranch to earn a dollar, to  the store to buy bullets, to the saloon to see who&rsquo;s wanted, and then to go  fight him the same way. It&rsquo;s up to you, it&rsquo;s your program/game and now you can  create your own world!<br />
+</p>
+<p>Arrays will help you organize data  in a better way, you can store data for various towns in your wild west game,  or anything such. Pointers will allow you to have more than one foes and pick  one to shoot at. You can dodge the subject for now, but if you do so you will  have to work with much more code for bigger projects and you will loose some  very big advantages, so I suggest you go ahead and try and learn them. You will  also find a big pointy surprise when you move even further on to functions,  which will solve many of your problems. Don&rsquo;t worry, after functions you&rsquo;ll  only need to learn structs (data structures) and then maybe some file  input/output, after that you will be ready to work with C++ and the Win32Api  and GDI, though I&rsquo;ll insist on learning C++ first.<br />
+</p>
+<p>Keep creating, experiment and learn  through practice!</p>
+</body>
+</html>

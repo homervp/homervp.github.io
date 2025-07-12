@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>UE4 tutorial 2 - Adding a Mesh</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" alt="home" name="home" width="494" height="68" id="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p><strong>Unreal Engine 4: Tutorial 2 - Adding a Mesh</strong></p>
+<p>Since our class doesn't have any particular behavior, and frankly we don't really have much on which it could behave, we have no means of perceiving its existence in our world. It is thus reasonable that the first thing we will do is to add a mesh to it. Meshes, as well as anything else, including particle effects, skeletal meshes and animations, etc, are components of the object. Components are generic things that attach to objects to give them certain attributes, while being reusable so they don't have to be reimplemented every time we want to add them to a class. These components can be declared in the header, in which case we always have a reference to them and they are availlable in the code, or they can be created through the code, which means they can be created on-demand during gameplay, and are not predefined or even limited, as you can add any amount necessary. This however requires that you keep track of them if you want to reference them in the future, otherwise they only interract through the engine. So if you want to add some particle effects of smoke and fire where the object is hit, you will have to keep track of them if you want to extinguish them (disable or remove the corresponding component) later on.</p>
+<p>If a component is definitely gonna be there, and especially if there's no chance of adding more of it later on, it's probably more versatile to just declare its existence in the header. Essentially you only move the declaration to the header, so that is a change you can do later on if you don't want to. For now we will only work with the .cpp file, so go to your constructor and add some code:</p>
+<table width="1629" height="360" border="1">
+  <tr>
+    <td><p>USphereComponent* SphereComponent = CreateDefaultSubobject&lt;USphereComponent&gt;(TEXT(&quot;RootComponent&quot;));<br />
+      RootComponent = SphereComponent;<br />
+      SphereComponent-&gt;InitSphereRadius(40.0f);
+      <br />
+      SphereComponent-&gt;SetCollisionProfileName(&quot;Pawn&quot;);
+      <br />
+      <br />
+      UStaticMeshComponent* SphereMesh = CreateDefaultSubobject&lt;UStaticMeshComponent&gt;(TEXT(&quot;VisualRepresentation&quot;));<br />
+      SphereMesh-&gt;AttachTo(RootComponent);<br />
+    static ConstructorHelpers::FObjectFinder&lt;UStaticMesh&gt; SphereMeshAsset(TEXT(&quot;/Game/StarterContent/Shapes/Shape_Sphere.Shape_Sphere&quot;));<br />
+    <br />
+    if(SphereMeshAsset.Succeeded())<br />
+    {<br />
+    SphereMesh-&gt;SetStaticMesh(SphereMeshAsset.Object);
+    <br />
+    SphereMesh-&gt;SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f));
+    <br />
+    SphereMesh-&gt;SetWorldScale3D(FVector(0.8f))
+    ;<br />
+    }</p></td>
+  </tr>
+</table>
+<p>Now to take a look at the code:</p>
+<p><strong>USphereComponent* SphereComponent = CreateDefaultSubobject&lt;USphereComponent&gt;(TEXT(&quot;RootComponent&quot;));</strong>. From the beggining to the end: We declare a sphere component, that is exactly what it says it is, a point and a radius, a sphere, not a mesh. As we are using objects it is a pointer to an object of this type. We give it an object with CreateDefaultSubobject and giving it the right type. The &lt;&gt; symbols pass a type to a template, the function then is duplicated on compilation to accomodate that type as well, thus that version of the funcion is availlable on runtime. The parameter passed is the name of this object in the editor, it does not affect whatsoever further coding. Thus, this line declares a spherical existence with no further information as to its properties.</p>
+<p><strong>RootComponent = SphereComponent;</strong> The RootComponent mentioned here, is the root component of the object, and only now do we say that our sphere is that component. It is entirely unrelated to the text we passed to the constructor just before, this component exists in all classes with substance. The RootComponent is the component which holds the actual position of your object, and all other components are defined relative to that. This helps us by keeping track of only one location, and computing the others on the fly, the cost of the computation is cheap compared to the cost of updating all positions, keeping track of them, and the programmatical effort to actually get them right every time we add or modify something. The cost of this practice is effectively negligible, and it quickly becomes obvious to anyone who discards it, that it is nigh impossible to work otherwise.</p>
+<p><strong>SphereComponent-&gt;InitSphereRadius(40.0f);</strong>. As you have probably imagined, this sets the radius of the sphere to 40. Attention: since the radius is 40, the diameter is 80! Also note, we give it a floating point value. This is more for convention over here, as a conversion is no problem for the engine, but the final result will definitely be stored in a floating point variable.</p>
+<p><strong>SphereComponent-&gt;SetCollisionProfileName(&quot;Pawn&quot;);</strong>. Over here we define that the sphere collides with just about everything that a pawn would collide with, i.e. it can go through anything the player and AI can go through, it is blocked by anything that blocks them. If you don't have anything in mind that could possibly <strong>not</strong> block the object in question, you can set it to &quot;BlockAll&quot;. For a full list of collision profiles, you can view the <a href="https://docs.unrealengine.com/latest/INT/Engine/Physics/Collision/Reference/index.html">reference</a>.</p>
+<p>Ok, so now you could place an instance of this class in the world, and it would not allow you to go through it. Not that it would also drop to the ground or move by any force, but it's a good start. The problem is that you unfortunately still cannot see it (don't worry, I am refering to the code as we explore it, it's in the code right up there). Let's see how we made it visible.</p>
+<p><strong>UStaticMeshComponent* SphereMesh = CreateDefaultSubobject&lt;UStaticMeshComponent&gt;(TEXT(&quot;VisualRepresentation&quot;));</strong>. Familliar? Indeed it is just as before, you merely create a new mesh.</p>
+<p><strong>SphereMesh-&gt;AttachTo(RootComponent);</strong> Now this is something somewhat useful, you attach the mesh to the root component, i.e. it follows the root component anywhere it goes.</p>
+<p><strong>static ConstructorHelpers::FObjectFinder&lt;UStaticMesh&gt; SphereMeshAsset(TEXT(&quot;/Game/StarterContent/Shapes/Shape_Sphere.Shape_Sphere&quot;));</strong> ConstructorHelpers are objects that are used, well, to help with constructors, but essentially they are an interface between your code and the assets. As is obvious, an FObjectFinder will find an object within the assets, we specify that the object is a static mesh (the template parameter), and we give it the text associated with that object as a parameter. Now, why the parameters come right after the name of the newly declared object you may ask, well, it's just the syntax for this one, you will not be called to implement any such classes any time soon, if ever actually.</p>
+<p><strong>if(SphereMeshAsset.Succeeded())</strong>. Self consciousness and self awareness are important. Unreal knows when its objects have found what they are looking for, and thus we can querry it as to that, and if they did find it, we proceed as planned.</p>
+<p><strong>SphereMesh-&gt;SetStaticMesh(SphereMeshAsset.Object); </strong>Pretty self-explanatory, I am sure. We set the static mesh to what the object finder managed to retrieve for us.</p>
+<p><strong>SphereMesh-&gt;SetRelativeLocation(FVector(0.0f, 0.0f, 0.0f)); </strong>Remember how I said the component binds to the root object? You can set its relative position to that, or its offset if you prefer it that way. I set it all to zero, as I want my mesh and my collision to occupy the same space. If you give it an offset, some stuff will pass through the mesh (visually) without being stopped (thus not physically), and others will collide with the mesh when it doesn't look like it's there. Vectors are sets of values, corresponding to XYZ coordinates, you will probably get used to them pretty soon while in game development.</p>
+<p><strong>SphereMesh-&gt;SetWorldScale3D(FVector(0.8f))
+;</strong> Now, the radius of the mesh is 50, but of the collision sphere is 40, so we have to scale the mesh down. This is what we just did. We set its world scale because we want it to consistently be 80% of what it would be towards the world, but you may resort to local scale in the future if you want a component to hold its proportions relative to its parent as its parent changes.</p>
+<p>&nbsp;</p>
+<p>Now, build, make sure no syntax errors or typos are present (otherwise it just won't build), go into the editor, navigate to the folder you created that houses your classes, and drag and drop it into your world, you should be able to see it right away! Note that you can see it even before the leve starts up because anything that lives in the editor is created by constructor before the game starts, and its BeginPlay() function is called afterwards. If you move the code to the BeginPlay() funcion, you will see the mesh appear once you start the game.</p>
+<p>In the next tutorial we will add gravity and physics to our class.</p>
+</body>
+</html>

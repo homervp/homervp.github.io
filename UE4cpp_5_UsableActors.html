@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>UE4 tutorial 5 - Usable Acotrs</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" alt="home" name="home" width="494" height="68" id="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p><strong>Unreal Engine 4: Tutorial 5 - Usable Actors</strong></p>
+<p>So now you have your mouse enabled, but without something to interact with, it's more of a pain than a feature. It's about time we enhance our game with some interraction.</p>
+<p>To get things straight, we will make things react to being at the center of the screen, while in the next couple of tutorials we will also actively interract with them. Thus for this tutorial you can expect the objects we spawned previously to catch fire when in the center of the screen (equivalent to the aiming reticle), and be extinguished when not there. Mouse selection and button functionality will be added in the next two tutorials.</p>
+<p>At this point I should send many thanks to Tom Looman, as we will follow closely his tutorial over <a href="//big thanks to tomlooman's (I guess) tutorial: http://www.tomlooman.com/tutorial-usableactor-system-in-c/">here</a>. For the sake of being honest and fair, I am replicating that tutorial because<br />
+a) there's no point in going in a different direction, he provides all we could wish for and I don't think I can offer much more<br />
+b) as this is a tutorial series, it would be inadmissible to say &quot;go do that tutorial and come back later&quot;.</p>
+<p>That being said, let's start coding! First of all, please move the declaration of the particle effect to the header, but of course the code creating it should remain in the .cpp file. The interaction we will first implement is that the existing item we created will have the particle effect enabled  when it's what we are about to select. Thus we shall start in the item's header (I avoid calling it a usable actor or anything as you may have used another name, or I might use another name if I change project while writing tutorials) and add three function declarations:</p>
+<table width="1629" height="48" border="1">
+  <tr>
+    <td height="42"><p>//MOUSE INTERACTION</p>
+      <p> bool OnUsed(ACharacter character);</p>
+      <p> bool StartFocusItem();</p>
+    <p> bool EndFocusItem();</p></td>
+  </tr>
+</table>
+<p>It's as simple as it looks. The first function is the only one you may not be sure about, OnUsed() is the function that, when a character chooses to use the item, informs the item that it is being used, and thus performs what it's destined to perform. This can be opening a door, starting a particle effect, exploding, or whatever you want it to be. Any interraction at all.</p>
+<p>StartFocusItem() and EndFocusItem() are called when the item is in focus and when it stops being in focus, we will currently use these two to start and stop the particle effect, which brings us to step 2, open up the .cpp file and add this code:</p>
+<table width="1629" height="48" border="1">
+  <tr>
+    <td height="42"><p><br />
+      bool AUsableActor::StartFocusItem()<br />
+      {</p>
+      <p> ParticleSystem-&gt;Activate(true);</p>
+      <p> return true;<br />
+        }</p>
+      <p>bool AUsableActor::EndFocusItem()<br />
+      {</p>
+      <p> ParticleSystem-&gt;Deactivate();</p>
+      <p> return true;<br />
+    }</p></td>
+  </tr>
+</table>
+<p>It should be pretty obvious that these functions just start and stop the particle effect.</p>
+<p>A final adjustment in this file, remember how we set auto-enabling of the effect to true? Set it to false so the particle effect is not already active. Head to the constructor and change <em>true</em> to <em>false</em> so that you have the following line:</p>
+<table width="1629" height="120" border="1">
+  <tr>
+    <td height="114"><p>ParticleSystem-&gt;bAutoActivate = false;</p></td>
+  </tr>
+</table>
+<p>The usable actor is now ready to be used! Note that as it is, there will be no visible effect other than the lack of fire during gameplay, but we have the functions to start and stop that fire at will!</p>
+<p>Now on to the actor himself. Start with the header of your character, we shall add a couple of variables and function prototypes. You may want to add a comment so you know which portion of the code is there due to this tutorial. Now add the following code th the file:</p>
+<table width="1629" height="120" border="1">
+  <tr>
+    <td height="114"><p>//////////////////////////////////////////////////////////////////////////<br />
+// Mouse:</p>
+      <p> virtual void Tick(float DeltaSeconds) OVERRIDE;</p>
+      <p>protected:<br />
+        //big thanks to <a href="http://www.tomlooman.com/tutorial-usableactor-system-in-c/">tomlooman's (I guess) tutorial: http://www.tomlooman.com/tutorial-usableactor-system-in-c/ </a></p>
+      <p>/* See comments for this commented out code<br />
+        //APawn interface<br />
+        //virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) OVERRIDE;<br />
+        //end of interface</p>
+      <p> //Get a usable actor from the viewport (subclasses are valid too)<br />
+      class AUsableActor* GetUsableInView();</p>
+      <p> //Maximum distance of interaction<br />
+        float MaxUseDistance;</p>
+      <p> //Are we looking at another actor in this frame?<br />
+        bool bHasNewFocus;</p>
+      <p> //The actor we are looking at<br />
+        AUsableActor* FocusedActor;</p>
+      <p>public:<br />
+        //The act of using the actor<br />
+    virtual void Use();</p></td>
+  </tr>
+</table>
+<p>First of all I will apologize for the commented out code. Under certain circumstances, depending on how your project was set up and what changes have already been made, you may need to add the line beginning with &quot;virtual void....&quot; from the commented section, try adding it, if it is not accepted you don't need it. I kept it to cover as many possibilities as possible, if you do need it, you will find the function's code at the link provided to Tom Looman's tutorial [hat tip]. As mentioned earlier, we are following in his footsteps.</p>
+<p>Now, first of all we override Tick(), which is the update function of the actor. You shall see that in the Tick() function we will be detecting the object to be selected.</p>
+<p>Next, having entered a <em>protected</em> section, we declare a function that gives us the usable actor, and that function is GetUsableInView().</p>
+<p>MaxUseDistance is the variable that holds how far we can &quot;reach&quot;, past that distance no items will be interactable.</p>
+<p>bHasNewFocus stores wether or not in the past trace we found another item to be in focus, rather than the one we had earlier. Note: the 'b' letter is used in front of boolean variables.</p>
+<p>FocusedActor is pretty self-explanatory, it holds a pointer to the actor we detected as the one in focus.</p>
+<p>Finally we switch back to the <em>public</em> section. There we declare tha function Use(), which is the function that will handle the interraction on the side of the character. There you can check wether you can pick up an item, or if it's only interractable, in each case the game does something different, so it's unlikely that you won't need to check for such a distinction.</p>
+<p>So, we now have three functions to write, but also to initialize a couple of stuff, so let's open up our .cpp file.</p>
+<p>First go to the constructor, since it's already there, and add the following two lines, again, a wise practice is to separate it from the existing code with a recognizable comment:</p>
+<table width="1629" height="120" border="1">
+  <tr>
+    <td height="114"><p> //Additional Code<br />
+MaxUseDistance = 800;<br />
+bHasNewFocus = true;</p></td>
+  </tr>
+</table>
+<p>That's a simple bit, isn't it? Note that bHasNewFocus would anyway be changed upon updating, but it's good to give it an initial value, and with that it's good to asume that you are not looking at what you were looking at a while ago, becase a while ago doesn't even exist as you're just entering the game.</p>
+<p>Let's move on to something really simple, the Use() function:</p>
+<table width="1629" height="120" border="1">
+  <tr>
+    <td height="114"><p><br />
+      void AMyProjectCharacter::Use()<br />
+    {<br />
+    <br />
+    }</p></td>
+  </tr>
+</table>
+<p>The reason it's really simple is that we have neither set up the interraction, so we can't interract, but we also don't want to have to do that to see if this works.</p>
+<p>Let's go get that actor now, so we can interract with him later. This is what it should look like:</p>
+<table width="1629" height="120" border="1">
+  <tr>
+    <td height="114"><p>AUsableActor* AMyProjectCharacter::GetUsableInView()<br />
+      {<br />
+FVector camLoc; //camera location<br />
+FRotator camRot; //camera rotation - defines where it's looking</p>
+      <p> if (Controller == NULL)<br />
+        return NULL;</p>
+      <p> Controller-&gt;GetPlayerViewPoint(camLoc, camRot);<br />
+        const FVector start_trace = camLoc;<br />
+        const FVector direction = camRot.Vector();<br />
+        const FVector end_trace = start_trace + direction*MaxUseDistance;</p>
+      <p> FCollisionQueryParams TraceParams(FName(TEXT(&quot;&quot;)), true, this);<br />
+        TraceParams.bTraceAsyncScene = true;<br />
+        TraceParams.bReturnPhysicalMaterial = false;<br />
+        TraceParams.bTraceComplex = true;</p>
+      <p> FHitResult Hit(ForceInit);<br />
+        GetWorld()-&gt;LineTraceSingle(Hit, start_trace, end_trace, COLLISION_PROJECTILE, TraceParams);</p>
+      <p> return Cast&lt;AUsableActor&gt;(Hit.GetActor());</p>
+    <p>}</p></td>
+  </tr>
+</table>
+<p>So, the first thing you will notice is camera location and rotation. The location is pretty much where your virtual eye is, and to specify what direction it's looking at (because the engine really doesn't care what's there, only it's position relative to the camera) you have the rotation.</p>
+<p>A small note on the camera in 3D graphics: you may be wandering how you can follow something as it moves in a non-linear way, the answer is that there generally is a LookAt() function which calculates the rotation required for a camera to look at something. You can learn more on these by studying some Linear Algebra, or if you are in a hurry, you can take a look at my 3D tutorials for a liitle more depth without much math.</p>
+<p>Next we check if the controller is existant and valid, if it is not, it is safe to assume there is no camera, or the character may not have even spawned, so there is no point in performing the trace and we return NULL (more on tracing in a very short while).</p>
+<p>Consequently, we get the player's camera information, specified by the camera's location and rotation which are given as output parameters of the function GetPlayerViewPoint. This is not the same as the viewport, which also includes the Field of View (FOV).</p>
+<p>Right below, we specify the information for the ray trace, now is a good time to talk about raytracing.</p>
+<p><strong>RayTracing</strong> is the act of checking if a &quot;ray&quot; intersects with any objects in the scene. This is the primary way with which we check for line of sight (LOS) which determines whether someone can see another unobstructed, the way we select items, and in general, the way in which we check what intersects with a line for any purpose whatsoever, even for bullet hits.<br />
+It is often done by checking every point per a certain distance to see if there is something there, but can also be done by actually checking for intersection between line and surface, how it is done is best left to the engine, which ought to be optimized and thus faster.</p>
+<p>So, we set the beginning of the trace to be the location of the camera. For the direction, we get a Vector version of the rotation, the rotation (of type FRotator, as you saw) holds more info. Finally we want the final location of the trace, which is the beginning plus the distance specified as the maximum, in the direction we are looking at.</p>
+<p>Note that the direction, in vector form, is a normalized/unary vector in the direction desired, meaning it is of lenght one, so we just multiply that to get the distance in the specified direction.</p>
+<p>Moving on, we have the <strong>Trace Parameters</strong>, which are a structore of their own. We do not give it a name, allow it to perform a complex trace (just leave that as is, if you mess around with traces in an advanced level you'll have time to figure it out, and generally many other stuff should be left as is unless required to do otherwise), and we tell it that the actor to ignore is our own actor, the one calling the function, which, especially in the case of the 3rd Person camera, allows us not to select the actor, especially when we use the cursor rather than the center of the camera.</p>
+<p>Any asynchronous task means it won't block another process, so it's not a bad idea - to be honest, I see it this way, I leave it this way - so we leave bTraceAsyncScene at true. The following command however may be important for performance.</p>
+<p>bReturnPhysicalMaterial, as the name suggests, defines whether or not we want the physical material to be returned. In the case of vehicle wheels (yes, raytracing is used there too!) you want to know what terrain you're driving on, to sdjust the behavior of the wheels. Another use may be to check whether you hit a bulletproof portion of something or a vulnerable portion, possible to perform a ricochet (damaged is preferably controlled by the one receiving it). But perhaps the most common use of this is to see whether you hit, say, wood or iron, and play the appropriate particle effect, splinters or sparks.</p>
+<p>Long story short, we do not care what it's made of (at least that's usually the case for selecting stuff), so we don't want this. We also don't want this because it furthers the process, since once you know what you've hit, you want to know where you've hit it (possibly on a per-polygon collision, which is expensive) and then to determine what material is at that location. So false it is!</p>
+<p>bTraceComplex is already set to true in the constructor, but I see it there, I leave it there. I am 99% certain that you can remove this line with absolutely no side-effect. What it seems to do, as far as I could figure out in my searches, is it allows the trace to do a per-poly collision detection, which is rather expensive-ish. Since it is a single trace, we don't mind too much, and even if it were a more frequent one (as if 60 times a second isn't frequent enough), it would only check if it first hit the bounding shape, so again it would only occure a very few times at worst.</p>
+<p>Now we get our results. We declare a variable to store the result, and we pass 0 to it's constructor, which is generally the default parameter (ForceInit, apparently meaning Force Initialization, is defined to be zero).</p>
+<p>To get the result, we first use GetWorld() so we can access the world/level we are in, and from that world we retrieved we perform a single line trace (as the function name suggests), the parameters being:</p>
+<p>the variable where hit result will be stored, the beginning and end of the trace, the trace channel (set to COLLISION_PROJECTILE), and the parameters of the trace.</p>
+<p>Finally we take the actor from the result and we explicitly cast it to a usable actor, this explicit cast will not return something usable if it fails, so we conveniently skip the check for now.</p>
+<p>A note on COLLISION_PROJECTILE. If it is not recognized straight on, you can #define it as ECC_GameTraceChannel1, which should be in &lt;Engine.h&gt;. If you want to make sure it is defined without checking, use the following code at the beginning:</p>
+<table width="1629" height="120" border="1">
+  <tr>
+    <td height="114"><p>//additional headers<br />
+      #include &quot;UsableActor.h&quot;<br />
+      #ifndef COLLISION_PROJECTILE<br />
+#include &quot;Engine.h&quot;<br />
+#define COLLISION_PROJECTILE ECC_GameTraceChannel1<br />
+#endif</p></td>
+  </tr>
+</table>
+<p>The #ifndef preprocessor directive, standing for &quot;if not defined&quot; is an elegant way of making sure that a code segment has a required constant. Similar preprocessor directives are used to add platform-dependent functionallity and omit functionality that is only supported on another platform.</p>
+<p>Now we have one last thing to do, to call that function so we can get that actor. This is done in the Tick() function, called in every game update, which should roughly coincide with each frame, or may even be more frequent.</p>
+<p>Add the Tick() function so that it looks like this:</p>
+<table width="1629" height="120" border="1">
+  <tr>
+    <td height="114"><p>void AMyProjectCharacter::Tick(float DeltaSeconds)<br />
+      {<br />
+Super::Tick(DeltaSeconds);</p>
+      <p> //if we've got a controller<br />
+        if (Controller &amp;&amp; Controller-&gt;IsLocalController())<br />
+        {<br />
+        //get the actor<br />
+        AUsableActor* usable = GetUsableInView();</p>
+      <p> //if it's not the one we had earlier<br />
+        if (FocusedActor != usable)<br />
+        {<br />
+        //if we actually did have one earlier<br />
+        if (FocusedActor)<br />
+        {<br />
+        //inform him that he's no longer in focus<br />
+        FocusedActor-&gt;EndFocusItem();<br />
+        }<br />
+        //and declare that we have a new one<br />
+        bHasNewFocus = true;<br />
+        }</p>
+      <p> //assign it. Even if it's not valid, it will work<br />
+        FocusedActor = usable;</p>
+      <p> //so is it valid?<br />
+        if (usable)<br />
+        {<br />
+        //did we just focus on it?<br />
+        if (bHasNewFocus)<br />
+        {<br />
+        //then inform it, and reset bHasNewFocus<br />
+        usable-&gt;StartFocusItem();<br />
+        bHasNewFocus = false;<br />
+        }<br />
+        //otherwise we're good as is<br />
+        }<br />
+    }<br />
+    }
+    </p></td>
+  </tr>
+</table>
+<p>Now, my editor really did a work of art on this piece of code! As you now, through Edit-&gt;Advanced-&gt;Format Selection, you can automatically fix this in Visual Studio.</p>
+<p>Let's see what we have then. I hope the comments guided you through the code fairly easily, it's very clean code anyway.</p>
+<p>First off, if we don't have a controller, there's no point in doing anything, so we check.</p>
+<p>Next, we get a usable actor, through the function we wrote above. That's the actor in the middle of the screen, right after our own.</p>
+<p>We check if he's the one we had last time, if not then...</p>
+<p>We check if we even had one earlier, in which case we inform it that it is no longer the focused item.</p>
+<p>Regardless , we notify that we have a new actor in focus.</p>
+<p>Now that that's done, we set our &quot;usable&quot; variable, i.e. the actor in focus, to the actor we retrieved.</p>
+<p>We check if it even exists. Remember how we didn't check the ray trace? If it wasn't a usable actor, it returned a NULL, so this will fail.</p>
+<p>If however the actor is valid, we check if it is a new actor, in which case we notify it and reset the flag back to false.</p>
+<p>And that's it! Well, it's been a long one, but the code turned out to be more straightforward than you expected, right? I know I felt so.</p>
+<p>What have we just done? If you compile and test it out, you will see that the balls we earlier spawned will now be set ablaze when we are looking directly at them, but the fire will be extinguished when the ball is no longer in the center of the screen. In the case of a first person game, this is all you need for interraction. Even in third person games, like Fallout 3 or later, by shifting the camera slightly to the side, you are once again ready to continue.</p>
+<p>However, for the case of the generic 3rd person game, in the lines of Star Wars: Knights of the Old Republic, we do not have the full flexibility we would desire, as we cannot select but what is in the middle of the screen, which makes the cursor a remaining liability. By allowing selection by cursor, we not only cover that category of games, but we also open the door to the strategy and tactical game family, whether real-time or turn-based, as they revolve around mouse control.</p>
+<p>Thus in the next tutorial we will modify this code so we can select with the mouse, and in the one after that we will add new controll bindings, so we can enable and disable the mouse at will, as well as use objects by clicking on them (as we will have bound the toggling of the cursor to a key, similarly you can bind interraction to one).</p>
+</body>
+</html>

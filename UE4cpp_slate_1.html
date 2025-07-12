@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>UE4 Slate UI tutorial 1 - first use of slate</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" alt="home" name="home" width="494" height="68" id="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p><strong>Unreal Engine 4: Slate UI Tutorial 1 - HUD initialization and first widget</strong></p>
+<p>This tutorial draws upon the <a href="https://wiki.unrealengine.com/Slate!,_Hello">Hello Slate</a> tutorial, by</p>
+<p>UI programming is generally avoided in most cases, first of all because programmers don't tend to be that interested in UI, secondly because it's much easier to see something than to visualize it, and lastly because few people bother to become really good at creating a good looking interface with code (that's pretty much reasons 1 &amp; 2 combined).</p>
+<p>It does however have its merits. For a programmer who does not intend to hire a UI designer, it may be a lot more familiar and direct to write his own code for the UI than to learn the UI tools and how they interface to the programming API. This is essentially because that is comparable to learning a new tool, while when programming he uses the same syntax. Another reason programmers want to stick to code, and UI designers may want to learn code, is that while you can visually access any UI elements, patterns and behaviors through the design tools, through code you can create your own elements, behaviors and so on. Code behaves as instructed, brings results without a lot of reading (assuming you already know the underlying language or a similar one), and offers the agility to program the behavior you want without becoming a seasoned expert in the framework.</p>
+<p>Unreal Engine 4's framework for the UI is the Slate framework and the UMG framework. The UMG framework works through blueprints, but for me blueprints are closer to visual design, and a new system to learn, which I don't want to (OK, I know how to use them, they're easy, but for the purposes of this tutorial let's assume otherwise). It is true however that I want to stay on clean code as it is self-contained, and Slate allows me to do that, so that's what we are going to be showing.</p>
+<p>At this point I should clear up that I may make small mistakes in terminology - what's a slate? Is the framework called slate? But it won't stand in our way.</p>
+<p><strong>First of all</strong> you will probably have to go into your projects [project name].Build.cs file and add a couple of dependencies. The uncertainty is due to the fact that this is subject to change in other engine versions. You will want to modify the code to look like this:</p>
+<table width="1668" height="113" border="1">
+  <tr>
+    <td><br />
+public MyProject(TargetInfo Target)<br />
+{<br />
+PublicDependencyModuleNames.AddRange(new string[] { &quot;Core&quot;, &quot;CoreUObject&quot;, &quot;Engine&quot;, &quot;InputCore&quot;});<br />
+PrivateDependencyModuleNames.AddRange(new string[] {&quot;Slate&quot;, &quot;SlateCore&quot; });<br />
+}</td>
+  </tr>
+</table>
+<p>If either function is there (depending on how you set up your project this may be different), only add the strings missing. If there are other strings in the parameters, leave them as they are.</p>
+<p>Now you will have to create a HUD and then the widget we are going to add. Add both through the editor, to make sure they are visible to the project. Select them to respectively extend from HUD and Slate, the later is the second from last in the suggested classes in 4.8, HUD is somewhere around the middle. I named them MainHUD and myWidget respectively (that's how they will appear in the code here), you can name them as you wish.</p>
+<p>In the HUD's header file, #include SlateBasics.h. After the #include section, declare a class with the name of your widget, this is like declaring an external variable.</p>
+<p><strong>It is important</strong> that you declare the class in the file, and <strong>not #include</strong> its header. This is because we will #include the HUD's header in the widget's, so if you also did it the other way around, you would have circular dependencies, i.e. the preprocessor would be running around in circles from the one to the other.</p>
+<p>Now let's check the class definiton of the HUD:</p>
+<table width="1668" height="113" border="1">
+  <tr>
+    <td><p><br />
+      UCLASS()<br />
+      class MYPROJECT_API AMainHUD : public AHUD<br />
+      {<br />
+      GENERATED_BODY()<br />
+  <br />
+      AMainHUD();</p>
+      <p> TSharedPtr&lt;SMyWidget&gt; myWidget; //this is the only line added by us<br />
+        <br />
+        void BeginPlay();<br />
+        };<br />
+    </p></td>
+  </tr>
+</table>
+<p>You can see a macro placed by Unreal at the top, we thank Unreal for handling stuff and we move on.</p>
+<p>The class inherrits from HUD, as expected. GENERATED_BODY is again an Unreal macro, so we ignore it once again. Then follows the declaration of the constructor, and in the end the BeginPlay() function, which, as stated in the first couple of tutorials, is executed once gameplay has actually started.</p>
+<p>The extra line of code we added is a shared poiner to our widget. TPointers are safe pointers, and should be used as often as they can instead of normal pointers. It is important at this point to note that you should be careful with prefixes, like the S is in front of SMyWidget, they are added by the engine, and sometimes lack thereof eludes the attention of Visual Studio. In that case the error you will receive is of the &quot;undefined identifier&quot; family. We will note this later on as well.</p>
+<p>Now let's go into the .cpp file and add the code we need for BeginPlay():</p>
+<table width="1668" height="219" border="1">
+  <tr>
+    <td height="213"><p><br />
+      void AMainHUD::BeginPlay()<br />
+      {<br />
+myWidget = SNew(SMyWidget).OwnerHUD(this);</p>
+      <p> GEngine-&gt;GameViewport-&gt;AddViewportWidgetContent(SNew(SWeakWidget).PossiblyNullContent(myWidget.ToSharedRef()));</p>
+      <p> myWidget-&gt;SetVisibility(EVisibility::Visible);<br />
+        }<br />
+      </p>
+      <p><br />
+      </p></td>
+  </tr>
+</table>
+<p>Essentially what we see is the creation of a new widget of our own type, whose HUD we set to the current HUD we are working on. After that we pass it to the viewport that we receive from GEngine, and it is passed with some measures of security. Let's slow down and take a look.</p>
+<p>GEngine is the game engine's current instance. From that we retrieve the current viewport, and we add content to it. SNew is used again, it is used continuously with widgets to create new ones. SWeakWidget does not have an actual substance but rather is a safe prototype. After the SNew function is called, we use the dot operator to pass it further parameters or to further process what we are receiving, the precise way these work may be analyzed later on, slates work using the preprocessor quite heavily. We further safely pass a shared reference to our widget with the ToSharedRef(), the safe part referring to the fact that we pass it through PossiblyNullContent().</p>
+<p>Finally we set the widget to be visible.</p>
+<p>In version 4.8 you will need the following headers present:</p>
+<table width="1668" height="137" border="1">
+  <tr>
+    <td height="131"><p><br />
+      #include &quot;MyProject.h&quot; //already there<br />
+      #include &quot;MainHUD.h&quot; //already there<br />
+      #include &quot;SMyWidget.h&quot; //the widget.<br />
+    #include &quot;Engine.h&quot;</p></td>
+  </tr>
+</table>
+<p>Note that you need the widget's header here, and since you never include cpp files, it won't cause any problems.</p>
+<p>Since version 4.4 the engine, which you access as GEngine, is no longer publicly accessible, so you will have to add Engine.h</p>
+<p>Now we can turn to the widget itself. Create it through the editor if you haven't already. Note that it's <strong>best to add classes through the editor</strong> as there are less that can go bad since Unreal handles them, and it's also optimal to create them when your code compiles properly, as Unreal ocasionally pops up a message that the class will be visible in the content viewer when the code recompiles successfully. The widget is not expected to appear in the content viewer as it is not directly usable, so don't worry too much about that, but the HUD does appear, mostly as it could be used in a Blueprint.</p>
+<p>Let's look at the header:</p>
+<table width="1668" height="137" border="1">
+  <tr>
+    <td height="131"><p>// Fill out your copyright notice in the Description page of Project Settings.</p>
+      <p>#pragma once<br />
+      </p>
+      <p>#include &quot;Widgets/SCompoundWidget.h&quot;<br />
+        #include &quot;MainHUD.h&quot;</p>
+      <p>/**<br />
+        * <br />
+        */<br />
+        class MYPROJECT_API SMyWidget : public SCompoundWidget<br />
+        {<br />
+        public:<br />
+        SLATE_BEGIN_ARGS(SMyWidget)<br />
+        {}<br />
+        SLATE_ARGUMENT(TWeakObjectPtr&lt;class AMainHUD&gt;, OwnerHUD)<br />
+        SLATE_END_ARGS()</p>
+      <p> /** Constructs this widget with InArgs */<br />
+        void Construct(const FArguments&amp; InArgs);<br />
+        private:<br />
+        TWeakObjectPtr&lt;class AMainHUD&gt; OwnerHUD;<br />
+        };<br />
+    </p></td>
+  </tr>
+</table>
+<p>From the top down:</p>
+<p>We added MainHUD.h, or at any rate the HUD you created. After that, the engine should have setup most stuff. SLATE_BEGIN_ARGS and SLATE_END_ARGS are as usual engine macros, already there. Note that the curly braces are aftet SLATE_BEGIN_ARGS but close imediately. Inbetween these macros we declare any arguments we want visible to the &quot;constructor&quot;, so to speak. As you saw earlier, we don't exactly have a constructor but rather we call certain functions.</p>
+<p>SLATE_ARGUMENT adds an argument of the type passed as the first argument, and with the name passed as the second one, to the arguments passed to the constructing functions.</p>
+<p>Construct() is the function that acts as the constructor, being called by the functions we call and handling the creation of the widget. We edit this function to customize the widget upon its creation.</p>
+<p>Next we declare a weak object pointer, a safe pointer essentially, of the type of our HUD, with an intuitive name. It is convention that you keep the same name passed above, but it's not obligatory.</p>
+<p><strong>Note</strong>: if as a type you give MainHUD, Visual Studio is most likely to accept it. I theorize that this is because it is being used internally. However you want to pass AMainHUD, or equivalent, in both cases, so you can give it the class that is visible to you. If you give the other one to either, or probably even both, you will meet a type conversion error.</p>
+<p>TWeakObjPtr objects have the conversion from the class you pass to the template embedded in the '=' operator. Use them as you would a normal pointer.</p>
+<p>Now let's jump to the magic, this is where we give the widget its form, open the cpp file and prepare for some weird code:</p>
+<table width="1668" height="137" border="1">
+  <tr>
+    <td height="131"><p>// Fill out your copyright notice in the Description page of Project Settings.</p>
+      <p>#include &quot;MyProject.h&quot;<br />
+        #include &quot;SMyWidget.h&quot;<br />
+        #include &quot;SlateOptMacros.h&quot;</p>
+      <p>#define LOCTEXT_NAMESPACE &quot;SMyWidget&quot;<br />
+      </p>
+      <p>BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION<br />
+        void SMyWidget::Construct(const FArguments&amp; InArgs)<br />
+        {<br />
+        OwnerHUD = InArgs._OwnerHUD;<br />
+        ChildSlot.VAlign(VAlign_Fill).HAlign(HAlign_Fill)<br />
+        [<br />
+        SNew(SOverlay)<br />
+        + SOverlay::Slot()<br />
+        .HAlign(HAlign_Center)<br />
+        .VAlign(VAlign_Top)<br />
+        [</p>
+      <p> SNew(STextBlock)<br />
+        .ShadowColorAndOpacity(FLinearColor::Black)<br />
+        .ColorAndOpacity(FLinearColor::Red)<br />
+        .ShadowOffset(FIntPoint(-1, 1))<br />
+        .Font(FSlateFontInfo(&quot;Verdana&quot;, 16))<br />
+        .Text(LOCTEXT(&quot;Hello&quot;, &quot;Hello!&quot;))<br />
+        ]<br />
+        ];<br />
+  <br />
+        }<br />
+        END_SLATE_FUNCTION_BUILD_OPTIMIZATION</p>
+      <p>#undef LOCTEXT_NAMESPACE</p>
+      <p><br />
+      </p></td>
+  </tr>
+</table>
+<p>And the weirdness begins! First of all let's get on with the pure C++ stuff.</p>
+<p>The #includes remain as they are, they have been included by the engine.</p>
+<p>The #define is required by the last line that starts with a dot (.), more specifically by LOCTEXT. This is to be set to the name of the class, though it likely does not effect anything directly.</p>
+<p>Next you can see the BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION and corresponding END_SLATE.... macros, which bound the code of the Construct() function, these are unreal macros, and as usual are already there and remain there.</p>
+<p>Now, the first thing we do is retrieve the OwnerHUD from the arguments, this is the <em>this</em> we were passing earlier on in the HUD's code. The underscore (_) was added by the macro we used to add it as an argument.</p>
+<p>Now we get down to business. Things are quite self-explanatory, but let's see anyway. We start of with ChildSlot, which is the slot we initially have availlable to add stuff. More details in later tutorials. Its alignment is set to fill the screen horizontally and vertically.</p>
+<p>The new slot is set to be an SOverlay, passed as a new item with the SNew macro function. This overlay is extended to behave as the other did, with slots, and is aligned to the top center, with the same functions. Finally this last part is set to be a textblock, i.e. its plain text, we give it a shadow color, and it remains opaque as we do not set it to any different, but this refers to the text, not the overlay itself. The color of the text itself is set to Red in the next line, and the shadow offset to be one unit to the left and one down. The unit appears to be pixels.</p>
+<p>Next the font is set through a struct to be the Verdana font, which is most probably one of the 5 most common fonts, with a size of 16. Note the 16 is quite small on high-res but not particularly big displays (with 1080p on 17 inches it's far from comfortable).</p>
+<p>Finally the text is set, a reference text is assigned first and then the actual text, which can contain punctuation marks and so on.</p>
+<p><strong>And that is it!</strong></p>
+<p>Now you're set to go, but read on if you want to see a bit of what's probably going on with the weird syntax.</p>
+<p>SNew() is a <strong>macro function</strong>. Macro functions are macros that replace themselves and their arguments with code, placing the arguments in the appropriate positions and possibly modifying them as text. The argument was modified in the SLATE_ARGUMENT macro, where it added the underscore, and then we retrieved the argument with an underscore in front in the constructor.</p>
+<p>In C++ there is this cool thing called <strong>Operator Overloading</strong>. Operators can be overloaded to add customized functionality, from checking if the value is positive between brackets, to doing some real cryptic stuff like we saw in this case. Over here we saw the overloading of the bracket, plus and dot operators ( [] + and . respectively). This is done on behalf of the Epic Games team to simplify the creation of slates.</p>
+<p>Changing the order of operations in the same region between brackets, other than the functions and macros that create stuff, will result in the same visual result. This suggests that each of these macros and functions directly changes exactly one field of the widget.</p>
+</body>
+</html>

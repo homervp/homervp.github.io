@@ -1,0 +1,151 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>DirectX 10: Particles</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>DirectX tutorial 9: Particle  Effects</p>
+<p>Today we&rsquo;ll work on a subject that  can really make a game come to life: particle effects. Explosions, fire, smoke  and any other immaterial effects are generally hard to depict correctly, and it  would both take a lot of room and would eventually start looking the same over  and over if we just stored the effects frame by frame in a video-like manner.  Instead we create small images for each effect, which generally have a high  transparency, and we then draw a good lot of them clustered in some manner  around whatever emits them, and they create the illusion of smoke, fire and so  on. Of course they also all move, and the way they move can be very important.</p>
+<p> The main idea is that since we  already have the sprite in the cache, it&rsquo;s very fast to draw it a bunch of  times, since we skip the loading of it. It is also very small, so we skip the  loading of a big image that depicts the entire effect, and since it may be an  explosion that if you are close up will stretch outside the screen, the image  would have been fairly big, too. </p>
+<p> Now, do not expect everything to  work out just like that, there are some catches, it is after all too strong a  technique to just work like that.<br />
+  The way we do it is by rendering a  point list, with the D3DRS_POINTSPRITEENABLE setting enable (point sprite  enable as you see), so it uses the texture and draws the whole of it wherever  we specify.<br />
+Catch 1: it is not entirely  straightforward how sprites scale. We will make a demo that will draw them  relatively big, and you can read here the specifics of the mechanism.</p>
+<p> Catch 2: since we are drawing 2D  images, the z-buffer is, well, inactive. DirectX considers 2D to be mostly UI  elements, so it does not think that it should be occluded by much. This means  that the effect will be drawn with the order you draw it, and may appear in  front of far away objects. Workarounds: 1) billboarding, creating a square with  the texture applied and rendering that in 3D space, facing the camera of  course. This is slower than point sprites. 2) off screen z-buffer. Using a  separate surface to store the z-buffer and checking against that one. There are  two issues: first off, you cannot obtain the z-buffer from the device, that is  something not entirely solved even in later DirectX versions. Second, it means  you will have to do a reduced render of all objects one second time. Reduced  because this time you do not care about color, transparency may require a full  render, but that will not be much of an issue as far as code goes.</p>
+<p> Concerning the second solution,  off-screen rendering, you have two further measures that reduce the cost: 1)  first rendering, then occluding. You first render the entire particle system,  and then you do the z-buffer check. This assures that the maximum number of  checks is equal to the number of pixels on the screen, and essentially cuts out  extra checks due to overlaps. 2) downsampled z-buffer. Essentially instead of  taking a full image of the current render, you take a scaled down version, the  scale is custom. This means you have to do less rendering in the second pass.  The checks may or may not change, depending on your implementation, in general,  since we directly access the pixel we are interested in, it should not affect  the depth check. Then there are two cases of this mplementation, if you only  use the downsampled z-buffer you risk having some jagged edges, because the  occlusion will seem pixilated compared to the full scale image. This may be an  important issue. The other approach is to use it to check massive occlusion,  that is, check if there are regions/particles that are not obstructed at all,  so they can be directly drawn (mostly when close up) and if there are others  that are entirely hidden (for example, in an action game with closed spaces, an  explosion in the next room has no reason to be drawn at all, as the wall is  obstructing the view). Note also that this can refer to particles on their own,  not the entire system, as when viewing an explosion through a door that&rsquo;s not  right in front of you, a big part of it is likely to be well out of sight,  again, it can be a very big gain.</p>
+<p> The z-buffer, as we have most  probably said in the past, holds the depth of every pixel, z refers to the  z-axis, the one going into the screen since x and y are width and height.</p>
+<p> If you want to read more on this,  relative passages from GPU Gems are available online for free on the NVIDIA  website.</p>
+<p>We will not work on these methods  in this tutorial at all, since they involve some work that is enough to fill a  tutorial on it&rsquo;s own (like off-screen rendering for acquisition of the  z-buffer), but some practical methods of working with this would be rendering  the particle right after the object that it&rsquo;s attached to, or right before,  depending on their direction, that way the aforementioned issues are limited  only to it&rsquo;s owning object. By owning object I mean, for example, the car whose  exhaust is the particle system in question, or the plane whose fire is the  particle system.</p>
+<p>Now let&rsquo;s get down to business.  First off, the way we generally draw particle systems with point sprites is, as  you may have guessed, a vertex buffer. We start working in 3Dheader. Declare an  IDirect3DVertexBuffer9* object to store their positions. You will also need a  texture to draw, so create an LPDIRECT3DTEXTURE9 object as well. I also  declared an integer called particleCount which holds the number of particles. I  used 20.</p>
+<p> Note that some people create a  custom vertex format, I have done that in the code, but essentially it is not  needed. Instead I load it with D3DXVector3 data.</p>
+<p> In init_graphics create a vertex  buffer (device-&gt;CreateVertexBuffer(…) ) with a size of 20 times either your  custom vertex struct&rsquo;s size, or a vector&rsquo;s. The flags should be  D3DUSAGE_DYNAMIC so you can update it in every frame, D3DUSAGE_WRITEONLY so you  can write on it (obviously DirectX can read it, otherwise there&rsquo;s no point in  writing, so don&rsquo;t worry about the &ldquo;only&rdquo; part), and D3DUSAGE_POINTS, because,  well, that&rsquo;s what we&rsquo;re using. Use you custom FVF and then, as usual,  D3DPOOL_DEFAULT. Pass the location of the buffer and NULL to the last argument,  as we did in the previous tutorials.</p>
+<p> Next we have to load the texture,  that&rsquo;s an easy one, use D3DXCreateTextureFromFile(device, L&rdquo;name&rdquo;,  &amp;texture) as in the previous tutorial. If this fails, use the if() sequence  from the previous tutorials to see what&rsquo;s wrong, D3DXERR_INVALIDDATA is  probably an issue with the name, this may be either that the file does not  exist, or it could even be an issue with the encoding (remember the A2W  function we used to automatically load the mesh textures), though the last one  is improbably if you directly give it. Remember the uppercase L in front of a  string directly given makes it an long character string, it is needed here. If  the error is D3DXERR_INVALIDCALL then there&rsquo;s something wrong with the pointer  levels on the texture, check if the declaration and usage complies with the  previous tutorials, it&rsquo;s not easy to get intuitive with pointers, especially  when you don&rsquo;t know exactly how they&rsquo;re used by third party functions.</p>
+<p> Now let&rsquo;s move on to D3DLoader.h.  The first thing I do is declare two D3DXVECTOR3 arrays, particlePoints[] and  particleSpeeds. In the first just copy-paste D3DXVECTOR3(0, 0, 0) twenty times,  separated by comma and preferably each on a separate line. In the second you  need different speeds on each one, actually different directions. I just  started changing zeroes to 1 as if it were a sequence of binary numbers, when I  ran out of different binary numbers, I upped the stakes by using -1 as well.  You need different directions because otherwise you&rsquo;ll all be on the same spot  and it will look like only one sprite, and probably very solid at that.</p>
+<p> Create a new function called  renderParticles(), well you can call it whatever you like actually. If you move  on to make a game, you&rsquo;re probably also gonna pass the particle  item/struct/data as a parameter, for now we&rsquo;ll work with the global variable  for simplicity&rsquo;s sake. In this function we&rsquo;re going to have a hell of a party.  First off we add a for(;;) loop that loops from 0 to particleCount. Inside the  loop we increase particlePoints[i] by particleSpeeds[i].</p>
+<p> After the loop we create a void*  pointer, I call it data, since it&rsquo;s the pointer that points to the buffer&rsquo;s  data. Lock the buffer (offset = 0, particleCount*siezof(/*whatever you used  before*/), &amp;data, NULL) and copy the memory with memcpy. The parameters  will be our void pointer, particlePoints (without brackets) and  sizeof(particlePoints). Now unlock the buffer.</p>
+<p> Set the texture 0 to our particle  texture (device-&gt;SetTexture). Now we will set a number of render states,  mostly to handle opacity. Experiment a bit to see which one does what, here is  the list as I have it in my code (some may be overkill, but just to be sure...)</p>
+<p><br />
+  D3DRS_SRCBLEND – D3DBLEND_SRCCOLOR<br />
+  D3DRS_DESTBLEND –  D3DBLEND_INVSRCCOLOR</p>
+<p><br />
+  These two set the blending factors,  essentially they modify how the alpha channel is applied. Messing with the  blend modes can have interesting effects, for example exchanging the two above  modes you can sometimes make particle loop emissive.</p>
+<p><br />
+  D3DRS_ALPHABLENDENABLE – TRUE</p>
+<p>  This enables alpha blending, i.e.  transparency.</p>
+<p><br />
+  D3DRS_ZWRITEENABLE – TRUE</p>
+<p>  This one&rsquo;s one of those overkill  things, D3D should be writing to the z buffer without us telling it to.</p>
+<p><br />
+  D3DRS_POINTSPRITEENABLE – TRUE</p>
+<p> This switched between drawing just  points on the screen and drawing sprites.</p>
+<p><br />
+  D3DRS_POINTSCALEENABLE – TRUE</p>
+<p> This sets whether or not we will  use the scale passed either by hand or as parameter on the sprites (here we  enable it and pass it by hand).</p>
+<p><br />
+  D3DRS_POINTSIZE – *((DWORD*)&amp;(scale10))</p>
+<p> This is supposed to pass the size  of the points, but I&rsquo;ll be honest with you, few people around the world managed  to implement point sprites this way and get this to work. I am still waiting  for feedback from stackoverflow on this.</p>
+<p><br />
+  D3DRS_POINTSCALE_A,  D3DRS_POINTSCALE_B and D3DRS_POINTSCALE_C – 0, 0, 1</p>
+<p>  In theory these are the values  given. What I saw was that anything above 0.999999997f would make the sprites  extremely small, while if all were equal or below that, they appear normally,  but I don&rsquo;t think they comply to any scaling whatsoever. This is pretty much  the same issue as the above.</p>
+<p> Furthermore some suggest you set  D3DRS_POINTSIZE_MIN to 0.0f and it&rsquo;s MAX counterpart to 9999.0f, when I did  that, I didn&rsquo;t get any sprites rendered whatsoever, and the book I follow is  getting lazy and explains less and less by the chapter – thankfully other than  DirectInput and DirectAudio there&rsquo;s little more we need from it, and while  reading the next one I will update the tutorials with any extra information.</p>
+<p> Now we set the stream source to our  particleBuffer, stream number will be 0 (we can use others and avoid loading  every so often), offset 0 and the step will be sizeof(D3DXVECTOR), unless you  used your custom vertex format.<br />
+  Finally we draw the primitive  (again the command should be easy to imagine) as a D3DPT_POINTLIST, we start at  0 and we continue with particleCount primitives (hint: I tell you the  parameters in plain speech so you can get some intuition while working with  DirectX).</p>
+<p> Now we return  D3DRS_POINTSPRITEENABLE and D3DRS_ALPHABLENDENABLE to FALSE, and you can also  return D3DRS_POINTSCALEENABLE to FALSE too.</p>
+<p> You can work out which ones only  need be enabled once and which need toggling every time for practice.</p>
+<p> Now let&rsquo;s render those sprites,  well, we just call the function actually. Call it before render3D to make them  appear behind the model, or after to make them appear in front, this matters  due to the issues described above, if/when you implement a workaround the order  of the operations will not matter. If you draw them behind, you should see such  a result:</p>
+<p><img src="DirectxParticles.jpg" width="512" height="289" alt="ParticleEffectDX9tut10" /></p>
+<p>We have finally finished a book&rsquo;s  worth of DirectX 9 graphics programming. The next two tutorials will be about  DirectInput and DirectSound, and then a new tutorial series will dive deeper  into DirectX programming, with methods like the workarounds presented above,  shader programming, animation and so on.</p>
+<p>You can get the project <a href="DirectX9Tutorial10.rar">here</a>, feel  free to modify as necessary.<br />
+The particle texture which has  transparency was created with GIMP, the GNU Image Manipulation Utility, which  is a more-than-decent free alternative to Photoshop – though as we has said in  previous tutorials, there are good reasons why commercial products cost what  they cost and even better ones for why people do buy them.</p>
+<p>Array declarations (in case you get  lazy):</p>
+<p>D3DXVECTOR3 particlePoints[] = {<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  D3DXVECTOR3(0, 0, 0),<br />
+  };</p>
+<p>D3DXVECTOR3 particleSpeeds[] = <br />
+  {<br />
+  D3DXVECTOR3(0, 0, 1),<br />
+  D3DXVECTOR3(0, 1, 0),<br />
+  D3DXVECTOR3(0, 1, 1),<br />
+  D3DXVECTOR3(1, 0, 0),<br />
+  D3DXVECTOR3(1, 0, 1),<br />
+  D3DXVECTOR3(1, 1, 0),<br />
+  D3DXVECTOR3(1, 1, 1),<br />
+  D3DXVECTOR3(0, 0, -1),<br />
+  D3DXVECTOR3(0, -1, 0),<br />
+  D3DXVECTOR3(0, -1, -1),<br />
+  D3DXVECTOR3(-1, 0, 0),<br />
+  D3DXVECTOR3(-1, 0, -1),<br />
+  D3DXVECTOR3(-1, -1, 0),<br />
+  D3DXVECTOR3(-1, -1, -1),<br />
+  D3DXVECTOR3(0, 0, 1),<br />
+  D3DXVECTOR3(0, -1, 0),<br />
+  D3DXVECTOR3(0, -1, 1),<br />
+  D3DXVECTOR3(1, 0, 0),<br />
+  D3DXVECTOR3(1, 0, -1),<br />
+  D3DXVECTOR3(1, -1, 0),<br />
+  };</p>
+<p>&nbsp;</p>
+<p>The rendering function:<br />
+  void renderParticles()<br />
+  {<br />
+  for(int  i = 0; i &lt; particleCount; i ++)<br />
+  {<br />
+  particlePoints[i]  += particleSpeeds[i];<br />
+  }</p>
+<p>            void*  data;<br />
+  pParticleBuffer-&gt;Lock(0,  particleCount*sizeof(PARTICLE_VERTEX), &amp;data, NULL);<br />
+  memcpy(data,  particlePoints, sizeof(particlePoints));<br />
+  pParticleBuffer-&gt;Unlock();</p>
+<p>            pd3dDevice-&gt;SetTexture(0,pParticleTexture);</p>
+<p>float scale_5 = 0.5f;<br />
+float scale0 = 0.0f;<br />
+float scale1 = 1.0f;<br />
+float scale10 = 50.0f;</p>
+<p> pd3dDevice-&gt;SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);<br />
+  pd3dDevice-&gt;SetRenderState(D3DRS_ZWRITEENABLE, TRUE);<br />
+  pd3dDevice-&gt;SetRenderState(D3DRS_POINTSPRITEENABLE, TRUE);<br />
+  pd3dDevice-&gt;SetRenderState(D3DRS_POINTSCALEENABLE, TRUE);<br />
+  pd3dDevice-&gt;SetRenderState(D3DRS_POINTSIZE, *((DWORD*)&amp;(scale10)));<br />
+  //pd3dDevice-&gt;SetRenderState(D3DRS_POINTSIZE_MAX, *((DWORD*)&amp;(scale1)));<br />
+  //pd3dDevice-&gt;SetRenderState(D3DRS_POINTSIZE_MIN, *((DWORD*)&amp;(scale0)));<br />
+  pd3dDevice-&gt;SetRenderState(D3DRS_POINTSCALE_A, *((DWORD*)&amp;(scale0)));<br />
+  pd3dDevice-&gt;SetRenderState(D3DRS_POINTSCALE_B, *((DWORD*)&amp;(scale0)));<br />
+  pd3dDevice-&gt;SetRenderState(D3DRS_POINTSCALE_C, *((DWORD*)&amp;(scale1)));</p>
+<p> pd3dDevice-&gt;SetStreamSource(0, pParticleBuffer, 0, sizeof(D3DXVECTOR3));<br />
+  pd3dDevice-&gt;DrawPrimitive(D3DPT_POINTLIST, 0, particleCount);<br />
+  <br />
+  pd3dDevice-&gt;SetRenderState(D3DRS_POINTSPRITEENABLE, FALSE);<br />
+  pd3dDevice-&gt;SetRenderState(D3DRS_POINTSCALEENABLE, FALSE);<br />
+  pd3dDevice-&gt;SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR);<br />
+  pd3dDevice-&gt;SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCCOLOR);<br />
+</p>
+<p><br />
+  <br />
+  pd3dDevice-&gt;SetRenderState(D3DRS_ALPHABLENDENABLE,  FALSE);<br />
+  }</p>
+</body>
+</html>

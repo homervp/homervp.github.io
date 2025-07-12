@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>XNA Tutorial I: Setting up the window</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>&nbsp;</p>
+<p><strong>XNA Tutorial I: Window  settings and overall setup:</strong></p>
+<p>Before you start creating your game,  even the logic behind it, it is very important that you have an understanding  of the basic settings that can be applied to the window. Essentially these  consist mainly of the window size, windowed and full screen modes, as well as  the way sprites are drawn.</p>
+<p>  For the window resolution or size,  in the class constructor, in Game1.cs, recognizable as &ldquo;public Game1(){…}&rdquo; you  can see an object named graphics is created, of class GraphicsDeviceManager.  You can consider this to be the cause of anything related to the above. Enter a  new line and type &ldquo;graphics.&rdquo; with the dot, that should cause visual studio to  show you a dropdown list to select elements of that object. From these elements  you will select PreferredBackBufferWidth and PreferredBackBufferHeight for the  window width and height correspondingly, in other words the resolution. These  are measured in pixels of course, and you can assign them any positive value  you wish. You may try to assign negative values, or change them during runtime  later on, it would be interesting to see how that handles.<br />
+  To make your game full screen you will  similarly find the Boolean variable of graphics called IsFullScreen and assign  it the value true. Note however that if for some reason your game crashes, it  will be nearly impossible to convince windows to show you Visual Studio again  without terminating the game. This means that you will either have to check the  error log after you close it (Shift + F5 in visual studio, once you blindly get  passed the popup box), or you will have to run in windowed mode for debugging.</p>
+<p> A great convenience is the ToggleFullScreen()  function, a member function of graphics, which you can call at any point of the  code. You are probably not going to run into trouble before you add some game  logic, for which you will have to read on to the tutorial on keyboard input  –which is really short. By then you will be able to assign a hotkey for  toggling full screen, typically it is Alt + Enter.</p>
+<p> To exit during testing, whether in full screen  or not, you can just hit Alt + F4, it is automatically implemented into the  window by the framework.<br />
+  The rendering modes are of great importance as  the default mode is Immediate, which is of course theoretically fine, but I did  happen to find thing rendered in the wrong order once. It is just good to know  that in the Draw() function, when you call spriteBatch.Begin(), you can change  the first parameter to BackToFront so sprites will be painted in the order you  tell XNA to paint them. This of course means that you will manually paint them  in inverse order of depth, from the farthest to the closest, you have to do it  like that in XNA unless you wish to write a more sophisticated function which takes  distance into account.</p>
+<p> Some final tips, GraphicsDevice.Clear() will  repaint the entire screen with the color passed to it before you draw anything,  so you don&rsquo;t get any mess in the background. The default is CornflowerBlue, but  you might want something else. Do not remove the call to this function unless  you are absolutely sure you will redraw the entire area. Unlike the GDI&rsquo;s  WM_ERASEBKGND message, this does not cause flickering and has no effect on the  overall look, nor should it have any effect on the overall efficiency of the  game.</p>
+<p>In the next tutorial I will go through the  basics of keyboard input, it is fast and easy to learn and that&rsquo;s actually  enough to make a game once you also read the tutorial on image rendering.  However, the more you learn the better your game is, so keep on reading to  cover subjects such as timing, randomness, spawning units and other elements of  the language and techniques.</p>
+<p>Not much to practice on just yet, but do take a  minute to take a look around the XNA and familiarize with the classes, the  members and the functionality.</p>
+</body>
+</html>

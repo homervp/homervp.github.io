@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Java Tutorial I: Setup and Output - Homer Papadatos Vasilakis</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial Index</a></p>
+<p>Java Tutorial I:  Setup, the main class code, and basic output</p>
+<p>First things first,  you need a development environment. This will certainly require you have the  Java Runtime Environment (JRE) installed, which essentially provides the JVM,  as well as the Java Development Kit (JDK). The JDK does typically offer a  command line compiler, however, trying to learn Java with the command line is  closely related to trying to play a shooter using only a keyboard. Downloading  all these is fairly simple, google them (JRE and JDK for short) and get them  from any download link given by Oracle.</p>
+<p> Next you need an  Integrated Development Environment (IDE), in case you do not have previous  programming experience it is just a compiler with a Graphical User Interface  (GUI), like having an MS Word interface that compiles directly, only it does  much more! I personally suggest Eclipse, also known as Kepler Eclipse, as it  seems to be the most widely used. Next comes Netbeans, while the third one I  have heard of is BlueJ, for some reason preferred by some universities, but I  have not seen many people using it. It does offer a better visualization of the  class hierarchy and distinguishes code blocks visually, but does not offer as  much in terms of correction suggestions and the fact that few people really use  it may make it a bit more difficult to get help on forums. In it&rsquo;s defense, it  is allegedly supported by Oracle.<br />
+Note that while BlueJ  and Netbeans require proper installation (as far as I can recall), Eclipse runs  directly without installation, so you should manually make a shortcut. This  also grants it portability in the sense that you can just copy the entire  folder and move it to another PC and continue working without any further  process.</p>
+<p> Now, going into your  IDE, create a new project, or Java project if there is such an option, and if  it has not created a new class file create one. The class file should have a  class definition inside, with the same name as the file – I do not go into  detail with what to do creating the project and class as there is nothing in  particular to pay attention to. When creating a file, if you can choose the  package do put in a name, it will create a package with that name. If you let  it use the default package you might find it hard to make other classes see  this one later. In such languages, the class file must have the same name with  the class within it. Sometimes however the language allows you to have more  classes, or at least sub-classes, in the same file.</p>
+<p> I named the project  Tutorial1, as I did with the package, and the class I use for this tutorial I  named mainClass. This is what I got inside the class:<br />
+  <br />
+<strong>package</strong> Tutorial1; <br />
+<strong>public</strong> <strong>class</strong> mainClass { </p>
+<p>} </p>
+<p>You will also notice  it declares which package it belongs too. On the left hand side there may be a panel  showing the hierarchy tree, you will see that under your project there is a  package and under that the class.<br />
+  More on class  hierarchy will come in next tutorials where we will work with more classes. For  now we should simply wrap it up and display our Hello World message. You will  need a main() function, a point from which the program is to start. This has  certain attributes, and is generally declared as such:</p>
+<p> public static void  main (String[] args) { }</p>
+<p> Public means that it  is accessible from outside the class. Static means that only one instance of  this exists, which means this you cannot make any other instances of this. Void  means that this function does not return anything, the program does not expect  some result from it and thus you cannot assign the result to a variable. The  String[] args is an array of characters, in the command line you can give your  programs something to work with, a file, a command,or just about any parameter.  Same goes for functions, they take parameters to work on. Main  always takes a string, a series of characters, and then handles is as  necessary. You will understand all these as we do the opposite things in other  tutorials, create things that can be instantiated, declare private members and  have functions return a result.</p>
+<p> It is important to  explain what is meant by instance. In object oriented languages (and Java is  one of them) you create some prototypes, classes or structures (there first is  the richest), and then create instances of these, just functional copies. The actual  class may have some variables you can use – those declared as static -  but it is generally a blueprint for  instances.</p>
+<p> Now we want to print  our typical Hello World message. In Java everything is in a class. Everything.  Thus, our print functions are in the System class of the default Java package,  in a member called out (an outputStream object inside System), and are print()  and println, for printing something, and printing something and directly  changing line. What you write eventually is:</p>
+<p> System.out.print(&ldquo;Hello  World&rdquo;);<br />
+  or</p>
+<p> System.out.println(&ldquo;Hello  World&rdquo;);</p>
+<p> If you heeded my  advice and have some previous experience you know about escape characters. If  you tell Java to print \n it will change line, \t will leave a tab, \\ will  type a single backslash. In general escape characters are a backslash followed  by a character, which as a pair are not printed but rather print something more  special. Thus the second command, with println(), is equivalent to:</p>
+<p> System.out.print(&ldquo;Hello  World\n&rdquo;);</p>
+<p> Note also that escape  character do not need an empty space around them, they are recognized no matter  where they are. Also note that print will not change line unless either  specified through \n or it reaches the end of the line. A second print()  command will continue where the first finished.</p>
+<p> To run your program,  go to Compile&gt;CompileAndRun, or the corresponding command of your IDE,  normally situated in the toolbar at the top of the screen.<br />
+  This concludes the  first tutorial, continue to the next to see class constructors, variables and  arithmetic operations.</p>
+</body>
+</html>

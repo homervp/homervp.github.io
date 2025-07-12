@@ -1,0 +1,49 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>C tutorial #1, Homer Papadatos Vasilakis Tutorials</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" width="494" height="68" alt="home" /></a></p>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p><strong>C Tutorial I: Basic Output, variables, includes and  main()<br />
+  <br />
+  </strong>            There is no point  to making a program if you cannot give it a command or at least make it display  something –at least not for a beginner. In this tutorial I will show you how to  display data, how to read it, how to store it in variables (for as long as the  program is running at least) and how mathematics are done in C.<br />
+  Basic  Output. The most commonly used function for outputting data in C is printf().  The parenthesis is where <strong>arguments</strong> are passed, which means that whatever is to be printed (to the screen) is  placed in there. The fact that we can pass arguments to printf(), and the very  existence of the parenthesis, indicates that it is a <strong>function</strong>. A function is a set of commands, which are executed  whenever it is called, so we don&rsquo;t have to write them again. Later on, you will  learn to make your own, but let&rsquo;s stick to using ready ones for now.</p>
+  <p>
+Printf()  can take many particular types of arguments. These are generally the basic  types of <strong>variables</strong>: characters,  strings, integers, floats, doubles, and their variations.</p>
+  <p>
+Variables  store data, but they must be declared before being used. That way C can keep  track of what variables are around.</p>
+  <p>
+Characters:  they are declared with the <strong>keyword</strong> &ldquo;char&rdquo;. A keyword, or reserved word, is a word the compiler uses to identify  information the programmer passes. Printf() is also a keyword, and should  always be written with lowercase letters (the naughty text editor auto-corrects  this right here unfortunately). Back to characters then. Characters are what  they say, a single character. This can be any letter of the alphabet, any  digit, and many symbols. There are <strong>character  sets</strong> with varying abilities, ASCII needs 3 bits (<strong>bi</strong>nary digi<strong>ts</strong>) and has  only English letters, digits and some symbols, mostly used by the operating  system. Note that symbols do not have to be represented in a particular visible  way. ASCII&rsquo;s 000 value (whether in binary, hexadecimal or decimal) is the EOF,  End Of File symbol, which is represented as \0, or in programming, occasionally  it is represented by -1. See section character sets for more information.</p>
+<p>
+Strings: I  know that you&rsquo;re laughing, but get used to it, if you study computer science  you&rsquo;ll probably meet this word 500 times per semester as a professor once said.  They are <strong>arrays </strong>of chars, which  means they are many chars put in a row. Strings are interesting as they resize  according to your needs. You will soon use strings as names, and possibly as  other stuff as well.</p>
+<p>
+Integers  are variables that store numbers, like 1, 2, 135, -1762 etc.</p>
+  <p>
+Floats are  floating point numbers, which means they can also store values that are between  integers, such as 0.1, 3.7, -7.625 etc.</p>
+<p>
+Doubles:  they are the same as floats but can store twice as much information.</p>
+<p>            Variable  sizes: in general this depends on the OS and compiler. However there are some  general rules. Chars are usually 2 bytes long, integers twice as much, which  means 4 bytes, floats twice as much as integers, 8 bytes, and doubles are 16  bytes long. However you can modify all except the first by placing the prefix  long or short, doubling the size and cutting it in half accordingly. Strings  are generally the number of characters * 2.</p>
+<p>            Now to  start coding. The first thing you have to do is include a header or two.  Headers contain functions and other data, so you don&rsquo;t have to write all that  code manually but rather use these ready tools. The most important one is  stdio.h. After including the header (it is done with # symbol in front of the  include command, to which we will refer to as the #include command) we have to  tell the program where to start from. It always seeks out main() to start.  Main() is a function, right? If you have a little code ready, you might see  arguments in main(), these are arguments passed in the same way you type &ldquo;gcc  myfile.c –o filename&rdquo;, by using a dash when running from the command line.<br />
+  Below main  are located two curly braces: {}. The area between these is called a code  block. What happens in a code block, remains in a code block, with some  exceptions. One such exception is the <strong>return</strong> command, which gives a value to the above block, the one through which this  block was accessed. It is good programming practice to place a &ldquo;return 0;&rdquo; at  the end of main, or &ldquo;return 1;&rdquo;. The semicolon ; is how you tell C that your  command is complete. It is the #1 most common reason you will be getting  compiler errors, there must be one in the end of every functioning line.</p>
+  <p>
+Finally,  before we start, comments are used to remind yourself or tell others about what  your code is doing. To add comments you either use a double slash // or a slash  followed by an asterisk at the beginning of the comment and an asterisk with a  slash at the end. The difference is that the first is used for a single line,  while the later for multiple lines. Commenting out parts of code is common  debugging practice. If you comment out code (with the last method mentioned)  you reduce the code that may possibly be creating the problem, so you debug  less code. However this code may indirectly effect the rest of the program, for  example there might be a variable declaration in it, so the compiler will  complain you have not declared that variable.</p>
+  <p>
+Let&rsquo;s now  see our &ldquo;Hello World!&rdquo; program, the first program every programmer writes in his  learning:</p>
+<p>#include &lt;sdtio.h&gt;</p>
+<p>int main()<br />
+  {<br />
+  printf(&ldquo;Hello  World!&rdquo;); //printing Hello World! to the screen<br />
+  return 0;<br />
+  }</p>
+<p>Notice that there is a semicolon in  all commands other than the #include. #include is a compiler command, so it is  processed separately and essentially is not executable, but rather tells the  compiler to add the code from stdio.h to the program.</p>
+<p>
+Another thing to notice and keep in  mind is that what printf() prints is in quotes (opening and closing quotes  should appear identical in your editor or IDE). Later you will see how we can  make it print variables and enhance it with other features.</p>
+<p>This is all for this tutorial,  continue to the next one so you can also learn about basic input and arithmetic  operations, as well as how printf() handles numbers and other data. Understand  that if one tutorial has a lot of theory in it, it is so you don&rsquo;t have to read  it later on and so you don&rsquo;t have to try and integrate it to your knowledge, I  try to present it in a usable form.</p>
+<p>What now? Well, while in later  sections I will tell you what you can make with what you have learned (as  experimenting is essential in learning), there is little you can do now, other  than just display a message. However, by the end of the next tutorial you will  be able to make a basic calculator and probably also make something that will  calculate the output of various mathematical functions, after that you will be  introduced to branching, where you will be able to make a question game and if  you have a little imagination a text adventure. If you read even further, you  will be introduced into loops, where you can create something with a continuous  gameplay which can start over from the beginning without exiting, and can have  much more enhanced playability. After that the form of the games will not be  much different until you reach a good enough level to go into graphics  tutorials, but you will learn methods and techniques that will take care of  much of the code and facilitate adding features. Do not ignore the advanced  tutorials and do not jump to the GDI tutorials or others, as, if you do so and  then turn back and read them, you will understand that you goofed up  enormously. Thank you for reading!</p>
+</body>
+</html>

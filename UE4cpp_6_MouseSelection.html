@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>UE4 tutorial 6 - Mouse Selection</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+<p><a href="index.html"><img src="MyName.jpg" alt="home" name="home" width="494" height="68" id="home" longdesc="index.html" /></a>
+</p>
+<p><a href="TutorialCentral.html">Tutorial index</a></p>
+<p><strong>Unreal Engine 4: Tutorial 6 - Mouse Selection</strong></p>
+<p>This is quite a short step, in fact it's quite easier than in other platforms I have used, and thus I expected it to come out longer than it did (which is the reason why it got it's own tutorial). Let's get to the point.</p>
+<p>The basis for this tutorial can be found <a href="https://docs.unrealengine.com/latest/INT/API/Runtime/Engine/GameFramework/APlayerController/GetMousePosition/index.html">here</a>, in the Unreal Documentation online. I have tailored it to fit the path of the previous tutorials.</p>
+<p>The difference between &quot;what am I looking at?&quot; and &quot;what am I pointing at?&quot; is the origin and source of the trace. In XNA, you retrieve the mouse position, project it onto the near and far clipping plane to get the nearest and farthest 3D location it may be at, and trace between them (the projection part being handled nicely with a function). Here to get the mouse position you first get the controller, then the mouse coordinates, and you feed them into a function that gives you the trace hit result from the specified location on the screen (which skips the part where you project the mouse onto the two clipping planes). Let's see it then, shall we?</p>
+<p>First off, I want you to move the HitResult declaration up, along with any other declarations, so we have our code clean and clear for commenting out of the former tracing section. Add the new code, and comment out the old one, so your funcion now contains this code:</p>
+<table width="1629" height="120" border="1">
+  <tr>
+    <td height="114"><p>if (Controller == NULL)<br />
+return NULL;</p>
+      <p> float mouseX, mouseY;<br />
+        APlayerController* controller = Cast&lt;APlayerController&gt;(GetController());<br />
+      controller-&gt;GetMousePosition(mouseX, mouseY);</p>
+    <p> FHitResult Hit(ForceInit);</p>
+    <p><br />
+FVector2D* screenPos = new FVector2D(mouseX, mouseY);<br />
+controller-&gt;GetHitResultAtScreenPosition(*screenPos, ECC_Visibility, false, Hit);</p>
+    <p> return Cast&lt;AUsableActor&gt;(Hit.GetActor());</p></td>
+  </tr>
+</table>
+<p>As you can see we kept the check for the controller in the beginning, and the return at the end, as well as the declaration of the hit result. Other than that, we declared a pair of floating point variables.</p>
+<p>Following that, we got the player's controller as a APlayerController* object, which differs from a simple controller but we can cast to it with ease, this grants us access to the mouse position, which we picked up with an appropriate funcion in the next line.</p>
+<p>After declaring our hit result, we create a 2D vector with the X and Y coordinates, pairing coordinates into vectors is neat and clean and is done incredibly frequently in game development, as sometimes you may want many such pairs, or triplets if working in 3D space, as parameters, in which case it's shorter and more understandable.</p>
+<p>Thus we call the crucial function, which takes as parameters the screen coordinates (note how it doesn't want a reference, but rather the value itself, thus we dereference the vector), the channel it will check against (I'll explain the specific one in an instant), wether or not to perform complex collision (as mentioned in the previous tutorial), and where to store the hit result. Hit is a reference to an object, and not the object itself, which is why both here and previously we passed it &quot;as-is&quot; to the function, and yet the function modified it (for more info, check the pointers tutorial in the C tutorial series).</p>
+<p>As far as ECC_Visibility is concerned, it is everything that is rendered. This means that we can also select things that are rendered but do not interract with other stuff physically, an example being grass, though recently it is becoming quite interractive. Last tutorial's channel is the one with which bullets interract, but objects are not necessarily rendered over there, thus an invisible shield would block a bullet, but remain invisible. Which channel you choose is up to you, and depends only on what sort of items you have in your game that are interactable.</p>
+<p>Any code that you don't see here can be commented out, or deleted, it should be easy to spot it yourself by now. Go to the editor and run your project (after you build it of course, note that this can be done through the editor by the icon resebling a rubic's cube somewhere in the upper ribbon. You should now ignite the ball by hovering over it, but not bu facing the camera towards it.</p>
+<p>For Practice: Try to ignite the ball when selected with either way!</p>
+<p>In the next tutorial we will do some key binding, so we can change input modes and also actively interract with the objects by pressing keys we define.</p>
+<p>Buld the project and go back to your editor.</p>
+</body>
+</html>
