@@ -3,7 +3,7 @@ const BASE_URL = (() => {
   const host = window.location.hostname;
   const path = window.location.pathname;
 
-  if (host.includes("upatras.gr") && path.startsWith("/~user/")) {
+  if (host.includes("upatras.gr")) {
     return "/~vpapadatos/";
   }
   if (host.includes("github.io")) {
