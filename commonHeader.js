@@ -3,8 +3,8 @@ const BASE_URL = (() => {
   const host = window.location.hostname;
   const path = window.location.pathname;
 
-  if (host.includes("example.com") && path.startsWith("/~user/")) {
-    return "/~user/";
+  if (host.includes("upatras.gr") && path.startsWith("/~user/")) {
+    return "/~vpapadatos/";
   }
   if (host.includes("github.io")) {
     return "/";
