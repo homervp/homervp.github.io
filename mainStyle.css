@@ -160,3 +160,16 @@ th, td {
   outline: none;
   font-size: 15px;
 }
+
+.slideshow-container {
+  position: relative;
+  max-width: 100%;
+  text-align: center; /* centers inline content */
+}
+
+.slide-image {
+  display: block; /* so margin auto works */
+  margin: 0 auto; /* horizontal centering */
+  height: 500px;
+  object-fit: contain; /* prevents stretching */
+}
