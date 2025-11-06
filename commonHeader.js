@@ -47,6 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="dropdown-content">
             <a href="${BASE_URL}cinematography/film_making_and_writing_resources.html">Film making and writing resources</a>
             <a href="${BASE_URL}cinematography/film_portfolio.html">Film portfolio</a>
+            <a href="${BASE_URL}cinematography/fm_book_reviews.html">Film making book reviews</a>
           </div>
         </div>
 
