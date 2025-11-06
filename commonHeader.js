@@ -31,7 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="row">
         <a class="active" href="${BASE_URL}index.html">Home</a>
         <a href="${BASE_URL}TutorialCentral.html">Tutorials</a>
-        <a href="${BASE_URL}FlotillaWWII.html">Flotilla WWII</a>
         <a href="${BASE_URL}Recommendations.html">Recommendations</a>
 
         <div class="dropdown">
@@ -51,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
         </div>
 
+        <a href="${BASE_URL}sci-com/sci-com.html">Science Communication</a>
         <a href="${BASE_URL}Contact.html">Contact</a>
       </div>
     </div>
