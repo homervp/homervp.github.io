@@ -51,8 +51,6 @@ color:black;
 
 h1 {
     text-align: center;
-	//background-color: #20a0ff;
-	//background-color: #ACF;
 	background-color: #CCC;
 }
 
@@ -110,7 +108,6 @@ p {
 
 /* Dropdown container - needed to position the dropdown content */
 .dropdown {
-  float: left;
   overflow: hidden;
   position: relative;
   display: inline-block;
@@ -160,3 +157,12 @@ th, td {
   outline: none;
   font-size: 15px;
 }
+
+/* .nav {
+  background-color: #797979;
+}
+
+.nav-link {
+  color: #000;
+  font-weight: bolder;
+} */
