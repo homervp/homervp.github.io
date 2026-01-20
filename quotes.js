@@ -90,7 +90,8 @@ And in all that, and perhaps more...only one of each of us."-Dr. McCoy, Star Tre
 '"Treatment without prevention is simply unsustainable." -Bill Gates',
 
 '"All that is gold does not glitter,\r\nNot all those who wander are lost;\r\nThe old that is strong does not wither,\r\nDeep roots are not reached by the frost." -J.R.R. Tolkien',
-'"(and) all I ask is a (tall) ship, and a star to steer her by" -John Masefield, Sea Fever (as quoted by Picard)'
+'"(and) all I ask is a (tall) ship, and a star to steer her by" -John Masefield, Sea Fever (as quoted by Picard)',
+'"you made it to a new day, and a new day is an opportunity to be someone, well, new. So, who would you like to be today?"'
 ];
 
 function getQuote() {
