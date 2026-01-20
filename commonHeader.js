@@ -59,6 +59,7 @@ function insertNavbar() {
   document.body.insertAdjacentHTML(
     "afterbegin",
     `
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 <nav class="navbar navbar-expand-lg navbar-light bg-light" style="font-weight:bolder">
   <div class="container-fluid">
     <div class="" id="mainNavbar">
