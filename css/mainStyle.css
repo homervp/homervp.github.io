@@ -13,7 +13,7 @@
 
 .topnav {
 	position: fixed;
-	background-color: #555;
+	background-color: #555555;
 	overflow: hidden;
 	width:100%;
 	z-index:100;
@@ -22,7 +22,7 @@
 }
 
 .navbar {
-	background-color: #FFF;
+	background-color: #ffffff;
 	overflow: visible;
 	width:100%;
 	z-index:100;
