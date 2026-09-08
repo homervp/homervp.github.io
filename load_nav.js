@@ -72,6 +72,8 @@ fetch('nav.html')
         const oldelem = document.querySelector("#replace_with_navbar");
         const newelem = document.createElement("div");
 
+        text = text.replaceAll("${BASE_URL}", BASE_URL);
+
         newelem.innerHTML = text;
         oldelem.replaceWith(newelem);
     })
